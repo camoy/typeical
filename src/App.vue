@@ -17,13 +17,6 @@ import TabView from "./components/TabView";
 
 export default {
   name: "App",
-
-  components: {
-    TabView
-  },
-
-  data: () => ({
-    //
-  })
+  components: { TabView }
 };
 </script>

@@ -1,8 +1,8 @@
 <template>
-<vcontainer>
+<v-container>
   <v-autocomplete
     v-model="selectedPkgs"
-    :items="packages"
+    :items="$store.getters.pkgNames"
     outlined
     dense
     chips
@@ -12,41 +12,40 @@
     />
 
   <svg id="nav-svg" viewBox="0.5 -120.5 954 1320" style="font: 30px sans-serif">
-    <g>
-      <g
-        v-for="node in nodes"
-        :key="node"
-        :transform="node === root ? `translate(0,-120)` : `translate(${X(node.x0)},${Y(node.y0)})`"
-        :cursor="(node === root ? node.parent : node.children) ? 'pointer' : 'auto'"
-        @click="ZOOM(node)"
-      >
-        <title> {{ NAME(node) }} \n {{ FORMAT(node.value) }} </title>
-        <rect
-          stroke="#fff"
-          :id="(node.leafUid = UID('leaf')).id"
-          :fill="node === root ? '#fff' : node.children ? '#ccc' : '#ddd'"
-          :width="node === root ? 954 : X(node.x1) - X(node.x0)"
-          :height="node === root ? 120 : Y(node.y1) - Y(node.y0)"
-          />
-        <clipPath :id="(node.clipUid = UID('clip')).id">
-          <use :xlink:href="node.leafUid.href" />
-        </clipPath>
-        <text
-          dominant-baseline="hanging"
-          :clip-path="node.clipUid"
-          :font-weight="node === root ? 'bold' : null"
-          >
-          <tspan x="1em" y="1.1em">
-            {{ node.data.name }}
-          </tspan>
-          <tspan x="1em" y="2.5em" fill-opacity="0.7" font-weight="normal">
-            {{ node.value }}
-          </tspan>
-        </text>
-      </g>
+    <g
+      v-for="(node, k) in nodes"
+      class="list-item"
+      :key="k"
+      :transform="node === root ? `translate(0,-120)` : `translate(${X(node.x0)},${Y(node.y0)})`"
+      :cursor="(node === root ? node.parent : node.children) ? 'pointer' : 'auto'"
+      @click="ZOOM(node)"
+    >
+      <title> {{ NAME(node) }} \n {{ FORMAT(node.value) }} </title>
+      <rect
+        stroke="#fff"
+        :id="(node.leafUid = UID('leaf')).id"
+        :fill="node === root ? '#fff' : node.children ? '#ccc' : '#ddd'"
+        :width="node === root ? 954 : X(node.x1) - X(node.x0)"
+        :height="node === root ? 120 : Y(node.y1) - Y(node.y0)"
+        />
+      <clipPath :id="(node.clipUid = UID('clip')).id">
+        <use :xlink:href="node.leafUid.href" />
+      </clipPath>
+      <text
+        dominant-baseline="hanging"
+        :clip-path="node.clipUid"
+        :font-weight="node === root ? 'bold' : null"
+        >
+        <tspan x="1em" y="1.1em">
+          {{ node.data.name }}
+        </tspan>
+        <tspan x="1em" y="2.5em" fill-opacity="0.7" font-weight="normal">
+          {{ node.value }}
+        </tspan>
+      </text>
     </g>
   </svg>
-</vcontainer>
+</v-container>
 </template>
 
 <script>
@@ -54,6 +53,7 @@
 // Imports
 //
 import * as d3 from "d3";
+import { mapState } from "vuex";
 
 //
 // UID
@@ -111,7 +111,6 @@ function chart(svg, data, vm) {
     function render(root) {
         vm.nodes = root.children.concat(root);
         vm.root = root;
-        console.log(vm.nodes);
     }
 
     vm.ZOOM = function(node) {
@@ -135,18 +134,14 @@ function chart(svg, data, vm) {
 export default {
     name: "NavPanel",
 
-    mounted() {
-        d3.json("/json/packages.json").then((data) => {
-            chart(d3.select("#nav-panel"), data, this);
-            this.packages = data.children.map((d) => d.name);
-        });
-    },
+    created() { this.$store.dispatch("queryPkgs"); },
 
     watch: {
-        selectedPkgs: function(d) {
-            console.log(d);
-        }
+        pkgs(data) { chart(d3.select("#nav-panel"), data, this); },
+        selectedPkgs: function(d) { console.log(d); }
     },
+
+    computed: mapState(["pkgs"]),
 
     data: () => ({
         X: X,

@@ -3,10 +3,10 @@
 <svg width="100%" height="100%">
   <g>
     <rect
-      v-for="node in nodes"
+      v-for="(node, k) in nodes"
       fill="#555"
       style="mix-blend-mode: multiply"
-      :key="node"
+      :key="k"
       :x="node.x0"
       :y="node.y0"
       :height="node.y1 - node.y0"
@@ -17,9 +17,9 @@
   </g>
   <g fill="none">
     <path
-      v-for="link in links"
+      v-for="(link, k) in links"
       style="mix-blend-mode: multiply"
-      :key="link"
+      :key="k"
       :d="link.d"
       :stroke="link.fun === selectedFun ? SELECTION_COLOR : DEFAULT_COLOR"
       :stroke-width="link.width"
@@ -31,10 +31,10 @@
   </g>
   <g style="font: 10px sans-serif">
     <text
-      v-for="node in nodes"
+      v-for="(node, k) in nodes"
       dy="2em"
       text-anchor="middle"
-      :key="node"
+      :key="k"
       :x="node.labelX"
       :y="node.labelY"
       >
