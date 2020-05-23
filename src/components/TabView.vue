@@ -2,13 +2,13 @@
   <v-tabs>
     <v-tab key="typevis" href="#tab-typevis"> TypeVis </v-tab>
     <v-tab key="settings" href="#tab-settings"> Settings </v-tab>
-    <v-tab-item key="typevis" value="tab-typevis">
+    <v-tab-item class="fill-height" key="typevis" value="tab-typevis">
       <v-container>
         <v-row>
-          <v-col cols="8" style="background-color: blue;">
+          <v-col id="flow-panel" cols="9">
             <FlowPanel />
           </v-col>
-          <v-col cols="4" style="background-color: purple;">
+          <v-col cols="3">
             <NavPanel />
           </v-col>
         </v-row>
@@ -19,6 +19,24 @@
     </v-tab-item>
   </v-tabs>
 </template>
+
+<style>
+.v-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.v-window {
+  flex: 1;
+}
+.v-window__container,
+.v-window-item,
+.v-window-item .container,
+.v-window-item .row,
+.v-window-item .col {
+  height: 100% !important;
+}
+</style>
 
 <script>
 import FlowPanel from "./FlowPanel";
