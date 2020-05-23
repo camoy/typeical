@@ -98,7 +98,7 @@ function chart(parent, data) {
             .attr("xlink:href", d => d.leafUid.href);
 
         node.append("text")
-        //.attr("clip-path", d => d.clipUid)
+            .attr("clip-path", d => d.clipUid)
             .attr("font-weight", d => d === root ? "bold" : null)
             .selectAll("tspan")
             .data(d => (d === root ? name(d) : d.data.name).split(/(?=[A-Z][^A-Z])/g).concat(format(d.value)))
@@ -129,7 +129,7 @@ function chart(parent, data) {
         y.domain([d.y0, d.y1]);
 
         svg.transition()
-            .duration(400)
+            .duration(750)
             .call(t => group0.transition(t).remove()
                   .call(position, d.parent))
             .call(t => group1.transition(t)
@@ -146,7 +146,7 @@ function chart(parent, data) {
         y.domain([d.parent.y0, d.parent.y1]);
 
         svg.transition()
-            .duration(400)
+            .duration(750)
             .call(t => group0.transition(t).remove()
                   .attrTween("opacity", () => d3.interpolate(1, 0))
                   .call(position, d))
