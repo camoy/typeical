@@ -109,7 +109,7 @@ function chart(svg, data, vm) {
      .sort((a, b) => b.value - a.value));
 
     function render(root) {
-        vm.nodes = root.children.concat(root);
+        vm.nodes = root.children ? root.children.concat(root) : [];
         vm.root = root;
     }
 
@@ -137,8 +137,11 @@ export default {
     created() { this.$store.dispatch("queryPkgs"); },
 
     watch: {
-        pkgs(data) { chart(d3.select("#nav-panel"), data, this); },
-        selectedPkgs: function(d) { console.log(d); }
+        selectedPkgs(data) {
+            let selectedChildren = this.pkgs.children.filter(d => data.includes(d.name));
+            let filteredPkgs = { name: "packages", children: selectedChildren };
+            chart(d3.select("#nav-panel"), filteredPkgs, this);
+        }
     },
 
     computed: mapState(["pkgs"]),
@@ -151,7 +154,6 @@ export default {
         NAME: NAME,
         FORMAT: FORMAT,
         selectedPkgs: [],
-        packages: [],
         nodes: [],
         root: false
     })
