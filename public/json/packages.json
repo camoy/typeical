@@ -1,0 +1,28 @@
+{
+    "name": "packages",
+    "children": [
+        { "name": "base",
+          "children": [
+              { "name": "<-", "value": 17 },
+              { "name": "+", "value": 20 }
+          ]
+        },
+
+        { "name": "foo",
+          "children": [
+              { "name": "*", "value": 17 },
+              { "name": "-", "value": 20 },
+              { "name": "/", "value": 50 }
+          ]
+        },
+
+        { "name": "bar",
+          "children": [
+              { "name": "f", "value": 80 },
+              { "name": "g", "value": 20 },
+              { "name": "h", "value": 50 },
+              { "name": "j", "value": 50 }
+          ]
+        }
+    ]
+}

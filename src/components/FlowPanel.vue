@@ -1,4 +1,5 @@
 <template>
+<v-container>
 <svg width="100%" height="100%">
   <g>
     <rect
@@ -20,8 +21,10 @@
       style="mix-blend-mode: multiply"
       :key="link"
       :d="link.d"
-      :stroke="link.stroke"
+      :stroke="link.fun === selectedFun ? SELECTION_COLOR : DEFAULT_COLOR"
       :stroke-width="link.width"
+      @mouseenter="selectedFun = link.fun"
+      @mouseleave="selectedFun = false"
       >
       <title> {{ link.names.join(" → ") }} ({{ link.value.toLocaleString() }}) </title>
     </path>
@@ -40,6 +43,8 @@
     </text>
   </g>
 </svg>
+<v-pagination :length="6"></v-pagination>
+</v-container>
 </template>
 
 <script>
@@ -54,7 +59,8 @@ import { sankey, sankeyLeft, sankeyVertical, sankeyLinkVertical } from "d3-sanke
 // Constants
 //
 const keys = ["fun_name", "arg_t0", "arg_t1", "arg_t2", "arg_t_r"];
-const color = d3.scaleOrdinal(["<-"], ["#da4f81"]).unknown("#ccc");
+const DEFAULT_COLOR = "#ccc";
+const SELECTION_COLOR = "#da4f81";
 const layout = sankeyLinkVertical();
 const height = 600;
 const width = 1100;
@@ -113,7 +119,8 @@ function makeGraph(data) {
 }
 
 // Create Sankey diagram from JSON data.
-function chart(parent, data, vm) {
+function chart() {
+    const data = this.results;
     const graph = makeGraph(data);
 
     const {nodes, links} = sankeyLayout({
@@ -128,12 +135,12 @@ function chart(parent, data, vm) {
     }
 
     for (let link of links) {
+        link.fun = link.names[0];
         link.d = layout(link);
-        link.stroke = color(link.names[0]);
     }
 
-    vm.nodes = nodes;
-    vm.links = links;
+    this.nodes = nodes;
+    this.links = links;
 }
 
 //
@@ -143,33 +150,28 @@ export default {
     name: "FlowPanel",
 
     created() {
-        window.addEventListener("resize", this.resizeHandler);
-    },
-
-    destroyed() {
-        window.removeEventListener("resize", this.resizeHandler);
+        this.DEFAULT_COLOR = DEFAULT_COLOR;
+        this.SELECTION_COLOR = SELECTION_COLOR;
     },
 
     mounted() {
         d3.json("/json/query.json").then((data) => {
-            // TODO: specialize diff endpoints
-            data = data.functions;
-
-            // TODO: just make this value on server-side
-            for (const f of data) {
+            let results = data.functions;
+            for (const f of results) {
                 f.value = f.count
             }
-
-            let svg = d3.select("svg");
-            chart(svg, data, this);
+            this.results = results;
         })
     },
 
-    methods: {
-        resizeHandler() {}
+    watch: {
+        results: chart
     },
 
+
     data: () => ({
+        selectedFun: false,
+        results: [],
         nodes: [],
         links: []
     })

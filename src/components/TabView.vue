@@ -8,7 +8,7 @@
           <v-col id="flow-panel" cols="9">
             <FlowPanel />
           </v-col>
-          <v-col cols="3">
+          <v-col id="nav-panel" cols="3">
             <NavPanel />
           </v-col>
         </v-row>
