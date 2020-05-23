@@ -1,5 +1,5 @@
 <template>
-  <vcontainer>
+<vcontainer>
   <v-autocomplete
     v-model="selectedPkgs"
     :items="packages"
@@ -10,7 +10,43 @@
     label="Packages"
     multiple
     />
-  </vcontainer>
+
+  <svg id="nav-svg" viewBox="0.5 -120.5 954 1320" style="font: 30px sans-serif">
+    <g>
+      <g
+        v-for="node in nodes"
+        :key="node"
+        :transform="node === root ? `translate(0,-120)` : `translate(${X(node.x0)},${Y(node.y0)})`"
+        :cursor="(node === root ? node.parent : node.children) ? 'pointer' : 'auto'"
+        @click="ZOOM(node)"
+      >
+        <title> {{ NAME(node) }} \n {{ FORMAT(node.value) }} </title>
+        <rect
+          stroke="#fff"
+          :id="(node.leafUid = UID('leaf')).id"
+          :fill="node === root ? '#fff' : node.children ? '#ccc' : '#ddd'"
+          :width="node === root ? 954 : X(node.x1) - X(node.x0)"
+          :height="node === root ? 120 : Y(node.y1) - Y(node.y0)"
+          />
+        <clipPath :id="(node.clipUid = UID('clip')).id">
+          <use :xlink:href="node.leafUid.href" />
+        </clipPath>
+        <text
+          dominant-baseline="hanging"
+          :clip-path="node.clipUid"
+          :font-weight="node === root ? 'bold' : null"
+          >
+          <tspan x="1em" y="1.1em">
+            {{ node.data.name }}
+          </tspan>
+          <tspan x="1em" y="2.5em" fill-opacity="0.7" font-weight="normal">
+            {{ node.value }}
+          </tspan>
+        </text>
+      </g>
+    </g>
+  </svg>
+</vcontainer>
 </template>
 
 <script>
@@ -25,7 +61,7 @@ import * as d3 from "d3";
 
 var count = 0;
 
-function uid(name) {
+function UID(name) {
     return new Id("O-" + (name == null ? "" : name + "-") + ++count);
 }
 
@@ -38,14 +74,21 @@ Id.prototype.toString = function() {
     return "url(" + this.href + ")";
 }
 
+function ZOOM() {}
+
 //
 // TODO
 //
 
-const format = d3.format(",d");
 const height = 1200;
 const width = 954;
-const name = d => d.ancestors().reverse().map(d => d.data.name).join("/");
+const FORMAT = d3.format(",d");
+const X = d3.scaleLinear().rangeRound([0, width]);
+const Y = d3.scaleLinear().rangeRound([0, height]);
+
+function NAME(d) {
+    return d.ancestors().reverse().map(d => d.data.name).join("/");
+}
 
 function tile(node, x0, y0, x1, y1) {
     d3.treemapBinary(node, 0, 0, width, height);
@@ -57,104 +100,33 @@ function tile(node, x0, y0, x1, y1) {
     }
 }
 
-const treemap = data => d3.treemap()
-      .tile(tile)
-(d3.hierarchy(data)
- .sum(d => d.value)
- .sort((a, b) => b.value - a.value));
+function chart(svg, data, vm) {
+    //let group = svg.select("g");
 
-function chart(parent, data) {
-    const x = d3.scaleLinear().rangeRound([0, width]);
-    const y = d3.scaleLinear().rangeRound([0, height]);
+    let treemap = data => d3.treemap().tile(tile)
+    (d3.hierarchy(data)
+     .sum(d => d.value)
+     .sort((a, b) => b.value - a.value));
 
-    const svg = parent.append("svg")
-          .attr("viewBox", [0.5, -120.5, width, height + 120])
-          .style("font", "30px sans-serif");
-
-    let group = svg.append("g")
-        .call(render, treemap(data));
-
-    function render(group, root) {
-        const node = group
-              .selectAll("g")
-              .data(root.children.concat(root))
-              .join("g");
-
-        node.filter(d => d === root ? d.parent : d.children)
-            .attr("cursor", "pointer")
-            .on("click", d => d === root ? zoomout(root) : zoomin(d));
-
-        node.append("title")
-            .text(d => `${name(d)}\n${format(d.value)}`);
-
-        node.append("rect")
-            .attr("id", d => (d.leafUid = uid("leaf")).id)
-            .attr("fill", d => d === root ? "#fff" : d.children ? "#ccc" : "#ddd")
-            .attr("stroke", "#fff");
-
-        node.append("clipPath")
-            .attr("id", d => (d.clipUid = uid("clip")).id)
-            .append("use")
-            .attr("xlink:href", d => d.leafUid.href);
-
-        node.append("text")
-            .attr("clip-path", d => d.clipUid)
-            .attr("font-weight", d => d === root ? "bold" : null)
-            .selectAll("tspan")
-            .data(d => (d === root ? name(d) : d.data.name).split(/(?=[A-Z][^A-Z])/g).concat(format(d.value)))
-            .join("tspan")
-            .attr("x", "1em")
-            .attr("y", (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9 + 1}em`)
-            .attr("fill-opacity", (d, i, nodes) => i === nodes.length - 1 ? 0.7 : null)
-            .attr("font-weight", (d, i, nodes) => i === nodes.length - 1 ? "normal" : null)
-            .text(d => d);
-
-        group.call(position, root);
+    function render(root) {
+        vm.nodes = root.children.concat(root);
+        vm.root = root;
+        console.log(vm.nodes);
     }
 
-    function position(group, root) {
-        group.selectAll("g")
-            .attr("transform", d => d === root ? `translate(0,-120)` : `translate(${x(d.x0)},${y(d.y0)})`)
-            .select("rect")
-            .attr("width", d => d === root ? width : x(d.x1) - x(d.x0))
-            .attr("height", d => d === root ? 120 : y(d.y1) - y(d.y0));
+    vm.ZOOM = function(node) {
+        if (node === vm.root && node.parent) {
+            X.domain([node.parent.x0, node.parent.x1]);
+            Y.domain([node.parent.y0, node.parent.y1]);
+            render(node.parent);
+        } else if (node.children) {
+            X.domain([node.x0, node.x1]);
+            Y.domain([node.y0, node.y1]);
+            render(node);
+        }
     }
 
-    // When zooming in, draw the new nodes on top, and fade them in.
-    function zoomin(d) {
-        const group0 = group.attr("pointer-events", "none");
-        const group1 = group = svg.append("g").call(render, d);
-
-        x.domain([d.x0, d.x1]);
-        y.domain([d.y0, d.y1]);
-
-        svg.transition()
-            .duration(750)
-            .call(t => group0.transition(t).remove()
-                  .call(position, d.parent))
-            .call(t => group1.transition(t)
-                  .attrTween("opacity", () => d3.interpolate(0, 1))
-                  .call(position, d));
-    }
-
-    // When zooming out, draw the old nodes on top, and fade them out.
-    function zoomout(d) {
-        const group0 = group.attr("pointer-events", "none");
-        const group1 = group = svg.insert("g", "*").call(render, d.parent);
-
-        x.domain([d.parent.x0, d.parent.x1]);
-        y.domain([d.parent.y0, d.parent.y1]);
-
-        svg.transition()
-            .duration(750)
-            .call(t => group0.transition(t).remove()
-                  .attrTween("opacity", () => d3.interpolate(1, 0))
-                  .call(position, d))
-            .call(t => group1.transition(t)
-                  .call(position, d.parent));
-    }
-
-    //return svg.node();
+    render(treemap(data));
 }
 
 //
@@ -165,7 +137,7 @@ export default {
 
     mounted() {
         d3.json("/json/packages.json").then((data) => {
-            chart(d3.select("#nav-panel"), data);
+            chart(d3.select("#nav-panel"), data, this);
             this.packages = data.children.map((d) => d.name);
         });
     },
@@ -177,8 +149,16 @@ export default {
     },
 
     data: () => ({
+        X: X,
+        Y: Y,
+        ZOOM: ZOOM,
+        UID: UID,
+        NAME: NAME,
+        FORMAT: FORMAT,
         selectedPkgs: [],
-        packages: []
+        packages: [],
+        nodes: [],
+        root: false
     })
 };
 </script>
