@@ -1,5 +1,9 @@
+//
+// Database
+//
+const url = process.env.TYPEVIS_DB;
 const sqlite3 = require('sqlite3').verbose();
-let db = new sqlite3.Database('/home/camoy/wrk/type-vis/data/sample-data.db');
+let db = new sqlite3.Database(url);
 
 //
 // Packages
