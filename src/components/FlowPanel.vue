@@ -65,7 +65,7 @@ import * as d3 from "d3";
 //
 // Constants
 //
-const keys = ["fun_name", "arg_t0", "arg_t1", "arg_t2", "arg_t_r"];
+const keys = ["fun_name", "arg_t0", "arg_t1", "arg_t2", "arg_t3", "arg_t_r"];
 const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
 const SELECTION_COLOR = d3.color("#da4f81");
 const plainFormat = (d) => numeral(d).format("0a");
@@ -134,7 +134,7 @@ function makeGraph(data) {
     for (const k of keys) {
         for (const d of data) {
             const key = JSON.stringify([k, d[k]]);
-            if (nodeByKey.has(key)) continue;
+            if (!d[k] || nodeByKey.has(key)) continue;
             const node = {name: d[k]};
             nodes.push(node);
             nodeByKey.set(key, node);
@@ -148,6 +148,7 @@ function makeGraph(data) {
         const prefix = keys.slice(0, i + 1);
         const linkByKey = new Map;
         for (const d of data) {
+            if (!d[a] || !d[b]) continue;
             const names = prefix.map(k => d[k]);
             const key = JSON.stringify(names);
             const value = d.value || 1;
@@ -158,7 +159,7 @@ function makeGraph(data) {
                 target: indexByKey.get(JSON.stringify([b, d[b]])),
                 names,
                 value
-            };
+            }
             links.push(link);
             linkByKey.set(key, link);
         }
@@ -167,9 +168,25 @@ function makeGraph(data) {
     return { nodes, links };
 }
 
+function shiftReturn(row) {
+    let d = { value: row.count };
+    let shouldRemove = false;
+    for (let k of keys) {
+        if (shouldRemove) continue;
+
+        if (row[k] == "NA") {
+            d[k] = row["arg_t_r"];
+            shouldRemove = true;
+        } else {
+            d[k] = row[k];
+        }
+    }
+    return d;
+}
+
 // Create Sankey diagram from JSON data.
 function chart() {
-    const data = this.types;
+    const data = this.types.map(shiftReturn);
 
     // Empty case
     if (data.length === 0) {
