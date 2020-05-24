@@ -13,6 +13,10 @@
   <svg
     viewBox="0.5 -120.5 954 1320"
     style="font: 30px sans-serif">
+    <g v-if="nodes.length === 0">
+      <rect fill="none" stroke-width="2" rx="5" stroke="#666" x="25" y="25" width="904" height="1150" />
+      <text text-anchor="middle" x="477" y="660"> No Packages Selected </text>
+    </g>
     <g
       v-for="(node, k) in nodes"
       :key="k"

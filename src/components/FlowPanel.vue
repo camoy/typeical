@@ -1,7 +1,11 @@
 <template>
 <v-container>
-<svg width="100%" height="100%">
-  <g>
+  <svg width="100%" height="100%">
+    <g v-if="nodes.length === 0">
+      <rect fill="none" stroke-width="1" rx="5" stroke="#666" x="5%" y="5%" width="90%" height="90%" />
+      <text text-anchor="middle" x="50%" y="50%"> No Functions Selected </text>
+    </g>
+    <g>
     <rect
       v-for="(node, k) in nodes"
       fill="#555"
