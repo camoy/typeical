@@ -161,6 +161,7 @@ export default {
     data: () => ({
         DEFAULT_COLOR,
         SELECTION_COLOR,
+
         selectedFun: false,
         nodes: [],
         links: []

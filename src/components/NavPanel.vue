@@ -121,8 +121,6 @@ function zoom(node) {
         node.selected = !node.selected;
         this.$store.commit("toggleFun", nodeFun(node));
         this.$store.dispatch("queryTypes");
-        // HACK: Apparently Vue can't track set mutations.
-        this.$forceUpdate();
     }
 }
 
@@ -136,7 +134,7 @@ const nodeFun = (node) => `${node.parent.data.name}☹${node.data.name}`
 function setRoot(root) {
     let nodes = root.children ? root.children.concat(root) : [];
     for (let node of nodes) {
-        node.selected = node.parent && this.funsShown.has(nodeFun(node));
+        node.selected = node.parent && this.funsShown.includes(nodeFun(node));
     }
     this.root = root;
     this.nodes = nodes;
