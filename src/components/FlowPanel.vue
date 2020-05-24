@@ -5,7 +5,7 @@
     <rect
       v-for="(node, k) in nodes"
       fill="#555"
-      style="mix-blend-mode: multiply"
+      style="mix-blend-mode: multiply; pointer-events: none"
       :key="k"
       :x="node.x0"
       :y="node.y0"
@@ -34,6 +34,7 @@
       v-for="(node, k) in nodes"
       dy="2em"
       text-anchor="middle"
+      style="pointer-events: none"
       :key="k"
       :x="node.labelX"
       :y="node.labelY"
@@ -48,7 +49,7 @@
 
 <style>
   path {
-    transition: stroke 0.2s;
+    transition: stroke 0.3s;
   }
 </style>
 
