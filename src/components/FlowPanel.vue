@@ -51,8 +51,8 @@
 //
 // Imports
 //
+import { mapState } from "vuex";
 import numeral from "numeral";
-import * as d3 from "d3";
 import { sankey, sankeyLeft, sankeyVertical, sankeyLinkVertical } from "d3-sankey";
 
 //
@@ -120,7 +120,7 @@ function makeGraph(data) {
 
 // Create Sankey diagram from JSON data.
 function chart() {
-    const data = this.results;
+    const data = this.types;
     const graph = makeGraph(data);
 
     const {nodes, links} = sankeyLayout({
@@ -148,30 +148,13 @@ function chart() {
 //
 export default {
     name: "FlowPanel",
-
-    created() {
-        this.DEFAULT_COLOR = DEFAULT_COLOR;
-        this.SELECTION_COLOR = SELECTION_COLOR;
-    },
-
-    mounted() {
-        d3.json("/json/query.json").then((data) => {
-            let results = data.functions;
-            for (const f of results) {
-                f.value = f.count
-            }
-            this.results = results;
-        })
-    },
-
-    watch: {
-        results: chart
-    },
-
-
+    created() { this.$store.dispatch("queryTypes"); },
+    watch: { types: chart },
+    computed: mapState(["types"]),
     data: () => ({
+        DEFAULT_COLOR,
+        SELECTION_COLOR,
         selectedFun: false,
-        results: [],
         nodes: [],
         links: []
     })

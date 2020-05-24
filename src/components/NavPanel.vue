@@ -4,27 +4,26 @@
     v-model="selectedPkgs"
     :items="$store.getters.pkgNames"
     outlined
-    dense
     chips
     small-chips
+    deletable-chips
     label="Packages"
     multiple
     />
-
   <svg id="nav-svg" viewBox="0.5 -120.5 954 1320" style="font: 30px sans-serif">
     <g
       v-for="(node, k) in nodes"
       class="list-item"
       :key="k"
       :transform="node === root ? `translate(0,-120)` : `translate(${X(node.x0)},${Y(node.y0)})`"
-      :cursor="(node === root ? node.parent : node.children) ? 'pointer' : 'auto'"
+      :cursor="(node !== root || node.parent) ? 'pointer' : 'auto'"
       @click="ZOOM(node)"
-    >
-      <title> {{ NAME(node) }} \n {{ FORMAT(node.value) }} </title>
+      >
+      <title> {{ node.data.name }} ({{ FORMAT(node.value) }}) </title>
       <rect
         stroke="#fff"
         :id="(node.leafUid = UID('leaf')).id"
-        :fill="node === root ? '#fff' : node.children ? '#ccc' : '#ddd'"
+        :fill="COLOR(selectedFuns, root, node)"
         :width="node === root ? 954 : X(node.x1) - X(node.x0)"
         :height="node === root ? 120 : Y(node.y1) - Y(node.y0)"
         />
@@ -40,7 +39,7 @@
           {{ node.data.name }}
         </tspan>
         <tspan x="1em" y="2.5em" fill-opacity="0.7" font-weight="normal">
-          {{ node.value }}
+          {{ NUMERAL_FORMAT(node.value) }}
         </tspan>
       </text>
     </g>
@@ -54,6 +53,7 @@
 //
 import * as d3 from "d3";
 import { mapState } from "vuex";
+import numeral from "numeral";
 
 //
 // UID
@@ -76,19 +76,32 @@ Id.prototype.toString = function() {
 
 function ZOOM() {}
 
+function COLOR(selectedFuns, root, node) {
+    if (node === root) {
+        return "#fff";
+    } else if (node.children) {
+        return "#ccc";
+    } else {
+        let pkg = node.parent.data.name;
+        let fun = node.data.name;
+        if (selectedFuns[pkg] && selectedFuns[pkg].has(fun)) {
+            return "#da4f81";
+        } else {
+            return "#ccc";
+        }
+    }
+}
+
 //
 // TODO
 //
 
 const height = 1200;
 const width = 954;
+const NUMERAL_FORMAT = (d) => numeral(d).format("0a");
 const FORMAT = d3.format(",d");
 const X = d3.scaleLinear().rangeRound([0, width]);
 const Y = d3.scaleLinear().rangeRound([0, height]);
-
-function NAME(d) {
-    return d.ancestors().reverse().map(d => d.data.name).join("/");
-}
 
 function tile(node, x0, y0, x1, y1) {
     d3.treemapBinary(node, 0, 0, width, height);
@@ -101,8 +114,6 @@ function tile(node, x0, y0, x1, y1) {
 }
 
 function chart(svg, data, vm) {
-    //let group = svg.select("g");
-
     let treemap = data => d3.treemap().tile(tile)
     (d3.hierarchy(data)
      .sum(d => d.value)
@@ -122,6 +133,17 @@ function chart(svg, data, vm) {
             X.domain([node.x0, node.x1]);
             Y.domain([node.y0, node.y1]);
             render(node);
+        } else {
+            let pkg = node.parent.data.name;
+            let fun = node.data.name;
+            let pkgFuns = (vm.selectedFuns[pkg] || (vm.selectedFuns[pkg] = new Set()));
+
+            if (pkgFuns.has(fun)) {
+                pkgFuns.delete(fun);
+            } else {
+                pkgFuns.add(fun);
+            }
+            this.$forceUpdate();
         }
     }
 
@@ -133,9 +155,7 @@ function chart(svg, data, vm) {
 //
 export default {
     name: "NavPanel",
-
     created() { this.$store.dispatch("queryPkgs"); },
-
     watch: {
         selectedPkgs(data) {
             let selectedChildren = this.pkgs.children.filter(d => data.includes(d.name));
@@ -143,17 +163,17 @@ export default {
             chart(d3.select("#nav-panel"), filteredPkgs, this);
         }
     },
-
     computed: mapState(["pkgs"]),
-
     data: () => ({
         X: X,
         Y: Y,
         ZOOM: ZOOM,
         UID: UID,
-        NAME: NAME,
+        COLOR: COLOR,
+        NUMERAL_FORMAT: NUMERAL_FORMAT,
         FORMAT: FORMAT,
         selectedPkgs: [],
+        selectedFuns: {},
         nodes: [],
         root: false
     })

@@ -45,7 +45,7 @@ const types = [];
 
 // Natural
 // The number of pages of results.
-const numPages = 1;
+const pages = 1;
 
 //
 // Store
@@ -68,7 +68,7 @@ export default new Vuex.Store({
     //
     pkgs,
     types,
-    numPages
+    pages
   },
   getters: {
     pkgNames(state) {
@@ -76,12 +76,22 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    pkgs(state, val) {  state.pkgs = val; }
+    pkgs(state, val) {  state.pkgs = val; },
+    types(state, val) {  state.types = val; },
+    pages(state, val) {  state.pages = val; }
   },
   actions: {
     queryPkgs({ commit }) {
-      axios.get("/json/packages.json")
+      axios.get("/api/pkgs")
            .then(response => { commit("pkgs", response.data) });
+    },
+    queryTypes({ commit }) {
+      axios.get("/json/query.json")
+           .then(response => {
+             let data = response.data;
+             commit("types", data.types);
+             commit("pages", data.pages);
+           });
     }
   },
   modules: {}
