@@ -9,8 +9,10 @@ let db = new sqlite3.Database(url);
 // Packages
 //
 const PKG_FUNS = `SELECT * FROM init_functions`;
-const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
+const PKG_ANALYZED = `SELECT * FROM analyzed_packages`;
 const TYPES = (where) => `SELECT * FROM aggregated_types WHERE ${where}`
+const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
+const PKG_ANALYZED_EQ = "package_being_analyzed = ?";
 
 //
 // Util
@@ -44,12 +46,26 @@ module.exports = app => {
     });
   });
 
+  app.get("/api/analyzed", function(req, res) {
+    query(PKG_ANALYZED, [], (names) => res.json(names));
+  });
+
   app.get("/api/types", function(req, res) {
+    // Parameters
+    let analyzed = req.query.analyzed || [];
     let funs = req.query.funs || [];
     funs = funs.map(JSON.parse);
 
-    let where = "0 = 1" + ` OR ${PKG_FUN_EQ}`.repeat(funs.length);
-    query(TYPES(where), funs.flat(), function(results) {
+    // Query
+    let where =
+      "(0 = 1" +
+      ` OR ${PKG_FUN_EQ}`.repeat(funs.length) +
+      ")" +
+      " AND (0 = 1" +
+      ` OR ${PKG_ANALYZED_EQ}`.repeat(analyzed.length) +
+      ")";
+
+    query(TYPES(where), funs.flat().concat(analyzed), function(results) {
       res.json(results);
     });
   });

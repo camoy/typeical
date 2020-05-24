@@ -15,7 +15,7 @@ Vue.use(Vuex);
 // [Listof String]
 // Only include analysis results from these packages. If empty
 // then include all analysis results.
-const analyzedPkgs = [];
+const analyzed = [];
 
 // Natural
 // Number of functions that are returned in the results.
@@ -35,6 +35,10 @@ const funsShown = [];
 //
 // Results
 //
+
+// [Listof String]
+// List of packages that were analyzed.
+const allAnalyzed = [];
 
 // Object
 // Information about packages, functions, and their usage.
@@ -56,7 +60,7 @@ export default new Vuex.Store({
     //
     // Settings
     //
-    analyzedPkgs,
+    analyzed,
     limit,
 
     //
@@ -67,6 +71,7 @@ export default new Vuex.Store({
     //
     // Results
     //
+    allAnalyzed,
     pkgs,
     types,
     count
@@ -74,6 +79,12 @@ export default new Vuex.Store({
   getters: {
     pkgNames(state) {
       return state.pkgs ? state.pkgs.children.map((x) => x.name) : [];
+    },
+
+    analyzedNames(state) {
+      return state.allAnalyzed ?
+             state.allAnalyzed.map((x) => x.package_being_analyzed) :
+             [];
     },
 
     funs(state) {
@@ -84,6 +95,8 @@ export default new Vuex.Store({
     pkgs(state, val) {  state.pkgs = val; },
     types(state, val) {  state.types = val; },
     count(state, val) {  state.count = val; },
+    analyzed(state, val) { state.analyzed = val; },
+    allAnalyzed(state, val) { state.allAnalyzed = val; },
     toggleFun(state, fun) {
       if (state.funsShown.includes(fun)) {
         state.funsShown =
@@ -102,9 +115,14 @@ export default new Vuex.Store({
       axios.get("/api/pkgs")
            .then(response => commit("pkgs", response.data));
     },
-    queryTypes({ commit, getters }) {
-      axios.get("/api/types", { params: { funs: getters.funs } })
-           .then(response =>  commit("types", response.data));
+    queryAnalyzed({ commit }) {
+      axios.get("/api/analyzed")
+           .then(response => commit("allAnalyzed", response.data));
+    },
+    queryTypes({ commit, getters, state }) {
+      axios.get("/api/types", {
+        params: { funs: getters.funs, analyzed: state.analyzed}
+      }).then(response =>  commit("types", response.data));
     }
   },
   modules: {}
