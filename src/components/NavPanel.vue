@@ -192,7 +192,11 @@ export default {
     name: "NavPanel",
     created() { this.$store.dispatch("queryPkgs"); },
     watch: {
-        selectedPkgs: makeTree,
+        selectedPkgs(pkgs) {
+            this.$store.commit("pruneFun", pkgs);
+            this.$store.dispatch("queryTypes");
+            makeTree.call(this);
+        },
         page: makeTree,
         root: updateDomains
     },

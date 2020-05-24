@@ -91,6 +91,10 @@ export default new Vuex.Store({
       } else {
         state.funsShown.push(fun);
       }
+    },
+    pruneFun(state, pkgs) {
+      state.funsShown =
+        state.funsShown.filter(x => pkgs.includes(x.split("☹")[0]));
     }
   },
   actions: {
