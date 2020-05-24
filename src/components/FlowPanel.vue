@@ -63,15 +63,6 @@ const SELECTION_COLOR = "#da4f81";
 const layout = sankeyLinkVertical();
 const height = 600;
 const width = 1100;
-const sankeyLayout =
-      sankey()
-      .nodeSort(null)
-      .linkSort(null)
-      .nodeWidth(2)
-      .nodePadding(40)
-      .extent([[0, 5], [width, height - 5]])
-      .nodeAlign(sankeyLeft)
-      .nodeOrientation(sankeyVertical);
 
 // Convert JSON data into graph representation.
 function makeGraph(data) {
@@ -129,6 +120,15 @@ function chart() {
 
     // Non-empty case
     const graph = makeGraph(data);
+    const sankeyLayout =
+          sankey()
+          .nodeSort(null)
+          .linkSort(null)
+          .nodeWidth(2)
+          .nodePadding(40)
+          .extent([[0, 5], [width, height - 5]])
+          .nodeAlign(sankeyLeft)
+          .nodeOrientation(sankeyVertical);
 
     const {nodes, links} = sankeyLayout({
         nodes: graph.nodes.map(d => Object.assign({}, d)),

@@ -143,7 +143,6 @@ function updateDomains() {
     let root = this.root;
     x.domain([root.x0, root.x1]);
     y.domain([root.y0, root.y1]);
-    this.$forceUpdate();
 }
 
 function setRoot(root) {
