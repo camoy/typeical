@@ -97,13 +97,17 @@ const commaFormat = d3.format(",d");
 const setLeafUID = node => (node.leafUid = UID("leaf")).id
 const setClipUID = node => (node.clipUid = UID("clip")).id
 
+function selected(node) {
+    return this.funsShown.includes(nodeFun(node));
+}
+
 function color(node) {
     if (node === this.root) {
         return "#fff";
     } else if (node.children) {
         return "#ccc";
     } else {
-        return node.selected ? "#da4f81" : "#ccc";
+        return selected.call(this, node) ? "#da4f81" : "#ccc";
     }
 }
 
@@ -113,7 +117,6 @@ function zoom(node) {
     } else if (node.children) {
         setRoot.call(this, node);
     } else {
-        node.selected = !node.selected;
         this.$store.commit("toggleFun", nodeFun(node));
         this.$store.dispatch("queryTypes");
     }
@@ -145,9 +148,6 @@ function updateDomains() {
 
 function setRoot(root) {
     let nodes = root.children ? root.children.concat(root) : [];
-    for (let node of nodes) {
-        node.selected = node.parent && this.funsShown.includes(nodeFun(node));
-    }
     this.root = root;
     this.nodes = nodes;
 }
