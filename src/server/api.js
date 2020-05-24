@@ -5,13 +5,15 @@ let db = new sqlite3.Database('/home/camoy/wrk/type-vis/data/sample-data.db');
 // Packages
 //
 const PKG_FUNS = `SELECT * FROM init_functions`;
+const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
+const TYPES = (where) => `SELECT * FROM aggregated_types WHERE ${where}`
 
 //
 // Util
 //
 
-function query(sql, f) {
-  db.all(sql, [], (err, rows) => {
+function query(sql, params, f) {
+  db.all(sql, params, (err, rows) => {
     if (err) { throw err; }
     f(rows);
   });
@@ -22,7 +24,7 @@ function query(sql, f) {
 //
 module.exports = app => {
   app.get("/api/pkgs", function(req, res) {
-    query(PKG_FUNS, function(names) {
+    query(PKG_FUNS, [], function(names) {
       let result = {}
 
       for (const e of names) {
@@ -40,7 +42,11 @@ module.exports = app => {
 
   app.get("/api/types", function(req, res) {
     let funs = req.query.funs || [];
-    // e.g. [ [ 'base', '<-' ] ]
     funs = funs.map(JSON.parse);
+
+    let where = "0 = 1" + ` OR ${PKG_FUN_EQ}`.repeat(funs.length);
+    query(TYPES(where), funs.flat(), function(results) {
+      res.json(results);
+    });
   });
 }

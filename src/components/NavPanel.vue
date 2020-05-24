@@ -97,6 +97,9 @@ const FORMAT = d3.format(",d");
 const X = d3.scaleLinear().rangeRound([0, width]);
 const Y = d3.scaleLinear().rangeRound([0, height]);
 
+// HACK: For when your language doesn't have value equality.
+const nodeFun = (node) => `${node.parent.data.name}☹${node.data.name}`
+
 function tile(node, x0, y0, x1, y1) {
     d3.treemapBinary(node, 0, 0, width, height);
     for (const child of node.children) {
@@ -116,7 +119,7 @@ function chart(svg, data, vm) {
     function render(root) {
         let nodes = root.children ? root.children.concat(root) : [];
         for (let node of nodes) {
-            node.selected = false;
+            node.selected = node.parent && vm.funsShown.has(nodeFun(node));
         }
         vm.nodes = nodes;
         vm.root = root;
@@ -132,10 +135,8 @@ function chart(svg, data, vm) {
             Y.domain([node.y0, node.y1]);
             render(node);
         } else {
-            // HACK: For when your language doesn't have value equality.
-            let fun = `${node.parent.data.name}☹${node.data.name}`;
             node.selected = !node.selected;
-            vm.$store.commit("toggleFun", fun);
+            vm.$store.commit("toggleFun", nodeFun(node));
             vm.$store.dispatch("queryTypes");
 
             // HACK: Apparently Vue can't track set mutations.

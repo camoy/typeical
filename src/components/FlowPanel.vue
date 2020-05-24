@@ -121,6 +121,14 @@ function makeGraph(data) {
 // Create Sankey diagram from JSON data.
 function chart() {
     const data = this.types;
+
+    // Empty case
+    if (data.length === 0) {
+        this.nodes = this.links = [];
+        return;
+    }
+
+    // Non-empty case
     const graph = makeGraph(data);
 
     const {nodes, links} = sankeyLayout({

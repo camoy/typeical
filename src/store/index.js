@@ -45,8 +45,8 @@ const pkgs = false;
 const types = [];
 
 // Natural
-// The number of pages of results.
-const pages = 1;
+// The number of rows of results.
+const count = 0;
 
 //
 // Store
@@ -69,7 +69,7 @@ export default new Vuex.Store({
     //
     pkgs,
     types,
-    pages
+    count
   },
   getters: {
     pkgNames(state) {
@@ -85,7 +85,7 @@ export default new Vuex.Store({
   mutations: {
     pkgs(state, val) {  state.pkgs = val; },
     types(state, val) {  state.types = val; },
-    pages(state, val) {  state.pages = val; },
+    count(state, val) {  state.count = val; },
     toggleFun(state, fun) {
       if (state.funsShown.has(fun)) {
         state.funsShown.delete(fun);
@@ -97,16 +97,11 @@ export default new Vuex.Store({
   actions: {
     queryPkgs({ commit }) {
       axios.get("/api/pkgs")
-           .then(response => { commit("pkgs", response.data) });
+           .then(response => commit("pkgs", response.data));
     },
     queryTypes({ commit, getters }) {
-      axios.get("/json/query.json", { params: { funs: getters.funs() } })
-           .then(response => {
-             let data = response.data;
-             commit("types", data.types);
-             commit("pages", data.pages);
-           });
-      axios.get("/api/types", { params: { funs: getters.funs() } });
+      axios.get("/api/types", { params: { funs: getters.funs() } })
+           .then(response =>  commit("types", response.data));
     }
   },
   modules: {}
