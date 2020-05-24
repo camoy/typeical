@@ -21,10 +21,10 @@
       style="mix-blend-mode: multiply"
       :key="k"
       :d="link.d"
-      :stroke="link.fun === selectedFun ? SELECTION_COLOR : DEFAULT_COLOR"
+      :stroke="link.selected ?  SELECTION_COLOR : DEFAULT_COLOR"
       :stroke-width="link.width"
-      @mouseenter="selectedFun = link.fun"
-      @mouseleave="selectedFun = false"
+      @mouseenter="select(link, true)"
+      @mouseleave="select(link, false)"
       >
       <title> {{ link.names.join(" → ") }} ({{ link.value.toLocaleString() }}) </title>
     </path>
@@ -39,7 +39,7 @@
       :y="node.labelY"
       >
       <tspan> {{ node.name }} </tspan>
-      <tspan dy="1.5em" fill-opacity="0.7" :x="node.labelX"> {{ node.prettyValue }} </tspan>
+      <tspan dy="1.5em" fill-opacity="0.7" :x="node.labelX"> {{ plainFormat(node.value) }} </tspan>
     </text>
   </g>
 </svg>
@@ -60,9 +60,48 @@ import { sankey, sankeyLeft, sankeyVertical, sankeyLinkVertical } from "d3-sanke
 const keys = ["fun_name", "arg_t0", "arg_t1", "arg_t2", "arg_t_r"];
 const DEFAULT_COLOR = "#ccc";
 const SELECTION_COLOR = "#da4f81";
+const plainFormat = (d) => numeral(d).format("0a");
 const layout = sankeyLinkVertical();
 const height = 600;
 const width = 1100;
+
+//
+// Method
+//
+
+function ancestors(link) {
+    let names = link.names.join();
+    return link.source
+        .targetLinks
+        .filter(x => names.startsWith(x.names.join()))
+        .flatMap(ancestors)
+        .concat([link]);
+}
+
+function descendants(link) {
+    let names = link.names.join();
+    return link.target
+        .sourceLinks
+        .filter(x => x.names.join().startsWith(names))
+        .flatMap(descendants)
+        .concat([link]);
+}
+
+function pathLinks(link) {
+    return ancestors(link).concat(descendants(link));
+}
+
+function select(link, to) {
+    //this.selectedFun = link.fun
+    for (let link of pathLinks(link)) {
+        link.selected = to;
+    }
+    this.$forceUpdate();
+}
+
+//
+// Sankey
+//
 
 // Convert JSON data into graph representation.
 function makeGraph(data) {
@@ -138,7 +177,6 @@ function chart() {
     for (let node of nodes) {
         node.labelX = (node.x0 + node.x1) / 2;
         node.labelY = (node.y1 + node.y0) / 2;
-        node.prettyValue = numeral(node.value).format("0a");
     }
 
     for (let link of links) {
@@ -158,6 +196,10 @@ export default {
     created() { this.$store.dispatch("queryTypes"); },
     watch: { types: chart },
     computed: mapState(["types"]),
+    methods: {
+        select,
+        plainFormat
+    },
     data: () => ({
         DEFAULT_COLOR,
         SELECTION_COLOR,
