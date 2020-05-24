@@ -25,11 +25,12 @@ const limit = 15;
 // Filtering
 //
 
-// [Listof [List String String]]
+// [Set String]
 // This array contains pairs of package and function names.
 // The flow visualization should only include functions in this
-// list.
-const funsShown = [];
+// list. These "pairs" will actually be strings with the pair
+// elements separated by a frowny face.
+const funsShown = new Set();
 
 //
 // Results
@@ -73,25 +74,39 @@ export default new Vuex.Store({
   getters: {
     pkgNames(state) {
       return state.pkgs ? state.pkgs.children.map((x) => x.name) : [];
+    },
+
+    // HACK: Vue erroneously caches this getter. We have to invoke a function
+    // to force getter recomputation.
+    funs: (state) => () => {
+      return Array.from(state.funsShown).map((x) => x.split("☹"));
     }
   },
   mutations: {
     pkgs(state, val) {  state.pkgs = val; },
     types(state, val) {  state.types = val; },
-    pages(state, val) {  state.pages = val; }
+    pages(state, val) {  state.pages = val; },
+    toggleFun(state, fun) {
+      if (state.funsShown.has(fun)) {
+        state.funsShown.delete(fun);
+      } else {
+        state.funsShown.add(fun);
+      }
+    }
   },
   actions: {
     queryPkgs({ commit }) {
       axios.get("/api/pkgs")
            .then(response => { commit("pkgs", response.data) });
     },
-    queryTypes({ commit }) {
-      axios.get("/json/query.json")
+    queryTypes({ commit, getters }) {
+      axios.get("/json/query.json", { params: { funs: getters.funs() } })
            .then(response => {
              let data = response.data;
              commit("types", data.types);
              commit("pages", data.pages);
            });
+      axios.get("/api/types", { params: { funs: getters.funs() } });
     }
   },
   modules: {}

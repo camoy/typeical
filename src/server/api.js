@@ -37,4 +37,10 @@ module.exports = app => {
       res.json({ name: "packages", children: Object.values(result) });
     });
   });
+
+  app.get("/api/types", function(req, res) {
+    let funs = req.query.funs || [];
+    // e.g. [ [ 'base', '<-' ] ]
+    funs = funs.map(JSON.parse);
+  });
 }

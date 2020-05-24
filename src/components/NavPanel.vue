@@ -23,7 +23,7 @@
       <rect
         stroke="#fff"
         :id="(node.leafUid = UID('leaf')).id"
-        :fill="COLOR(selectedFuns, root, node)"
+        :fill="COLOR(root, node)"
         :width="node === root ? 954 : X(node.x1) - X(node.x0)"
         :height="node === root ? 120 : Y(node.y1) - Y(node.y0)"
         />
@@ -76,19 +76,13 @@ Id.prototype.toString = function() {
 
 function ZOOM() {}
 
-function COLOR(selectedFuns, root, node) {
+function COLOR(root, node) {
     if (node === root) {
         return "#fff";
     } else if (node.children) {
         return "#ccc";
     } else {
-        let pkg = node.parent.data.name;
-        let fun = node.data.name;
-        if (selectedFuns[pkg] && selectedFuns[pkg].has(fun)) {
-            return "#da4f81";
-        } else {
-            return "#ccc";
-        }
+        return node.selected ? "#da4f81" : "#ccc";
     }
 }
 
@@ -120,7 +114,11 @@ function chart(svg, data, vm) {
      .sort((a, b) => b.value - a.value));
 
     function render(root) {
-        vm.nodes = root.children ? root.children.concat(root) : [];
+        let nodes = root.children ? root.children.concat(root) : [];
+        for (let node of nodes) {
+            node.selected = false;
+        }
+        vm.nodes = nodes;
         vm.root = root;
     }
 
@@ -134,15 +132,13 @@ function chart(svg, data, vm) {
             Y.domain([node.y0, node.y1]);
             render(node);
         } else {
-            let pkg = node.parent.data.name;
-            let fun = node.data.name;
-            let pkgFuns = (vm.selectedFuns[pkg] || (vm.selectedFuns[pkg] = new Set()));
+            // HACK: For when your language doesn't have value equality.
+            let fun = `${node.parent.data.name}☹${node.data.name}`;
+            node.selected = !node.selected;
+            vm.$store.commit("toggleFun", fun);
+            vm.$store.dispatch("queryTypes");
 
-            if (pkgFuns.has(fun)) {
-                pkgFuns.delete(fun);
-            } else {
-                pkgFuns.add(fun);
-            }
+            // HACK: Apparently Vue can't track set mutations.
             this.$forceUpdate();
         }
     }
@@ -163,17 +159,16 @@ export default {
             chart(d3.select("#nav-panel"), filteredPkgs, this);
         }
     },
-    computed: mapState(["pkgs"]),
+    computed: mapState(["pkgs", "funsShown"]),
     data: () => ({
         X: X,
         Y: Y,
         ZOOM: ZOOM,
-        UID: UID,
         COLOR: COLOR,
+        UID: UID,
         NUMERAL_FORMAT: NUMERAL_FORMAT,
         FORMAT: FORMAT,
         selectedPkgs: [],
-        selectedFuns: {},
         nodes: [],
         root: false
     })
