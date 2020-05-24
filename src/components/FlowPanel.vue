@@ -21,7 +21,7 @@
       style="mix-blend-mode: multiply"
       :key="k"
       :d="link.d"
-      :stroke="link.selected ?  SELECTION_COLOR : DEFAULT_COLOR"
+      :stroke="color(link)"
       :stroke-width="link.width"
       @mouseenter="select(link, true)"
       @mouseleave="select(link, false)"
@@ -46,6 +46,12 @@
 </v-container>
 </template>
 
+<style>
+  path {
+    transition: stroke 0.2s;
+  }
+</style>
+
 <script>
 //
 // Imports
@@ -53,13 +59,14 @@
 import { mapState } from "vuex";
 import numeral from "numeral";
 import { sankey, sankeyLeft, sankeyVertical, sankeyLinkVertical } from "d3-sankey";
+import * as d3 from "d3";
 
 //
 // Constants
 //
 const keys = ["fun_name", "arg_t0", "arg_t1", "arg_t2", "arg_t_r"];
-const DEFAULT_COLOR = "#ccc";
-const SELECTION_COLOR = "#da4f81";
+const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
+const SELECTION_COLOR = d3.color("#da4f81");
 const plainFormat = (d) => numeral(d).format("0a");
 const layout = sankeyLinkVertical();
 const height = 600;
@@ -92,11 +99,23 @@ function pathLinks(link) {
 }
 
 function select(link, to) {
-    //this.selectedFun = link.fun
+    this.selectedFun = to && link.fun;
     for (let link of pathLinks(link)) {
         link.selected = to;
     }
     this.$forceUpdate();
+}
+
+function color(link) {
+    if (link.selected) {
+        return SELECTION_COLOR;
+    } else if (this.selectedFun && link.fun !== this.selectedFun) {
+        let c = d3.color(DEFAULT_COLOR(link.target.name));
+        c.opacity = 0.25;
+        return c;
+    } else {
+        return DEFAULT_COLOR(link.target.name);
+    }
 }
 
 //
@@ -197,6 +216,7 @@ export default {
     watch: { types: chart },
     computed: mapState(["types"]),
     methods: {
+        color,
         select,
         plainFormat
     },
