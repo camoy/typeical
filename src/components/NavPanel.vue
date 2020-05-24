@@ -86,7 +86,6 @@ Id.prototype.toString = function() {
 const height = 1200;
 const width = 954;
 const LIMIT = 20;
-const TILE = d3.treemapSquarify
 
 //
 // Method
@@ -110,12 +109,8 @@ function color(node) {
 
 function zoom(node) {
     if (node === this.root && node.parent) {
-        x.domain([node.parent.x0, node.parent.x1]);
-        y.domain([node.parent.y0, node.parent.y1]);
         setRoot.call(this, node.parent);
     } else if (node.children) {
-        x.domain([node.x0, node.x1]);
-        y.domain([node.y0, node.y1]);
         setRoot.call(this, node);
     } else {
         node.selected = !node.selected;
@@ -130,6 +125,23 @@ function zoom(node) {
 
 // HACK: For when your language doesn't have value equality.
 const nodeFun = (node) => `${node.parent.data.name}☹${node.data.name}`
+
+function tile(node, x0, y0, x1, y1) {
+    d3.treemapSquarify(node, 0, 0, width, height);
+    for (const child of node.children) {
+        child.x0 = x0 + child.x0 / width * (x1 - x0);
+        child.x1 = x0 + child.x1 / width * (x1 - x0);
+        child.y0 = y0 + child.y0 / height * (y1 - y0);
+        child.y1 = y0 + child.y1 / height * (y1 - y0);
+    }
+}
+
+function updateDomains() {
+    let root = this.root;
+    x.domain([root.x0, root.x1]);
+    y.domain([root.y0, root.y1]);
+    this.$forceUpdate();
+}
 
 function setRoot(root) {
     let nodes = root.children ? root.children.concat(root) : [];
@@ -169,7 +181,7 @@ function makeTree() {
     }
     let data = { name: "packages", children: selectedChildren };
     let hierarchy = d3.hierarchy(data).sum(d => d.value).sort((a, b) => b.value - a.value);
-    let root = d3.treemap().tile(TILE)(hierarchy);
+    let root = d3.treemap().tile(tile)(hierarchy);
     let newRoot = this.root ? findNewRoot.call(this, root) : root;
     setRoot.call(this, newRoot);
 }
@@ -180,7 +192,11 @@ function makeTree() {
 export default {
     name: "NavPanel",
     created() { this.$store.dispatch("queryPkgs"); },
-    watch: { selectedPkgs: makeTree, page: makeTree },
+    watch: {
+        selectedPkgs: makeTree,
+        page: makeTree,
+        root: updateDomains
+    },
     computed: mapState(["pkgs", "funsShown"]),
     methods: {
         x,
