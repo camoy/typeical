@@ -17,7 +17,7 @@
       :key="k"
       :transform="node === root ? `translate(0,-120)` : `translate(${X(node.x0)},${Y(node.y0)})`"
       :cursor="(node !== root || node.parent) ? 'pointer' : 'auto'"
-      @click="ZOOM(node)"
+      @click="zoom(node)"
       >
       <title> {{ node.data.name }} ({{ FORMAT(node.value) }}) </title>
       <rect
@@ -44,6 +44,10 @@
       </text>
     </g>
   </svg>
+  <v-pagination
+    v-if="root.parent"
+    v-model="page"
+    :length="root.data.pages || 1" />
 </v-container>
 </template>
 
@@ -54,6 +58,7 @@
 import * as d3 from "d3";
 import { mapState } from "vuex";
 import numeral from "numeral";
+const _ = require("lodash");
 
 //
 // UID
@@ -74,8 +79,6 @@ Id.prototype.toString = function() {
     return "url(" + this.href + ")";
 }
 
-function ZOOM() {}
-
 function COLOR(root, node) {
     if (node === root) {
         return "#fff";
@@ -94,6 +97,7 @@ const height = 1200;
 const width = 954;
 const NUMERAL_FORMAT = (d) => numeral(d).format("0a");
 const FORMAT = d3.format(",d");
+const LIMIT = 20;
 const X = d3.scaleLinear().rangeRound([0, width]);
 const Y = d3.scaleLinear().rangeRound([0, height]);
 
@@ -110,41 +114,67 @@ function tile(node, x0, y0, x1, y1) {
     }
 }
 
-function chart(svg, data, vm) {
-    let treemap = data => d3.treemap().tile(tile)
-    (d3.hierarchy(data)
-     .sum(d => d.value)
-     .sort((a, b) => b.value - a.value));
+function setRoot(root) {
+    let nodes = root.children ? root.children.concat(root) : [];
+    for (let node of nodes) {
+        node.selected = node.parent && this.funsShown.has(nodeFun(node));
+    }
+    this.root = root;
+    this.nodes = nodes;
+}
 
-    function render(root) {
-        let nodes = root.children ? root.children.concat(root) : [];
-        for (let node of nodes) {
-            node.selected = node.parent && vm.funsShown.has(nodeFun(node));
-        }
-        vm.nodes = nodes;
-        vm.root = root;
+function findNewRoot(root) {
+    let cur = this.root;
+    let stack = [];
+    do {
+        stack.push(cur.data.name);
+        cur = cur.parent;
+    } while (cur);
+
+    stack.pop();
+    cur = root;
+    while (cur && stack.length > 0) {
+        let name = stack.pop();
+        cur = cur.children && cur.children.find(e => e.data.name === name);
     }
 
-    vm.ZOOM = function(node) {
-        if (node === vm.root && node.parent) {
-            X.domain([node.parent.x0, node.parent.x1]);
-            Y.domain([node.parent.y0, node.parent.y1]);
-            render(node.parent);
-        } else if (node.children) {
-            X.domain([node.x0, node.x1]);
-            Y.domain([node.y0, node.y1]);
-            render(node);
-        } else {
-            node.selected = !node.selected;
-            vm.$store.commit("toggleFun", nodeFun(node));
-            vm.$store.dispatch("queryTypes");
+    return cur || root;
+}
 
-            // HACK: Apparently Vue can't track set mutations.
-            this.$forceUpdate();
-        }
+function makeTree() {
+    let selectedPkgs = this.selectedPkgs;
+    let selectedChildren =
+        _.cloneDeep(this.pkgs.children)
+        .filter(x => selectedPkgs.includes(x.name));
+    for (let pkg of selectedChildren) {
+        pkg.pages = Math.ceil(pkg.children.length / LIMIT);
+        pkg.children = pkg.children.slice((this.page - 1) * LIMIT, this.page * LIMIT);
     }
+    let data = { name: "packages", children: selectedChildren };
 
-    render(treemap(data));
+    // Set root
+    let hierarchy = d3.hierarchy(data).sum(d => d.value).sort((a, b) => b.value - a.value);
+    let root = d3.treemap().tile(tile)(hierarchy);
+    let newRoot = this.root ? findNewRoot.call(this, root) : root;
+    setRoot.call(this, newRoot);
+}
+
+function zoom(node) {
+    if (node === this.root && node.parent) {
+        X.domain([node.parent.x0, node.parent.x1]);
+        Y.domain([node.parent.y0, node.parent.y1]);
+        setRoot.call(this, node.parent);
+    } else if (node.children) {
+        X.domain([node.x0, node.x1]);
+        Y.domain([node.y0, node.y1]);
+        setRoot.call(this, node);
+    } else {
+        node.selected = !node.selected;
+        this.$store.commit("toggleFun", nodeFun(node));
+        this.$store.dispatch("queryTypes");
+        // HACK: Apparently Vue can't track set mutations.
+        this.$forceUpdate();
+    }
 }
 
 //
@@ -153,25 +183,22 @@ function chart(svg, data, vm) {
 export default {
     name: "NavPanel",
     created() { this.$store.dispatch("queryPkgs"); },
-    watch: {
-        selectedPkgs(data) {
-            let selectedChildren = this.pkgs.children.filter(d => data.includes(d.name));
-            let filteredPkgs = { name: "packages", children: selectedChildren };
-            chart(d3.select("#nav-panel"), filteredPkgs, this);
-        }
-    },
+    watch: { selectedPkgs: makeTree, page: makeTree },
     computed: mapState(["pkgs", "funsShown"]),
+    methods: { zoom },
     data: () => ({
+        LIMIT,
         X: X,
         Y: Y,
-        ZOOM: ZOOM,
         COLOR: COLOR,
         UID: UID,
         NUMERAL_FORMAT: NUMERAL_FORMAT,
         FORMAT: FORMAT,
-        selectedPkgs: [],
+
+        root: false,
         nodes: [],
-        root: false
+        page: 1,
+        selectedPkgs: []
     })
 };
 </script>

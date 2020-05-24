@@ -43,7 +43,6 @@
     </text>
   </g>
 </svg>
-<v-pagination :length="6"></v-pagination>
 </v-container>
 </template>
 
