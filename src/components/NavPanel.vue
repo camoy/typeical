@@ -201,6 +201,7 @@ export default {
             this.$store.dispatch("queryTypes");
             makeTree.call(this);
         },
+        pkgs: makeTree,
         page: makeTree,
         root: updateDomains
     },

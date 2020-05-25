@@ -8,7 +8,7 @@ let db = new sqlite3.Database(url);
 //
 // Packages
 //
-const PKG_FUNS = `SELECT * FROM init_functions`;
+const PKG_FUNS = (where) => `SELECT * FROM sums WHERE ${where}`;
 const PKG_ANALYZED = `SELECT * FROM analyzed_packages`;
 const TYPES = (where) => `SELECT * FROM aggregated_types WHERE ${where}`
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
@@ -30,7 +30,13 @@ function query(sql, params, f) {
 //
 module.exports = app => {
   app.get("/api/pkgs", function(req, res) {
-    query(PKG_FUNS, [], function(names) {
+    // Query
+    let analyzed = req.query.analyzed || [];
+    let where =
+      analyzed.length === 0 ? "0 = 0" :
+       ("0 = 1" + ` OR ${PKG_ANALYZED_EQ}`.repeat(analyzed.length));
+
+    query(PKG_FUNS(where), analyzed, function(names) {
       let result = {}
 
       for (const e of names) {
@@ -61,9 +67,10 @@ module.exports = app => {
       "(0 = 1" +
       ` OR ${PKG_FUN_EQ}`.repeat(funs.length) +
       ")" +
-      " AND (0 = 1" +
-      ` OR ${PKG_ANALYZED_EQ}`.repeat(analyzed.length) +
-      ")";
+      (analyzed.length === 0 ? "" :
+        (" AND (0 = 1" +
+         ` OR ${PKG_ANALYZED_EQ}`.repeat(analyzed.length) +
+         ")"));
 
     query(TYPES(where), funs.flat().concat(analyzed), function(results) {
       res.json(results);

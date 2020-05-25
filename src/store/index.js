@@ -111,9 +111,10 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    queryPkgs({ commit }) {
-      axios.get("/api/pkgs")
-           .then(response => commit("pkgs", response.data));
+    queryPkgs({ commit, state }) {
+      axios.get("/api/pkgs", {
+        params: { analyzed: state.analyzed}
+      }).then(response => commit("pkgs", response.data));
     },
     queryAnalyzed({ commit }) {
       axios.get("/api/analyzed")

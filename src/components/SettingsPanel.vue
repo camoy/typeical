@@ -16,19 +16,16 @@
 </template>
 
 <script>
-  import { mapState } from "vuex";
-
 export default {
     name: "SettingsPanel",
     created() { this.$store.dispatch("queryAnalyzed"); },
-    computed: mapState(["analyzed"]),
     watch: {
         selectedAnalyzed(pkgs) {
             this.$store.commit("analyzed", pkgs);
+            this.$store.dispatch("queryPkgs");
+            this.$store.dispatch("queryTypes");
         },
     },
-    data: () => ({
-        selectedAnalyzed: []
-    })
+    data: () => ({ selectedAnalyzed: [] })
 }
 </script>
