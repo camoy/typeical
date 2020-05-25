@@ -44,7 +44,7 @@
           {{ node.data.name }}
         </tspan>
         <tspan x="1em" y="3em" fill-opacity="0.7" font-weight="normal">
-          {{ commaFormat(node.value) }}
+          {{ nodeText(node) }}
         </tspan>
       </text>
     </g>
@@ -126,6 +126,14 @@ function zoom(node) {
     }
 }
 
+function nodeText(node) {
+    if (!node.data.realValue) {
+        return commaFormat(node.value);
+    } else {
+        return commaFormat(node.data.realValue);
+    }
+}
+
 //
 // Treemap
 //
@@ -179,10 +187,12 @@ function makeTree() {
         _.cloneDeep(this.pkgs.children)
         .filter(x => selectedPkgs.includes(x.name));
     for (let pkg of selectedChildren) {
+        pkg.realValue = pkg.children.reduce((acc, x) => acc + x.value, 0);
         pkg.pages = Math.ceil(pkg.children.length / LIMIT);
         pkg.children = pkg.children.slice((this.page - 1) * LIMIT, this.page * LIMIT);
     }
-    let data = { name: "packages", children: selectedChildren };
+    let realValue = selectedChildren.reduce((acc, x) => acc + x.realValue, 0);
+    let data = { name: "packages", children: selectedChildren, realValue };
     let hierarchy = d3.hierarchy(data).sum(d => d.value).sort((a, b) => b.value - a.value);
     let root = d3.treemap().tile(tile)(hierarchy);
     let newRoot = this.root ? findNewRoot.call(this, root) : root;
@@ -215,6 +225,7 @@ export default {
         commaFormat,
         color,
         zoom,
+        nodeText
     },
     data: () => ({
         root: false,
