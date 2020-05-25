@@ -8,7 +8,8 @@ let db = new sqlite3.Database(url);
 //
 // Packages
 //
-const PKG_FUNS = (where) => `SELECT * FROM sums WHERE ${where}`;
+const PKG_FUNS =
+  (where) => `SELECT package, fun_name, SUM(count) as count FROM sums WHERE ${where} GROUP BY fun_name`;
 const PKG_ANALYZED = `SELECT * FROM analyzed_packages`;
 const TYPES = (where) => `SELECT * FROM aggregated_types WHERE ${where}`
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
