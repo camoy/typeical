@@ -1,24 +1,13 @@
-# type-vis
+# TypeVis
 
-## Project setup
+Install the application with `npm`.
+
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+Assuming you have the database stored at `~/data.db`, run the server by setting the right environment variable.
 
-### Compiles and minifies for production
 ```
-npm run build
+TYPEVIS_DB=~/data.db npm run serve
 ```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
