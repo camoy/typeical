@@ -10,6 +10,17 @@
     label="Packages"
     multiple
     />
+  <svg 
+    viewBox="0.5 -120.5 954 1020"
+    style="font: 30px sans-serif">
+    <text> {{ $store.getters.pkgNames }} </text>
+    <g
+      v-for="(pkgName, k) in $store.getters.pkgNames"
+      :key="k"
+      >
+      <text> {{ pkgName }} </text>
+    </g>
+  </svg>
   <svg
     viewBox="0.5 -120.5 954 1320"
     style="font: 30px sans-serif">
