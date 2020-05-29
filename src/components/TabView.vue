@@ -1,30 +1,31 @@
 <template>
-  <v-tabs>
-    <v-tab key="typevis" href="#tab-typevis"> TypeVis </v-tab>
-    <v-tab key="settings" href="#tab-settings"> Settings </v-tab>
-    <v-tab key="about" href="#tab-about"> About </v-tab>
-    <v-tab-item class="fill-height" key="typevis" value="tab-typevis">
-      <v-container>
-        <v-row>
-          <v-col id="flow-panel" cols="9">
-            <FlowPanel />
-          </v-col>
-          <v-col id="nav-panel" cols="3">
-            <NavPanel />
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-tab-item>
-    <v-tab-item key="settings" value="tab-settings">
-      <SettingsPanel />
-    </v-tab-item>
-    <v-tab-item key="about" value="tab-about">
-      <AboutPanel />
-    </v-tab-item>
-  </v-tabs>
+<v-tabs>
+  <v-tab key="typevis" href="#tab-typevis"> TypeVis </v-tab>
+  <v-tab key="settings" href="#tab-settings"> Settings </v-tab>
+  <v-tab key="about" href="#tab-about"> About </v-tab>
+  <v-tab-item class="fill-height" key="typevis" value="tab-typevis">
+    <v-container>
+      <v-row>
+        <v-col id="flow-panel" cols="9">
+          <FlowPanel />
+        </v-col>
+        <v-col id="nav-panel" cols="3">
+          <NavPanel />
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-tab-item>
+  <v-tab-item key="settings" value="tab-settings">
+    <SettingsPanel />
+  </v-tab-item>
+  <v-tab-item key="about" value="tab-about">
+    <AboutPanel />
+  </v-tab-item>
+</v-tabs>
 </template>
 
 <style>
+/* These are hacks to get the tab items to be full height. */
 .v-tabs {
   height: 100%;
   display: flex;
