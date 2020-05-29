@@ -57,36 +57,13 @@ const count = 0;
 //
 export default new Vuex.Store({
   state: {
-    //
-    // Settings
-    //
     analyzed,
     limit,
-
-    //
-    // Filtering
-    //
     funs,
-
-    //
-    // Results
-    //
     allAnalyzed,
     pkgs,
     types,
     count
-  },
-
-  getters: {
-    pkgNames(state) {
-      return state.pkgs ? state.pkgs.children.map((x) => x.name) : [];
-    },
-
-    analyzedNames(state) {
-      return state.allAnalyzed ?
-             state.allAnalyzed.map((x) => x.package_being_analyzed) :
-             [];
-    }
   },
 
   mutations: {
@@ -99,24 +76,28 @@ export default new Vuex.Store({
   },
 
   actions: {
+    // Query for the list of defined packages and function information
     queryPkgs({ commit, state }) {
       axios.get("/api/pkgs", {
         params: { analyzed: state.analyzed}
       }).then(response => commit("pkgs", response.data));
     },
 
+    // Query for the list of analyzed packages
     queryAnalyzed({ commit }) {
       axios.get("/api/analyzed")
            .then(response => commit("allAnalyzed", response.data));
     },
 
+    // Query for type information
     queryTypes({ commit, state }) {
-      let funs = state.funs.map((x) => x.split("☹"));
+      let funs = state.funs.map(JSON.parse);
       axios.get("/api/types", {
         params: { funs, analyzed: state.analyzed}
       }).then(response =>  commit("types", response.data));
     },
 
+    // Given a function, toggles whether that function is selected
     toggleFun({ commit, dispatch, state }, fun) {
       let funs =
         state.funs.includes(fun) ?
@@ -126,10 +107,19 @@ export default new Vuex.Store({
       dispatch("queryTypes");
     },
 
+    // Given a list of packages, prunes the selected functions to make sure
+    // only functions contained in the package list remain
     pruneFuns({ commit, dispatch, state }, pkgs) {
       let funs =
-        state.funs.filter(x => pkgs.includes(x.split("☹")[0]));
+        state.funs.filter(x => pkgs.includes(JSON.parse(x)[0]));
       commit("funs", funs);
+      dispatch("queryTypes");
+    },
+
+    // Set the analyzed packages and update other (dependent) data sources
+    setAnalyzed({ commit, dispatch }, pkgs) {
+      commit("analyzed", pkgs);
+      dispatch("queryPkgs");
       dispatch("queryTypes");
     }
   },

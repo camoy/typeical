@@ -9,7 +9,7 @@
     deletable-chips
     label="Packages"
     multiple
-    :items="$store.getters.pkgNames"
+    :items="pkgNames"
     @input="$store.dispatch('pruneFuns', selectedPkgs)"
     />
 
@@ -224,7 +224,7 @@ function tile(node, x0, y0, x1, y1) {
 }
 
 // HACK: For when your language doesn't have value equality.
-const nodeFun = (node) => `${node.parent.data.name}☹${node.data.name}`
+const nodeFun = node => JSON.stringify([node.parent.data.name, node.data.name]);
 
 //
 // Exports
@@ -244,7 +244,7 @@ export default {
     },
 
     // Computed properties for rendering based on the root
-    computed:{
+    computed: {
         nodes() {
             let root = this.root;
             return root && root.children ? root.children.concat(root) : [];
@@ -260,6 +260,9 @@ export default {
                 .scaleLinear()
                 .rangeRound([0, HEIGHT])
                 .domain([this.root.y0, this.root.y1]);
+        },
+        pkgNames() {
+            return this.pkgs ? this.pkgs.children.map(x => x.name) : [];
         },
         ...mapState(["pkgs", "funs"])
     },
