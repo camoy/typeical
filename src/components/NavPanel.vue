@@ -10,6 +10,7 @@
     label="Packages"
     multiple
     :items="$store.getters.pkgNames"
+    @input="$store.dispatch('pruneFuns', selectedPkgs)"
     />
 
   <!-- Treemap -->
@@ -230,15 +231,19 @@ const nodeFun = (node) => `${node.parent.data.name}☹${node.data.name}`
 //
 export default {
     name: "NavPanel",
+
+    // Query package information to populate autocomplete
     created() { this.$store.dispatch("queryPkgs"); },
+
+    // Update treemap if a package is selected, the package list changes (due
+    // to analyzed packages changing), or the page changed.
     watch: {
-        selectedPkgs(pkgs) {
-            this.$store.dispatch("pruneFuns", pkgs);
-            updateTreemap.call(this);
-        },
+        selectedPkgs: updateTreemap,
         pkgs: updateTreemap,
         page: updateTreemap
     },
+
+    // Computed properties for rendering based on the root
     computed:{
         nodes() {
             let root = this.root;
@@ -266,8 +271,17 @@ export default {
         select
     },
     data: () => ({
+        // [Or Node false]
+        // The current root node or false if there is no treemap.
         root: false,
+
+        // Natural
+        // The current page of function results.
         page: 1,
+
+        // [Array Package]
+        // An array containing currently selected packages (from the
+        // autocomplete).
         selectedPkgs: []
     })
 };

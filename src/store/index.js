@@ -76,6 +76,7 @@ export default new Vuex.Store({
     types,
     count
   },
+
   getters: {
     pkgNames(state) {
       return state.pkgs ? state.pkgs.children.map((x) => x.name) : [];
@@ -85,12 +86,9 @@ export default new Vuex.Store({
       return state.allAnalyzed ?
              state.allAnalyzed.map((x) => x.package_being_analyzed) :
              [];
-    },
-
-    funs(state) {
-      return state.funs.map((x) => x.split("☹"));
     }
   },
+
   mutations: {
     pkgs(state, val) { state.pkgs = val; },
     types(state, val) { state.types = val; },
@@ -99,6 +97,7 @@ export default new Vuex.Store({
     allAnalyzed(state, val) { state.allAnalyzed = val; },
     funs(state, val) { state.funs = val; }
   },
+
   actions: {
     queryPkgs({ commit, state }) {
       axios.get("/api/pkgs", {
@@ -111,9 +110,10 @@ export default new Vuex.Store({
            .then(response => commit("allAnalyzed", response.data));
     },
 
-    queryTypes({ commit, getters, state }) {
+    queryTypes({ commit, state }) {
+      let funs = state.funs.map((x) => x.split("☹"));
       axios.get("/api/types", {
-        params: { funs: getters.funs, analyzed: state.analyzed}
+        params: { funs, analyzed: state.analyzed}
       }).then(response =>  commit("types", response.data));
     },
 
@@ -133,5 +133,6 @@ export default new Vuex.Store({
       dispatch("queryTypes");
     }
   },
+
   modules: {}
 });
