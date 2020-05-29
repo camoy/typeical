@@ -120,7 +120,7 @@ const exactFormat = (x) => x.toLocaleString();
 // use the default.
 function color(node) {
     if (node === this.root) return ROOT_COLOR;
-    if (this.funsShown.includes(nodeFun(node))) return SELECTED_COLOR;
+    if (this.funs.includes(nodeFun(node))) return SELECTED_COLOR;
     return DEFAULT_COLOR;
 }
 
@@ -131,9 +131,7 @@ function color(node) {
 function select(node) {
     if (node === this.root && node.parent) return this.root = node.parent;
     if (node.children) return this.root = node;
-
-    this.$store.commit("toggleFun", nodeFun(node));
-    this.$store.dispatch("queryTypes");
+    this.$store.dispatch("toggleFun", nodeFun(node));
 }
 
 //
@@ -235,8 +233,7 @@ export default {
     created() { this.$store.dispatch("queryPkgs"); },
     watch: {
         selectedPkgs(pkgs) {
-            this.$store.commit("pruneFun", pkgs);
-            this.$store.dispatch("queryTypes");
+            this.$store.dispatch("pruneFuns", pkgs);
             updateTreemap.call(this);
         },
         pkgs: updateTreemap,
@@ -259,7 +256,7 @@ export default {
                 .rangeRound([0, HEIGHT])
                 .domain([this.root.y0, this.root.y1]);
         },
-        ...mapState(["pkgs", "funsShown"])
+        ...mapState(["pkgs", "funs"])
     },
     methods: {
         setLeafUID,

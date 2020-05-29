@@ -30,7 +30,7 @@ const limit = 15;
 // The flow visualization should only include functions in this
 // list. These "pairs" will actually be strings with the pair
 // elements separated by a frowny face.
-const funsShown = [];
+const funs = [];
 
 //
 // Results
@@ -66,7 +66,7 @@ export default new Vuex.Store({
     //
     // Filtering
     //
-    funsShown,
+    funs,
 
     //
     // Results
@@ -88,27 +88,16 @@ export default new Vuex.Store({
     },
 
     funs(state) {
-      return state.funsShown.map((x) => x.split("☹"));
+      return state.funs.map((x) => x.split("☹"));
     }
   },
   mutations: {
-    pkgs(state, val) {  state.pkgs = val; },
-    types(state, val) {  state.types = val; },
-    count(state, val) {  state.count = val; },
+    pkgs(state, val) { state.pkgs = val; },
+    types(state, val) { state.types = val; },
+    count(state, val) { state.count = val; },
     analyzed(state, val) { state.analyzed = val; },
     allAnalyzed(state, val) { state.allAnalyzed = val; },
-    toggleFun(state, fun) {
-      if (state.funsShown.includes(fun)) {
-        state.funsShown =
-          state.funsShown.filter(x => x !== fun);
-      } else {
-        state.funsShown.push(fun);
-      }
-    },
-    pruneFun(state, pkgs) {
-      state.funsShown =
-        state.funsShown.filter(x => pkgs.includes(x.split("☹")[0]));
-    }
+    funs(state, val) { state.funs = val; }
   },
   actions: {
     queryPkgs({ commit, state }) {
@@ -116,14 +105,32 @@ export default new Vuex.Store({
         params: { analyzed: state.analyzed}
       }).then(response => commit("pkgs", response.data));
     },
+
     queryAnalyzed({ commit }) {
       axios.get("/api/analyzed")
            .then(response => commit("allAnalyzed", response.data));
     },
+
     queryTypes({ commit, getters, state }) {
       axios.get("/api/types", {
         params: { funs: getters.funs, analyzed: state.analyzed}
       }).then(response =>  commit("types", response.data));
+    },
+
+    toggleFun({ commit, dispatch, state }, fun) {
+      let funs =
+        state.funs.includes(fun) ?
+        state.funs.filter(x => x !== fun) :
+        state.funs.concat([fun]);
+      commit("funs", funs);
+      dispatch("queryTypes");
+    },
+
+    pruneFuns({ commit, dispatch, state }, pkgs) {
+      let funs =
+        state.funs.filter(x => pkgs.includes(x.split("☹")[0]));
+      commit("funs", funs);
+      dispatch("queryTypes");
     }
   },
   modules: {}

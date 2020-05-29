@@ -23,7 +23,7 @@
     </g>
 
     <!-- Data -->
-    <g v-if="nodes.length > 0">
+    <g>
       <!-- Type Rect -->
       <rect
         v-for="(node, k) in nodes"
@@ -128,15 +128,11 @@ const WIDTH = 1100;
 
 // Number → String
 // Returns the given number in plain-English (approximate) format.
-function plainFormat(x) {
-    return numeral(x).format("0a");
-}
+const plainFormat = (x) => numeral(x).format("0a");
 
 // Number → String
 // Returns the given number exactly, but readable (usually comma separated).
-function exactFormat(x) {
-    return x.toLocaleString();
-}
+const exactFormat = (x) => x.toLocaleString();
 
 // [Array String] → String
 // Given an array of strings, starting with the function name and listing all
@@ -147,9 +143,7 @@ function typeFormat(xs) {
 
 // Link → String
 // Returns the name of the function from the given link.
-function linkFun(link) {
-    return link.names[0];
-}
+const linkFun = (link) => link.names[0];
 
 // Link Boolean → Any
 // Given a link and a boolean indicating if the path should be highlighted,
@@ -179,6 +173,11 @@ function color(link) {
 //
 
 // Link → [Array Link]
+// Returns all incoming and outgoing links (i.e. the flow path) from the
+// given one.
+const pathLinks = (link) => ancestors(link).concat(descendants(link));
+
+// Link → [Array Link]
 // Returns the list of all links that are ancestors of the given one.
 function ancestors(link) {
     let names = link.names.join();
@@ -200,16 +199,58 @@ function descendants(link) {
         .concat([link]);
 }
 
-// Link → [Array Link]
-// Returns all incoming and outgoing links (i.e. the flow path) from the
-// given one.
-function pathLinks(link) {
-    return ancestors(link).concat(descendants(link));
-}
-
 //
 // Sankey
 //
+
+// → Any
+// Create Sankey diagram from JSON data.
+function updateSankey() {
+    const data = removeNA(this.types);
+
+    // No data (this is needed since `makeGraph` assumes data).
+    if (data.length === 0) {
+        this.nodes = this.links = [];
+        return;
+    }
+
+    // Some data
+    const graph = makeGraph(data);
+    const layout =
+          sankey()
+          .nodeSort(null)
+          .linkSort(null)
+          .nodeWidth(NODE_WIDTH)
+          .nodePadding(NODE_PADDING)
+          .extent([[0, 5], [WIDTH, HEIGHT - 5]])
+          .nodeAlign(ALIGN)
+          .nodeOrientation(ORIENTATION);
+    const { nodes, links } = layout({
+        nodes: graph.nodes.map(d => Object.assign({}, d)),
+        links: graph.links.map(d => Object.assign({}, d))
+    });
+
+    // Update nodes and links
+    this.nodes = nodes;
+    this.links = links;
+}
+
+// JSON → JSON
+// Adjusts type data by removing all NA fields and shifting over the return type
+// after the last argument.
+function removeNA(data) {
+    return data.map((row) => {
+        let d = { value: row.count };
+        for (let k of KEYS) {
+            if (row[k] == "NA") {
+                d[k] = row["arg_t_r"];
+                break;
+            }
+            d[k] = row[k];
+        }
+        return d;
+    });
+}
 
 // JSON → [Array Node] [Array Links]
 // Convert JSON representation of type data into a graph representation usable
@@ -256,55 +297,6 @@ function makeGraph(data) {
     }
 
     return { nodes, links };
-}
-
-// JSON → JSON
-// Adjusts type data by removing all NA fields and shifting over the return type
-// after the last argument.
-function removeNA(data) {
-    return data.map((row) => {
-        let d = { value: row.count };
-        for (let k of KEYS) {
-            if (row[k] == "NA") {
-                d[k] = row["arg_t_r"];
-                break;
-            }
-            d[k] = row[k];
-        }
-        return d;
-    });
-}
-
-// → Any
-// Create Sankey diagram from JSON data.
-function updateSankey() {
-    const data = removeNA(this.types);
-
-    // No data (this is needed since `makeGraph` assumes data).
-    if (data.length === 0) {
-        this.nodes = this.links = [];
-        return;
-    }
-
-    // Some data
-    const graph = makeGraph(data);
-    const layout =
-          sankey()
-          .nodeSort(null)
-          .linkSort(null)
-          .nodeWidth(NODE_WIDTH)
-          .nodePadding(NODE_PADDING)
-          .extent([[0, 5], [WIDTH, HEIGHT - 5]])
-          .nodeAlign(ALIGN)
-          .nodeOrientation(ORIENTATION);
-    const { nodes, links } = layout({
-        nodes: graph.nodes.map(d => Object.assign({}, d)),
-        links: graph.links.map(d => Object.assign({}, d))
-    });
-
-    // Update nodes and links
-    this.nodes = nodes;
-    this.links = links;
 }
 
 //
