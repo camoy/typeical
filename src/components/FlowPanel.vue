@@ -1,60 +1,101 @@
 <template>
 <v-container>
-  <svg width="100%" height="100%">
+  <svg id="flow-svg">
+    <!-- No Data -->
     <g v-if="nodes.length === 0">
-      <rect fill="none" stroke-width="1" rx="5" stroke="#666" x="5%" y="5%" width="90%" height="90%" />
-      <text text-anchor="middle" x="50%" y="50%"> No Data </text>
+      <rect
+        x="1%"
+        y="1%"
+        width="98%"
+        height="98%"
+        fill="none"
+        stroke-width="1"
+        rx="5"
+        stroke="#666"
+        />
+      <text
+        x="50%"
+        y="50%"
+        text-anchor="middle"
+        >
+        No Data
+      </text>
     </g>
-    <g>
-    <rect
-      v-for="(node, k) in nodes"
-      fill="#555"
-      style="mix-blend-mode: multiply; pointer-events: none"
-      :key="k"
-      :x="node.x0"
-      :y="node.y0"
-      :height="node.y1 - node.y0"
-      :width="node.x1 - node.x0"
-      >
-      <title> {{ node.name }} ({{ node.value.toLocaleString() }}) </title>
-    </rect>
-  </g>
-  <g fill="none">
-    <path
-      v-for="(link, k) in links"
-      style="mix-blend-mode: multiply"
-      :key="k"
-      :d="link.d"
-      :stroke="color(link)"
-      :stroke-width="link.width"
-      @mouseenter="select(link, true)"
-      @mouseleave="select(link, false)"
-      >
-      <title> {{ link.names.join(" → ") }} ({{ link.value.toLocaleString() }}) </title>
-    </path>
-  </g>
-  <g style="font: 10px sans-serif">
-    <text
-      v-for="(node, k) in nodes"
-      dy="2em"
-      text-anchor="middle"
-      style="pointer-events: none"
-      :key="k"
-      :x="node.labelX"
-      :y="node.labelY"
-      >
-      <tspan> {{ node.name }} </tspan>
-      <tspan dy="1.5em" fill-opacity="0.7" :x="node.labelX"> {{ plainFormat(node.value) }} </tspan>
-    </text>
-  </g>
-</svg>
+
+    <!-- Data -->
+    <g v-if="nodes.length > 0">
+      <!-- Type Rect -->
+      <rect
+        v-for="(node, k) in nodes"
+        class="flow-rect"
+        fill="#555"
+        :x="node.x0"
+        :y="node.y0"
+        :height="node.y1 - node.y0"
+        :width="node.x1 - node.x0"
+        :key="'flow-rect-' + k"
+        >
+        <title> {{ node.name }} ({{ exactFormat(node.value) }}) </title>
+      </rect>
+
+      <!-- Type Label -->
+      <text
+        v-for="(node, k) in nodes"
+        class="flow-type-text"
+        text-anchor="middle"
+        dy="2em"
+        :x="(node.x0 + node.x1) / 2"
+        :y="(node.y1 + node.y0) / 2"
+        :key="'flow-type-text-' + k"
+        >
+        <tspan> {{ node.name }} </tspan>
+        <tspan
+          fill-opacity="0.7"
+          dy="1.5em"
+          :x="(node.x0 + node.x1) / 2"
+          >
+          {{ plainFormat(node.value) }}
+        </tspan>
+      </text>
+
+      <!-- Flow -->
+      <path
+        v-for="(link, k) in links"
+        class="flow-path"
+        fill="none"
+        :d="layout(link)"
+        :key="'flow-path-' + k"
+        :stroke="color(link)"
+        :stroke-width="link.width"
+        @mouseenter="highlight(link, true)"
+        @mouseleave="highlight(link, false)"
+        >
+        <title> {{ typeFormat(link.names) }} ({{ exactFormat(link.value) }}) </title>
+      </path>
+    </g>
+  </svg>
 </v-container>
 </template>
 
 <style>
-  path {
+#flow-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.flow-path {
+    mix-blend-mode: multiply;
     transition: stroke 0.3s;
-  }
+}
+
+.flow-rect {
+    pointer-events: none;
+}
+
+.flow-type-text {
+    pointer-events: none;
+    font-size: 10px;
+}
 </style>
 
 <script>
@@ -69,18 +110,76 @@ import * as d3 from "d3";
 //
 // Constants
 //
-const keys = ["fun_name", "arg_t0", "arg_t1", "arg_t2", "arg_t3", "arg_t_r"];
+const KEYS = ["fun_name", "arg_t0", "arg_t1", "arg_t2", "arg_t3", "arg_t_r"];
 const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
-const SELECTION_COLOR = d3.color("#da4f81");
-const plainFormat = (d) => numeral(d).format("0a");
-const layout = sankeyLinkVertical();
-const height = 600;
-const width = 1100;
+const HIGHLIGHT_COLOR = d3.color("#da4f81");
+const UNFOCUSED_OPACITY = 0.25;
+const ALIGN = sankeyLeft;
+const ORIENTATION = sankeyVertical;
+const LAYOUT = sankeyLinkVertical();
+const NODE_WIDTH = 2;
+const NODE_PADDING = 40;
+const HEIGHT = 600;
+const WIDTH = 1100;
 
 //
-// Method
+// Methods
 //
 
+// Number → String
+// Returns the given number in plain-English (approximate) format.
+function plainFormat(x) {
+    return numeral(x).format("0a");
+}
+
+// Number → String
+// Returns the given number exactly, but readable (usually comma separated).
+function exactFormat(x) {
+    return x.toLocaleString();
+}
+
+// [Array String] → String
+// Given an array of strings, starting with the function name and listing all
+// the argument and return types, gives back a type signature string.
+function typeFormat(xs) {
+    return xs[0] + " : "  + xs.slice(1).join(" → ");
+}
+
+// Link → String
+// Returns the name of the function from the given link.
+function linkFun(link) {
+    return link.names[0];
+}
+
+// Link Boolean → Any
+// Given a link and a boolean indicating if the path should be highlighted,
+// modifies all incoming and outgoing links to be highlighted.
+function highlight(link, shouldHighlight) {
+    this.focusedFun = shouldHighlight && linkFun(link);
+    pathLinks(link).forEach((link) => link.highlighted = shouldHighlight);
+}
+
+// Link → Color
+// Returns the color for a link. If it's highlighted, then it's the highlight
+// color. If there's a function under focus, but this link isn't connected to
+// that function then it's opacity is reduced. Otherwise, give a default color
+// based on the type name.
+function color(link) {
+    if (link.highlighted) return HIGHLIGHT_COLOR;
+
+    if (this.focusedFun && linkFun(link) !== this.focusedFun)
+        return d3.color(DEFAULT_COLOR(link.target.name))
+        .copy({ opacity: UNFOCUSED_OPACITY });
+
+    return DEFAULT_COLOR(link.target.name);
+}
+
+//
+// Path Links
+//
+
+// Link → [Array Link]
+// Returns the list of all links that are ancestors of the given one.
 function ancestors(link) {
     let names = link.names.join();
     return link.source
@@ -90,6 +189,8 @@ function ancestors(link) {
         .concat([link]);
 }
 
+// Link → [Array Link]
+// Returns the list of all links that are descendants of the given one.
 function descendants(link) {
     let names = link.names.join();
     return link.target
@@ -99,35 +200,20 @@ function descendants(link) {
         .concat([link]);
 }
 
+// Link → [Array Link]
+// Returns all incoming and outgoing links (i.e. the flow path) from the
+// given one.
 function pathLinks(link) {
     return ancestors(link).concat(descendants(link));
-}
-
-function select(link, to) {
-    this.selectedFun = to && link.fun;
-    for (let link of pathLinks(link)) {
-        link.selected = to;
-    }
-    this.$forceUpdate();
-}
-
-function color(link) {
-    if (link.selected) {
-        return SELECTION_COLOR;
-    } else if (this.selectedFun && link.fun !== this.selectedFun) {
-        let c = d3.color(DEFAULT_COLOR(link.target.name));
-        c.opacity = 0.25;
-        return c;
-    } else {
-        return DEFAULT_COLOR(link.target.name);
-    }
 }
 
 //
 // Sankey
 //
 
-// Convert JSON data into graph representation.
+// JSON → [Array Node] [Array Links]
+// Convert JSON representation of type data into a graph representation usable
+// by the D3 Sankey library (from https://observablehq.com/@d3/parallel-sets).
 function makeGraph(data) {
     let index = -1;
     const nodes = [];
@@ -135,7 +221,7 @@ function makeGraph(data) {
     const indexByKey = new Map;
     const links = [];
 
-    for (const k of keys) {
+    for (const k of KEYS) {
         for (const d of data) {
             const key = JSON.stringify([k, d[k]]);
             if (!d[k] || nodeByKey.has(key)) continue;
@@ -146,10 +232,10 @@ function makeGraph(data) {
         }
     }
 
-    for (let i = 1; i < keys.length; ++i) {
-        const a = keys[i - 1];
-        const b = keys[i];
-        const prefix = keys.slice(0, i + 1);
+    for (let i = 1; i < KEYS.length; ++i) {
+        const a = KEYS[i - 1];
+        const b = KEYS[i];
+        const prefix = KEYS.slice(0, i + 1);
         const linkByKey = new Map;
         for (const d of data) {
             if (!d[a] || !d[b]) continue;
@@ -172,59 +258,51 @@ function makeGraph(data) {
     return { nodes, links };
 }
 
-function shiftReturn(row) {
-    let d = { value: row.count };
-    let shouldRemove = false;
-    for (let k of keys) {
-        if (shouldRemove) continue;
-
-        if (row[k] == "NA") {
-            d[k] = row["arg_t_r"];
-            shouldRemove = true;
-        } else {
+// JSON → JSON
+// Adjusts type data by removing all NA fields and shifting over the return type
+// after the last argument.
+function removeNA(data) {
+    return data.map((row) => {
+        let d = { value: row.count };
+        for (let k of KEYS) {
+            if (row[k] == "NA") {
+                d[k] = row["arg_t_r"];
+                break;
+            }
             d[k] = row[k];
         }
-    }
-    return d;
+        return d;
+    });
 }
 
+// → Any
 // Create Sankey diagram from JSON data.
-function chart() {
-    const data = this.types.map(shiftReturn);
+function updateSankey() {
+    const data = removeNA(this.types);
 
-    // Empty case
+    // No data (this is needed since `makeGraph` assumes data).
     if (data.length === 0) {
         this.nodes = this.links = [];
         return;
     }
 
-    // Non-empty case
+    // Some data
     const graph = makeGraph(data);
-    const sankeyLayout =
+    const layout =
           sankey()
           .nodeSort(null)
           .linkSort(null)
-          .nodeWidth(2)
-          .nodePadding(40)
-          .extent([[0, 5], [width, height - 5]])
-          .nodeAlign(sankeyLeft)
-          .nodeOrientation(sankeyVertical);
-
-    const {nodes, links} = sankeyLayout({
+          .nodeWidth(NODE_WIDTH)
+          .nodePadding(NODE_PADDING)
+          .extent([[0, 5], [WIDTH, HEIGHT - 5]])
+          .nodeAlign(ALIGN)
+          .nodeOrientation(ORIENTATION);
+    const { nodes, links } = layout({
         nodes: graph.nodes.map(d => Object.assign({}, d)),
         links: graph.links.map(d => Object.assign({}, d))
     });
 
-    for (let node of nodes) {
-        node.labelX = (node.x0 + node.x1) / 2;
-        node.labelY = (node.y1 + node.y0) / 2;
-    }
-
-    for (let link of links) {
-        link.fun = link.names[0];
-        link.d = layout(link);
-    }
-
+    // Update nodes and links
     this.nodes = nodes;
     this.links = links;
 }
@@ -234,20 +312,29 @@ function chart() {
 //
 export default {
     name: "FlowPanel",
-    created() { this.$store.dispatch("queryTypes"); },
-    watch: { types: chart },
+
+    // Update Sankey when $store.types changes
+    watch: { types: updateSankey },
     computed: mapState(["types"]),
     methods: {
+        plainFormat,
+        exactFormat,
+        typeFormat,
+        highlight,
         color,
-        select,
-        plainFormat
+        layout: LAYOUT
     },
     data: () => ({
-        DEFAULT_COLOR,
-        SELECTION_COLOR,
+        // [Or String false]
+        // The currently focused function or false if none is focused.
+        focusedFun: false,
 
-        selectedFun: false,
+        // [Array Node]
+        // Array of Sankey nodes for rendering.
         nodes: [],
+
+        // [Array Link]
+        // Array of Sankey links for rendering.
         links: []
     })
 };
