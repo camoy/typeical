@@ -161,8 +161,55 @@ Id.prototype.toString = function() {
 // Source: https://observablehq.com/@d3/zoomable-treemap
 //
 
-// HACK: For when your language doesn't have value equality.
-const nodeFun = (node) => `${node.parent.data.name}☹${node.data.name}`
+// → Any
+// Create treemap from JSON data.
+function updateTreemap() {
+    const children = makeChildren(this.pkgs, this.selectedPkgs, this.page);
+    const labelValue = children.reduce((acc, x) => acc + x.labelValue, 0);
+    const data = { name: "packages", children, labelValue };
+    const hierarchy = d3.hierarchy(data).sum(d => d.value).sort((a, b) => b.value - a.value);
+    const newRoot = d3.treemap().tile(tile)(hierarchy);
+    this.root = this.root ? nextRoot(this.root, newRoot) : newRoot;
+}
+
+// [Array Package] [Array Package] Natural → [Array Package]
+// Given JSON data and some constraints (selected packages and current page)
+// adjusts the data accordingly.
+function makeChildren(pkgs, selectedPkgs, page) {
+    let children =
+        _.cloneDeep(pkgs.children)
+        .filter(x => selectedPkgs.includes(x.name));
+    for (let pkg of children) {
+        pkg.labelValue = pkg.children.reduce((acc, x) => acc + x.value, 0);
+        pkg.pages = Math.ceil(pkg.children.length / LIMIT);
+        pkg.children = pkg.children.slice((page - 1) * LIMIT, page * LIMIT);
+    }
+    return children;
+}
+
+// Node Node → Node
+// Given the current node and the root of a newly calculated treemap, determines
+// the new root. This is either the same place as `cur` if it exists in `newRoot`
+// or `newRoot` itself if it no longer exists.
+function nextRoot(cur, newRoot) {
+    // Ascend from `cur`
+    let stack = [];
+    do {
+        stack.push(cur.data.name);
+        cur = cur.parent;
+    } while (cur);
+
+    // Descend from `newRoot` using path in `stack`
+    stack.pop();
+    cur = newRoot;
+    while (cur && stack.length > 0) {
+        let name = stack.pop();
+        cur = cur.children && cur.children.find(e => e.data.name === name);
+    }
+
+    // Old position if it exists, otherwise use new root
+    return cur || newRoot;
+}
 
 // Node Number Number Number Number → Any
 // Sets the dimensions of the children of the current node based on the
@@ -177,41 +224,8 @@ function tile(node, x0, y0, x1, y1) {
     }
 }
 
-function findNewRoot(root) {
-    let cur = this.root;
-    let stack = [];
-    do {
-        stack.push(cur.data.name);
-        cur = cur.parent;
-    } while (cur);
-
-    stack.pop();
-    cur = root;
-    while (cur && stack.length > 0) {
-        let name = stack.pop();
-        cur = cur.children && cur.children.find(e => e.data.name === name);
-    }
-
-    return cur || root;
-}
-
-function makeTree() {
-    let selectedPkgs = this.selectedPkgs;
-    let selectedChildren =
-        _.cloneDeep(this.pkgs.children)
-        .filter(x => selectedPkgs.includes(x.name));
-    for (let pkg of selectedChildren) {
-        pkg.labelValue = pkg.children.reduce((acc, x) => acc + x.value, 0);
-        pkg.pages = Math.ceil(pkg.children.length / LIMIT);
-        pkg.children = pkg.children.slice((this.page - 1) * LIMIT, this.page * LIMIT);
-    }
-    let labelValue = selectedChildren.reduce((acc, x) => acc + x.labelValue, 0);
-    let data = { name: "packages", children: selectedChildren, labelValue };
-    let hierarchy = d3.hierarchy(data).sum(d => d.value).sort((a, b) => b.value - a.value);
-    let root = d3.treemap().tile(tile)(hierarchy);
-    let newRoot = this.root ? findNewRoot.call(this, root) : root;
-    this.root = newRoot;
-}
+// HACK: For when your language doesn't have value equality.
+const nodeFun = (node) => `${node.parent.data.name}☹${node.data.name}`
 
 //
 // Exports
@@ -223,10 +237,10 @@ export default {
         selectedPkgs(pkgs) {
             this.$store.commit("pruneFun", pkgs);
             this.$store.dispatch("queryTypes");
-            makeTree.call(this);
+            updateTreemap.call(this);
         },
-        pkgs: makeTree,
-        page: makeTree
+        pkgs: updateTreemap,
+        page: updateTreemap
     },
     computed:{
         nodes() {
