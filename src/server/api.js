@@ -1,4 +1,10 @@
 //
+// Express
+//
+let express = require("express");
+let router = express.Router();
+
+//
 // Database
 //
 const url = process.env.TYPEVIS_DB;
@@ -35,11 +41,13 @@ function query(sql, params, f) {
 //
 // Export
 //
-module.exports = app => {
+module.exports = (app, server) => {
+  app.use(server.options.publicPath, router);
+
   //
   // GET /api/pkgs
   //
-  app.get("/api/pkgs", function(req, res) {
+  router.get("/api/pkgs", function(req, res) {
     const analyzed = req.query.analyzed || [];
     const where = OR(PKG_ANALYZED_EQ, analyzed.length, TRUE);
 
@@ -58,14 +66,14 @@ module.exports = app => {
   //
   // GET /api/analyzed
   //
-  app.get("/api/analyzed", function(req, res) {
+  router.get("/api/analyzed", function(req, res) {
     query(PKG_ANALYZED, [], names => res.json(names));
   });
 
   //
   // GET /api/types
   //
-  app.get("/api/types", function(req, res) {
+  router.get("/api/types", function(req, res) {
     let analyzed = req.query.analyzed || [];
     let funs = req.query.funs || [];
     funs = funs.map(JSON.parse);
