@@ -78,21 +78,21 @@ export default new Vuex.Store({
   actions: {
     // Query for the list of defined packages and function information
     queryPkgs({ commit, state }) {
-      axios.get("/api/pkgs", {
+      axios.get("api/pkgs", {
         params: { analyzed: state.analyzed}
       }).then(response => commit("pkgs", response.data));
     },
 
     // Query for the list of analyzed packages
     queryAnalyzed({ commit }) {
-      axios.get("/api/analyzed")
+      axios.get("api/analyzed")
            .then(response => commit("allAnalyzed", response.data));
     },
 
     // Query for type information
     queryTypes({ commit, state }) {
       let funs = state.funs.map(JSON.parse);
-      axios.get("/api/types", {
+      axios.get("api/types", {
         params: { funs, analyzed: state.analyzed}
       }).then(response =>  commit("types", response.data));
     },
