@@ -133,6 +133,7 @@ export default new Vuex.Store({
     setAnalyzed({ commit, dispatch }, pkgs) {
       commit("analyzed", pkgs);
       dispatch("queryPkgs");
+      dispatch("queryPkgsList");
       dispatch("queryTypes");
     }
   },

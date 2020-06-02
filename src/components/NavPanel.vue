@@ -13,13 +13,52 @@
     @input="$store.dispatch('pruneFuns', selectedPkgs)"
     />
 
+  <!-- Packages Treemap -->
   <svg viewBox="0.5 -120.5 954 1020" style="font: 30px sans-serif">
-    <text> {{ pkgNames }} </text>
-    <g
-      v-for="(pkgName, k) in pkgNames"
-      :key="k"
-      >
-      <text> {{ pkgName }} </text>
+    <!-- No Data -->
+    <g v-if="pkgsList.length === 0">
+      <rect
+        fill="none"
+        stroke-width="2"
+        rx="5"
+        stroke="#666"
+        x="25"
+        y="25"
+        width="904"
+        height="1150"
+        />
+      <text text-anchor="middle" x="477" y="660">
+        No Defined Packages
+      </text>
+    </g>
+    <!-- Data -->
+    <g v-for="(node, k) in pkgsNodes"
+       :key="k"
+       :transform="node === pkgsRoot ? `translate(0,-120)` : `translate(${pkgsX(node.x0)},${pkgsX(node.y0)})`"
+       :cursor="(node !== pkgsRoot) ? 'pointer' : 'auto'"
+       >
+      <title> {{ node.data.name }} ({{ exactFormat(node.value) }}) </title>
+      <rect
+        stroke="#fff"
+        :id="setLeafUID(node)"
+        :width="node === root ? 954 : pkgsX(node.x1) - pkgsX(node.x0)"
+        :height="node === root ? 120 : pkgsY(node.y1) - pkgsY(node.y0)"
+        />
+      <clipPath :id="setClipUID(node)">
+        <use :xlink:href="node.leafUid.href" />
+      </clipPath>
+      <text
+        dominant-baseline="hanging"
+        :clip-path="node.clipUid"
+        :font-weight="node === pkgsRoot ? 'bold' : null"
+        >
+        <tspan x="1em" y="1em">
+          {{ 5 }}
+        </tspan>
+        <tspan x="1em" y="2.25em" fill-opacity="0.7" font-weight="normal">
+          {{ -5 }}
+        </tspan>
+      </text>
     </g>
   </svg>
 
@@ -236,6 +275,28 @@ function tile(node, x0, y0, x1, y1) {
 // HACK: For when your language doesn't have value equality.
 const nodeFun = node => JSON.stringify([node.parent.data.name, node.data.name]);
 
+// Updates the treemap of packages
+function processPkgsList() {
+  //console.log(this.pkgsList);
+  let start = 0;
+  let end = LIMIT;
+  while (start < this.pkgsList.length) {
+    let chunk = this.pkgsList.slice(start, end);
+    this.pkgsListPages.push(
+      { name: "packages"
+      , count: chunk.reduce((acc, x) => acc + x.count, 0)
+      , children: chunk } 
+    );
+    start = end;
+    end += LIMIT;
+  }
+  //console.log(this.pkgsListPages);
+  const hierarchy = d3.hierarchy(this.pkgsListPages[0])
+    .sum(d => d.value).sort((a, b) => b.value - a.value);
+  const newRoot = d3.treemap().tile(tile)(hierarchy);
+  this.pkgsRoot = newRoot;
+}
+
 //
 // Exports
 //
@@ -245,7 +306,7 @@ export default {
     // Query package information to populate autocomplete
     created() { 
       this.$store.dispatch("queryPkgs"); 
-      this.$store.dispatch("queryPkgsList"); 
+      this.$store.dispatch("queryPkgsList");
     },
 
     // Update treemap if a package is selected, the package list changes (due
@@ -253,6 +314,7 @@ export default {
     watch: {
         selectedPkgs: updateTreemap,
         pkgs: updateTreemap,
+        pkgsList: processPkgsList,
         page: updateTreemap
     },
 
@@ -277,7 +339,23 @@ export default {
         pkgNames() {
             return this.pkgs ? this.pkgs.children.map(x => x.name) : [];
         },
-        ...mapState(["pkgs", "funs"])
+        pkgsNodes() {
+            let root = this.pkgsRoot;
+            return root && root.children ? root.children.concat(root) : [];
+        },
+        pkgsX() {
+            return d3
+                .scaleLinear()
+                .rangeRound([0, WIDTH])
+                .domain([this.pkgsRoot.x0, this.pkgsRoot.x1]);
+        },
+        pkgsY() {
+            return d3
+                .scaleLinear()
+                .rangeRound([0, HEIGHT])
+                .domain([this.pkgsRoot.y0, this.pkgsRoot.y1]);
+        },
+        ...mapState(["pkgs", "funs", "pkgsList"])
     },
     methods: {
         setLeafUID,
@@ -300,6 +378,8 @@ export default {
         // autocomplete).
         selectedPkgs: [],
 
+        // An array of pages with data for packages treemap
+        pkgsListPages: [],
         // [Or Node false]
         // The current pkgs root node or false if there is no treemap.
         pkgsRoot: false,
