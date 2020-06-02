@@ -45,6 +45,10 @@ const allAnalyzed = [];
 const pkgs = false;
 
 // List
+// An array of defined packages.
+const pkgsList = [];
+
+// List
 // An array of results from querying function type information.
 const types = [];
 
@@ -62,12 +66,14 @@ export default new Vuex.Store({
     funs,
     allAnalyzed,
     pkgs,
+    pkgsList, // list of defined pkgs
     types,
     count
   },
 
   mutations: {
     pkgs(state, val) { state.pkgs = val; },
+    pkgsList(state, val) { state.pkgsList = val; },
     types(state, val) { state.types = val; },
     count(state, val) { state.count = val; },
     analyzed(state, val) { state.analyzed = val; },
@@ -95,6 +101,13 @@ export default new Vuex.Store({
       axios.get("api/types", {
         params: { funs, analyzed: state.analyzed}
       }).then(response =>  commit("types", response.data));
+    },
+
+    // Query for the list of defined packages
+    queryPkgsList({ commit, state }) {
+      axios.get("api/pkgslist", {
+        params: { analyzed: state.analyzed}
+      }).then(response => commit("pkgsList", response.data));
     },
 
     // Given a function, toggles whether that function is selected

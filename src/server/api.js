@@ -18,7 +18,10 @@ const PKG_FUNS =
   where => `SELECT package, fun_name, SUM(count) as count FROM sums
             WHERE ${where} GROUP BY fun_name`;
 const PKG_ANALYZED = `SELECT * FROM analyzed_packages`;
-const TYPES = where => `SELECT * FROM aggregated_types WHERE ${where}`
+const TYPES = where => `SELECT * FROM aggregated_types WHERE ${where}`;
+const PKGS_LIST =
+  where => `SELECT package, SUM(count) as count FROM sums
+            WHERE ${where} GROUP BY package ORDER BY count DESC`;
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
 const PKG_ANALYZED_EQ = "package_being_analyzed = ?";
 
@@ -84,6 +87,18 @@ module.exports = (app, server) => {
 
     query(TYPES(where), funs.flat().concat(analyzed), function(results) {
       res.json(results);
+    });
+  });
+
+  //
+  // GET /api/pkgslist
+  //
+  router.get("/api/pkgslist", function(req, res) {
+    const analyzed = req.query.analyzed || [];
+    const where = OR(PKG_ANALYZED_EQ, analyzed.length, TRUE);
+
+    query(PKGS_LIST(where), analyzed, function(items) {
+      res.json(items);
     });
   });
 }

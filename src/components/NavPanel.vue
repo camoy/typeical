@@ -243,7 +243,10 @@ export default {
     name: "NavPanel",
 
     // Query package information to populate autocomplete
-    created() { this.$store.dispatch("queryPkgs"); },
+    created() { 
+      this.$store.dispatch("queryPkgs"); 
+      this.$store.dispatch("queryPkgsList"); 
+    },
 
     // Update treemap if a package is selected, the package list changes (due
     // to analyzed packages changing), or the page changed.
@@ -295,7 +298,11 @@ export default {
         // [Array Package]
         // An array containing currently selected packages (from the
         // autocomplete).
-        selectedPkgs: []
+        selectedPkgs: [],
+
+        // [Or Node false]
+        // The current pkgs root node or false if there is no treemap.
+        pkgsRoot: false,
     })
 };
 </script>

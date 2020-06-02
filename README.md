@@ -11,3 +11,9 @@ Assuming you have the database stored at `~/data.db`, run the server by setting 
 ```
 TYPEVIS_DB=~/data.db npm run serve
 ```
+
+Running on server:
+
+```
+BASE_MODE=server TYPEVIS_DB=small.db npm run serve -- --port 8006
+```
