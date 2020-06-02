@@ -74,6 +74,12 @@
       </path>
     </g>
   </svg>
+
+  <!-- Pagination -->
+  <v-pagination
+    v-model="page"
+    :length="pages"
+    />
 </v-container>
 </template>
 
@@ -117,6 +123,7 @@ const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
 const ORIENTATION = sankeyVertical;
 const LAYOUT = sankeyLinkVertical();
+const LIMIT = 3;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
 const HEIGHT = 600;
@@ -215,7 +222,7 @@ function updateSankey() {
     }
 
     // Some data
-    const graph = makeGraph(data);
+    const graph = makeGraph(limitPage(data, this.funs, this.pkgs, this.page));
     const layout =
           sankey()
           .nodeSort(null)
@@ -250,6 +257,24 @@ function removeNA(data) {
         }
         return d;
     });
+}
+
+// JSON → JSON
+// Return only rows that correspond to the current page of results.
+function limitPage(data, funs, pkgs, page) {
+    let funsAndCount = [];
+    for (const funStr of funs) {
+        const fun = JSON.parse(funStr);
+        const pkg = pkgs.children.find(x => x.name === fun[0]);
+        const name = pkg.children.find(x => x.name === fun[1]);
+        funsAndCount.push(name);
+    }
+    let funsOnPage =
+        funsAndCount
+        .sort((x, y) => y.value - x.value)
+        .slice((page - 1) * LIMIT, page * LIMIT)
+        .map(x => x.name);
+    return data.filter(x => funsOnPage.includes(x.fun_name));
 }
 
 // JSON → [Array Node] [Array Links]
@@ -306,8 +331,16 @@ export default {
     name: "FlowPanel",
 
     // Update Sankey when $store.types changes
-    watch: { types: updateSankey },
-    computed: mapState(["types"]),
+    watch: {
+        types: updateSankey,
+        page: updateSankey
+    },
+    computed: {
+        pages() {
+            return Math.ceil(this.funs.length / LIMIT);
+        },
+        ...mapState(["types", "funs", "pkgs"])
+    },
     methods: {
         plainFormat,
         exactFormat,
@@ -320,6 +353,10 @@ export default {
         // [Or String false]
         // The currently focused function or false if none is focused.
         focusedFun: false,
+
+        // Natural
+        // The current page of type results.
+        page: 1,
 
         // [Array Node]
         // Array of Sankey nodes for rendering.

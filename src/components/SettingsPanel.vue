@@ -1,6 +1,6 @@
 <template>
 <div class="pa-10">
-  <v-form class="settings-form">
+  <v-form id="settings-form">
     <v-autocomplete
       v-model="selectedAnalyzed"
       outlined

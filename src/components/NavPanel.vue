@@ -13,6 +13,7 @@
     @input="$store.dispatch('pruneFuns', selectedPkgs)"
     />
 
+  <!--
   <svg viewBox="0.5 -120.5 954 1020" style="font: 30px sans-serif">
     <text> {{ pkgNames }} </text>
     <g
@@ -22,6 +23,7 @@
       <text> {{ pkgName }} </text>
     </g>
   </svg>
+  -->
 
   <!-- Treemap -->
   <svg id="nav-svg" viewBox="0.5 -120.5 954 1320">

@@ -17,10 +17,6 @@ Vue.use(Vuex);
 // then include all analysis results.
 const analyzed = [];
 
-// Natural
-// Number of functions that are returned in the results.
-const limit = 15;
-
 //
 // Filtering
 //
@@ -58,7 +54,6 @@ const count = 0;
 export default new Vuex.Store({
   state: {
     analyzed,
-    limit,
     funs,
     allAnalyzed,
     pkgs,
@@ -93,7 +88,7 @@ export default new Vuex.Store({
     queryTypes({ commit, state }) {
       let funs = state.funs.map(JSON.parse);
       axios.get("/api/types", {
-        params: { funs, analyzed: state.analyzed}
+        params: { funs, analyzed: state.analyzed }
       }).then(response =>  commit("types", response.data));
     },
 
