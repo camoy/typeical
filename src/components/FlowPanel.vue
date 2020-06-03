@@ -4,18 +4,16 @@
     <!-- No Data -->
     <g v-if="nodes.length === 0">
       <rect
-        x="1%"
-        y="1%"
         width="98%"
         height="98%"
         fill="none"
         stroke-width="1"
-        rx="5"
         stroke="#666"
         />
       <text
         x="50%"
         y="50%"
+        fill="#666"
         text-anchor="middle"
         >
         No Data
@@ -222,7 +220,7 @@ function updateSankey() {
     }
 
     // Some data
-    const graph = makeGraph(limitPage(data, this.funs, this.pkgs, this.page));
+    const graph = makeGraph(limitPage(data, this.selectedFuns, this.page));
     const layout =
           sankey()
           .nodeSort(null)
@@ -247,7 +245,7 @@ function updateSankey() {
 // after the last argument.
 function removeNA(data) {
     return data.map((row) => {
-        let d = { value: row.count };
+        let d = { value: row.count, package: row.package };
         for (let k of KEYS) {
             if (row[k] == "NA") {
                 d[k] = row["arg_t_r"];
@@ -261,20 +259,9 @@ function removeNA(data) {
 
 // JSON → JSON
 // Return only rows that correspond to the current page of results.
-function limitPage(data, funs, pkgs, page) {
-    let funsAndCount = [];
-    for (const funStr of funs) {
-        const fun = JSON.parse(funStr);
-        const pkg = pkgs.children.find(x => x.name === fun[0]);
-        const name = pkg.children.find(x => x.name === fun[1]);
-        funsAndCount.push(name);
-    }
-    let funsOnPage =
-        funsAndCount
-        .sort((x, y) => y.value - x.value)
-        .slice((page - 1) * LIMIT, page * LIMIT)
-        .map(x => x.name);
-    return data.filter(x => funsOnPage.includes(x.fun_name));
+function limitPage(data, selectedFuns, page) {
+    let funsSlice = selectedFuns.slice((page - 1) * LIMIT, page * LIMIT);
+    return data.filter(x => funsSlice.includes(JSON.stringify([x.package, x.fun_name])));
 }
 
 // JSON → [Array Node] [Array Links]
@@ -335,12 +322,14 @@ export default {
         types: updateSankey,
         page: updateSankey
     },
+
     computed: {
         pages() {
-            return Math.ceil(this.funs.length / LIMIT);
+            return this.selectedFuns ? Math.ceil(this.selectedFuns.length / LIMIT) : 1;
         },
-        ...mapState(["types", "funs", "pkgs"])
+        ...mapState(["types", "selectedFuns"])
     },
+
     methods: {
         plainFormat,
         exactFormat,
@@ -349,6 +338,7 @@ export default {
         color,
         layout: LAYOUT
     },
+
     data: () => ({
         // [Or String false]
         // The currently focused function or false if none is focused.

@@ -14,16 +14,19 @@ let db = new sqlite3.Database(url);
 //
 // Queries
 //
-const PKG_FUNS =
-  where => `SELECT package, fun_name, SUM(count) as count FROM sums
-            WHERE ${where} GROUP BY fun_name`;
-const PKG_ANALYZED = `SELECT * FROM analyzed_packages`;
-const TYPES = where => `SELECT * FROM aggregated_types WHERE ${where}`;
-const PKGS_LIST =
+
+const ANALYZED = `SELECT * FROM analyzed_packages`;
+const PKGS =
   where => `SELECT package, SUM(count) as count FROM sums
             WHERE ${where} GROUP BY package ORDER BY count DESC`;
+const FUNS =
+  where => `SELECT fun_name, SUM(count) as count FROM sums
+            WHERE ${where} GROUP BY fun_name`;
+const TYPES = where => `SELECT * FROM aggregated_types WHERE ${where}`;
+
+const ANALYZED_EQ = "package_being_analyzed = ?";
+const PKG_EQ = "package = ?";
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
-const PKG_ANALYZED_EQ = "package_being_analyzed = ?";
 
 //
 // Util
@@ -48,29 +51,35 @@ module.exports = (app, server) => {
   app.use(server.options.publicPath, router);
 
   //
+  // GET /api/analyzed
+  //
+  router.get("/api/analyzed", function(req, res) {
+    query(ANALYZED, [], names => res.json(names));
+  });
+
+  //
   // GET /api/pkgs
   //
   router.get("/api/pkgs", function(req, res) {
     const analyzed = req.query.analyzed || [];
-    const where = OR(PKG_ANALYZED_EQ, analyzed.length, TRUE);
-
-    query(PKG_FUNS(where), analyzed, function(names) {
-      let result = {}
-      for (const e of names) {
-        let { package, fun_name, count } = e;
-        if (!result[package])
-          result[package] = { name: package, children: [] }
-        result[package].children.push({ name: fun_name, value: count });
-      }
-      res.json({ name: "packages", children: Object.values(result) });
+    const where = OR(ANALYZED_EQ, analyzed.length, TRUE);
+    query(PKGS(where), analyzed, function(items) {
+      res.json(items);
     });
   });
 
   //
-  // GET /api/analyzed
+  // GET /api/funs
   //
-  router.get("/api/analyzed", function(req, res) {
-    query(PKG_ANALYZED, [], names => res.json(names));
+  router.get("/api/funs", function(req, res) {
+    const analyzed = req.query.analyzed || [];
+    const pkg = req.query.pkg;
+    const where = OR(ANALYZED_EQ, analyzed.length, TRUE) +
+                  " AND " +
+                  PKG_EQ;
+    query(FUNS(where), analyzed.concat([pkg]), function(items) {
+      res.json(items);
+    });
   });
 
   //
@@ -83,22 +92,10 @@ module.exports = (app, server) => {
     let where =
       OR(PKG_FUN_EQ, funs.length, FALSE) +
       " AND " +
-      OR(PKG_ANALYZED_EQ, analyzed.length, TRUE);
+      OR(ANALYZED_EQ, analyzed.length, TRUE);
 
     query(TYPES(where), funs.flat().concat(analyzed), function(results) {
       res.json(results);
-    });
-  });
-
-  //
-  // GET /api/pkgslist
-  //
-  router.get("/api/pkgslist", function(req, res) {
-    const analyzed = req.query.analyzed || [];
-    const where = OR(PKG_ANALYZED_EQ, analyzed.length, TRUE);
-
-    query(PKGS_LIST(where), analyzed, function(items) {
-      res.json(items);
     });
   });
 }

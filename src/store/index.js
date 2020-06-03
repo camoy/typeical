@@ -21,12 +21,15 @@ const analyzed = [];
 // Filtering
 //
 
+// [Or #f String]
+// Contains the currently selectede package.
+const selectedPkg = false;
+
 // [Listof String]
 // This array contains pairs of package and function names.
 // The flow visualization should only include functions in this
-// list. These "pairs" will actually be strings with the pair
-// elements separated by a frowny face.
-const funs = [];
+// list.
+const selectedFuns = [];
 
 //
 // Results
@@ -36,21 +39,17 @@ const funs = [];
 // List of packages that were analyzed.
 const allAnalyzed = [];
 
-// Object
-// Information about packages, functions, and their usage.
+// [Or #f List]
+// List of defined packages.
 const pkgs = false;
 
-// List
-// An array of defined packages.
-const pkgsList = [];
+// [Or #f List]
+// List of functions defined in the current package.
+const funs = false;
 
 // List
 // An array of results from querying function type information.
 const types = [];
-
-// Natural
-// The number of rows of results.
-const count = 0;
 
 //
 // Store
@@ -58,69 +57,72 @@ const count = 0;
 export default new Vuex.Store({
   state: {
     analyzed,
-    funs,
+    selectedPkg,
+    selectedFuns,
     allAnalyzed,
+    funs,
     pkgs,
-    pkgsList, // list of defined pkgs
-    types,
-    count
+    types
   },
 
   mutations: {
-    pkgs(state, val) { state.pkgs = val; },
-    pkgsList(state, val) { state.pkgsList = val; },
-    types(state, val) { state.types = val; },
-    count(state, val) { state.count = val; },
     analyzed(state, val) { state.analyzed = val; },
+    selectedPkg(state, val) { state.selectedPkg = val; },
+    selectedFuns(state, val) { state.selectedFuns = val; },
     allAnalyzed(state, val) { state.allAnalyzed = val; },
-    funs(state, val) { state.funs = val; }
+    funs(state, val) { state.funs = val; },
+    pkgs(state, val) { state.pkgs = val; },
+    types(state, val) { state.types = val; }
   },
 
   actions: {
-    // Query for the list of defined packages and function information
-    queryPkgs({ commit, state }) {
-      axios.get("api/pkgs", {
-        params: { analyzed: state.analyzed}
-      }).then(response => commit("pkgs", response.data));
-    },
-
     // Query for the list of analyzed packages
     queryAnalyzed({ commit }) {
       axios.get("api/analyzed")
            .then(response => commit("allAnalyzed", response.data));
     },
 
+    // Query for the list of defined packages
+    queryPkgs({ commit, state }) {
+      // TODO return back to real endpoint
+      // axios.get("api/pkgs", {
+      axios.get("pkgs.json", {
+        params: { analyzed: state.analyzed }
+      }).then(response => commit("pkgs", response.data));
+    },
+
+    // Query for the list of functions
+    queryFuns({ commit, state }) {
+      axios.get("api/funs", {
+        params: { analyzed: state.analyzed, pkg: state.selectedPkg }
+      }).then(response => commit("funs", response.data));
+    },
+
     // Query for type information
     queryTypes({ commit, state }) {
-      let funs = state.funs.map(JSON.parse);
+      let funs = state.selectedFuns.map(JSON.parse);
       axios.get("api/types", {
-        params: { funs, analyzed: state.analyzed}
+        params: { funs, analyzed: state.analyzed }
       }).then(response =>  commit("types", response.data));
     },
 
-    // Query for the list of defined packages
-    queryPkgsList({ commit, state }) {
-      axios.get("api/pkgslist", {
-        params: { analyzed: state.analyzed}
-      }).then(response => commit("pkgsList", response.data));
+    // Given a package, toggles whether that package is selected
+    togglePkg({ commit, state, dispatch }, pkg) {
+      let newPkg =
+        state.selectedPkg === pkg ?
+        false :
+        pkg;
+      commit("selectedPkg", newPkg);
+      dispatch("queryFuns");
     },
 
     // Given a function, toggles whether that function is selected
     toggleFun({ commit, dispatch, state }, fun) {
-      let funs =
-        state.funs.includes(fun) ?
-        state.funs.filter(x => x !== fun) :
-        state.funs.concat([fun]);
-      commit("funs", funs);
-      dispatch("queryTypes");
-    },
-
-    // Given a list of packages, prunes the selected functions to make sure
-    // only functions contained in the package list remain
-    pruneFuns({ commit, dispatch, state }, pkgs) {
-      let funs =
-        state.funs.filter(x => pkgs.includes(JSON.parse(x)[0]));
-      commit("funs", funs);
+      let selectedFuns =
+        state.selectedFuns.includes(fun) ?
+        state.selectedFuns.filter(x => x !== fun) :
+        state.selectedFuns.concat([fun]);
+      commit("selectedFuns", selectedFuns);
       dispatch("queryTypes");
     },
 
@@ -128,7 +130,6 @@ export default new Vuex.Store({
     setAnalyzed({ commit, dispatch }, pkgs) {
       commit("analyzed", pkgs);
       dispatch("queryPkgs");
-      dispatch("queryPkgsList");
       dispatch("queryTypes");
     }
   },

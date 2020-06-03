@@ -3,7 +3,7 @@
   <v-content>
     <v-container class="fill-height" fluid>
       <v-row justify="center">
-        <v-col id="app-vcol" cols="10">
+        <v-col id="app-vcol" cols="11">
           <TabView />
         </v-col>
       </v-row>

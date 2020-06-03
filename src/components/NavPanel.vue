@@ -1,139 +1,84 @@
 <template>
 <v-container>
-  <!-- Package selection -->
-  <v-autocomplete
-    v-model="selectedPkgs"
-    outlined
-    chips
-    small-chips
-    deletable-chips
-    label="Packages"
-    multiple
-    :items="pkgNames"
-    @input="$store.dispatch('pruneFuns', selectedPkgs)"
-    />
-
-  <!-- Packages Treemap -->
-  <svg viewBox="-0.5 -120.5 954 1320" style="font: 30px sans-serif">
-    <!-- No Data -->
-    <g v-if="pkgsList.length === 0">
-      <rect
-        fill="none"
-        stroke-width="2"
-        rx="5"
-        stroke="#666"
-        x="25"
-        y="25"
-        width="904"
-        height="1150"
-        />
-      <text text-anchor="middle" x="477" y="660">
-        No Defined Packages
-      </text>
-    </g>
-
-    <!-- Packages Data -->
-    <g v-for="(node, k) in pkgsNodes"
-       :key="k"
-       :transform="node === pkgsRoot ? `translate(0,-${TM_ROOT_HEIGHT})` : `translate(${pkgsX(node.x0)},${pkgsY(node.y0)})`"
-       :cursor="(node !== pkgsRoot) ? 'pointer' : 'auto'"
-       >
-      <title> {{ node.data.name }} ({{ exactFormat(node.value) }}) </title>
-      <rect
-        stroke="#000" fill="#fff"
-        :id="setLeafUID(node)"
-        :width="node === pkgsRoot ? TM_WIDTH : pkgsX(node.x1) - pkgsX(node.x0)"
-        :height="node === pkgsRoot ? TM_ROOT_HEIGHT : pkgsY(node.y1) - pkgsY(node.y0)"
-        />
-      <clipPath :id="setClipUID(node)">
-        <use :xlink:href="node.leafUid.href" />
-      </clipPath>
-      <text
-        dominant-baseline="hanging"
-        :clip-path="node.clipUid"
-        :font-weight="node === pkgsRoot ? 'bold' : null"
-        >
-        <tspan x="1em" y="1em">
-          {{ node.data.name }}
-        </tspan>
-        <tspan x="1em" y="2.25em" fill-opacity="0.7" font-weight="normal">
-          {{ exactFormat(node.value) }}
-        </tspan>
-      </text>
-    </g>
-  </svg>
-
-  <!-- Packages Pagination -->
-  <v-pagination
-    v-if="pkgsListPages.length > 1"
-    v-model="pkgsPage"
-    :length="pkgsListPages.length"
-    />
-
-  <!-- Treemap -->
-  <svg id="nav-svg" viewBox="0.5 -120.5 954 1320">
-    <!-- No Data -->
-    <g v-if="nodes.length === 0">
-      <rect
-        fill="none"
-        stroke-width="2"
-        rx="5"
-        stroke="#666"
-        x="25"
-        y="25"
-        width="904"
-        height="1150"
-        />
-      <text text-anchor="middle" x="477" y="660">
-        No Packages Selected
-      </text>
-    </g>
-
+  <!-- Package Treemap -->
+  <svg class="treemap-svg">
     <!-- Data -->
-    <g v-for="(node, k) in nodes"
-       :key="k"
-       :transform="node === root ? `translate(0,-120)` : `translate(${x(node.x0)},${y(node.y0)})`"
-       :cursor="(node !== root || node.parent) ? 'pointer' : 'auto'"
-       @click="select(node)"
-       >
-      <title> {{ node.data.name }} ({{ exactFormat(node.value) }}) </title>
-      <rect
-        stroke="#fff"
-        :id="setLeafUID(node)"
-        :width="node === root ? TM_WIDTH : x(node.x1) - x(node.x0)"
-        :height="node === root ? TM_ROOT_HEIGHT : y(node.y1) - y(node.y0)"
-        :fill="color(node)"
-        />
-      <clipPath :id="setClipUID(node)">
-        <use :xlink:href="node.leafUid.href" />
-      </clipPath>
-      <text
-        dominant-baseline="hanging"
-        :clip-path="node.clipUid"
-        :font-weight="node === root ? 'bold' : null"
-        >
-        <tspan x="1em" y="1em">
-          {{ node.data.name }}
-        </tspan>
-        <tspan x="1em" y="2.25em" fill-opacity="0.7" font-weight="normal">
-          {{ exactFormat(node.data.labelValue || node.data.value) }}
-        </tspan>
-      </text>
+    <g v-if="pkgRoot">
+      <g v-for="(leaf, k) in pkgRoot.leaves()"
+         :key="'pkg-treemap-g' + k"
+         :transform="`translate(${leaf.x0}, ${leaf.y0})`">
+        <title> {{ leafName(leaf) }} </title>
+        <rect
+          stroke-width="1"
+          stroke="#666"
+          cursor="pointer"
+          :id="setLeafUID(leaf)"
+          :fill="colorPkg(leaf)"
+          :width="leaf.x1 - leaf.x0"
+          :height="leaf.y1 -leaf.y0"
+          @click="selectPkg(leaf)"
+          />
+        <clipPath :id="setClipUID(leaf)">
+          <use :xlink:href="leaf.leafUID.href" />
+        </clipPath>
+        <text
+          class="treemap-text"
+          dominant-baseline="hanging"
+          dx="0.5em"
+          dy="0.5em"
+          :clip-path="leaf.clipUID"
+          >
+          {{ leafName(leaf) }}
+        </text>
+      </g>
     </g>
   </svg>
 
-  <!-- Pagination -->
-  <v-pagination
-    v-if="root.parent"
-    v-model="page"
-    :length="root.data.pages || 1"
-    />
+  <!-- Function Treemap -->
+  <svg class="treemap-svg">
+    <!-- Data -->
+    <g v-if="funRoot">
+      <g v-for="(leaf, k) in funRoot.leaves()"
+         :key="'fun-treemap-g' + k"
+         :transform="`translate(${leaf.x0}, ${leaf.y0})`">
+        <title> {{ leafName(leaf) }} </title>
+        <rect
+          stroke-width="1"
+          stroke="#666"
+          cursor="pointer"
+          :id="setLeafUID(leaf)"
+          :fill="colorFun(leaf)"
+          :width="leaf.x1 - leaf.x0"
+          :height="leaf.y1 -leaf.y0"
+          @click="selectFun(leaf)"
+          />
+        <clipPath :id="setClipUID(leaf)">
+          <use :xlink:href="leaf.leafUID.href" />
+        </clipPath>
+        <text
+          class="treemap-text"
+          dominant-baseline="hanging"
+          dx="0.5em"
+          dy="0.5em"
+          :clip-path="leaf.clipUID"
+          >
+          {{ leafName(leaf) }}
+        </text>
+      </g>
+    </g>
+  </svg>
 </v-container>
 </template>
 
 <style>
-#nav-svg {
-    font: 30px sans-serif;
+.treemap-svg {
+    width: 100%;
+    height: 50%;
+}
+
+.treemap-text {
+    pointer-events: none;
+    font-size: 10px;
 }
 </style>
 
@@ -141,66 +86,80 @@
 //
 // Imports
 //
-import * as d3 from "d3";
 import { mapState } from "vuex";
-const _ = require("lodash");
+import * as d3 from "d3";
 
 //
 // Constants
 //
-const ROOT_COLOR = "#fff";
+
 const SELECTED_COLOR = "#da4f81";
-const DEFAULT_COLOR = "#ccc";
-const TILING = d3.treemapSquarify;
-const LIMIT = 20;
-const WIDTH = 954;
-const HEIGHT = 1200;
-const PKG_LIMIT = 10; // max number of packages on the treemap
+const TILE = d3.treemapSquarify;
+const WIDTH = 380;
+const HEIGHT = 300;
+const PADDING = 3;
+const LAYOUT =
+      d3.treemap()
+      .tile(TILE)
+      .size([WIDTH, HEIGHT])
+      .padding(PADDING)
+      .round(true);
 
 //
 // Methods
 //
 
-// Node → String
-// Sets and returns a node's leaf UID.
-const setLeafUID = (node) => (node.leafUid = UId("leaf")).id;
-
-// Node → String
-// Sets and returns a node's clip UID.
-const setClipUID = (node) => (node.clipUid = UId("clip")).id;
-
-// Number → String
-// Returns the given number exactly, but readable (usually comma separated).
-const exactFormat = (x) => x.toLocaleString();
-
-// Node → String
-// Returns the color of the given treemap node. If it's the root, then
-// the root color. If selected, then use the selection color. Otherwise
-// use the default.
-function color(node) {
-    if (node === this.root) return ROOT_COLOR;
-    if (this.funs.includes(nodeFun(node))) return SELECTED_COLOR;
-    return DEFAULT_COLOR;
-}
-
-// Node → Any
-// If the node is the root, move up a level in the treemap. If the node has
-// children, move down a level in the treemap. Otherwise, this is a leaf
-// node, so we select the function at the node.
-function select(node) {
-    if (node === this.root && node.parent) return this.root = node.parent;
-    if (node.children) return this.root = node;
-    this.$store.dispatch("toggleFun", nodeFun(node));
+// Leaf → Any
+// TODO
+function selectPkg(leaf) {
+    this.$store.dispatch("togglePkg", leafName(leaf));
 }
 
 //
-// UId Functions
+// TODO
+function colorPkg(leaf) {
+    return leafName(leaf) === this.selectedPkg ? SELECTED_COLOR : '#fff';
+}
+
+//
+// TODO
+const leafFun = (leaf, pkg) => JSON.stringify([pkg, leafName(leaf)]);
+
+// Leaf → Any
+// TODO
+function selectFun(leaf) {
+    this.$store.dispatch("toggleFun", leafFun(leaf, this.selectedPkg));
+}
+
+//
+// TODO
+function colorFun(leaf) {
+    let fun = leafFun(leaf, this.selectedPkg);
+    return this.selectedFuns.includes(fun) ?
+        SELECTED_COLOR :
+        "#fff";
+}
+
+//
+// TODO
+const leafName = leaf => leaf.data.name;
+
+// Node → String
+// Sets and returns a node's leaf UID.
+const setLeafUID = node => (node.leafUID = UID("leaf")).id;
+
+// Node → String
+// Sets and returns a node's clip UID.
+const setClipUID = node => (node.clipUID = UID("clip")).id;
+
+//
+// UID Functions
 // Source: https://github.com/observablehq/stdlib
 //
 
 let count = 0;
 
-function UId(name) {
+function UID(name) {
     return new Id("O-" + (name == null ? "" : name + "-") + ++count);
 }
 
@@ -214,138 +173,37 @@ Id.prototype.toString = function() {
 }
 
 //
-// Helper Treemap Functions
-//
-
-// Makes linear scale for the given root
-function mkXScale(root) {
-    return d3
-      .scaleLinear()
-      .rangeRound([0, WIDTH])
-      .domain([root.x0, root.x1]);
-}
-
-function mkYScale(root) {
-    return d3
-      .scaleLinear()
-      .rangeRound([0, HEIGHT])
-      .domain([root.y0, root.y1]);
-}
-
-//
 // Treemap
-// Source: https://observablehq.com/@d3/zoomable-treemap
+// Source: https://observablehq.com/@d3/treemap
 //
 
-// → Any
-// Create treemap from JSON data.
-function updateTreemap() {
-    const children = makeChildren(this.pkgs, this.selectedPkgs, this.page);
-    const labelValue = children.reduce((acc, x) => acc + x.labelValue, 0);
-    const data = { name: "packages", children, labelValue };
-    const hierarchy = d3.hierarchy(data).sum(d => d.value).sort((a, b) => b.value - a.value);
-    const newRoot = d3.treemap().tile(tile)(hierarchy);
-    this.root = this.root ? nextRoot(this.root, newRoot) : newRoot;
+//
+// TODO
+function makeRoot(dataName, name) {
+    return function() {
+        let data = makeTree(this[dataName], name);
+        let hierarchy = makeHierarchy(data);
+        return LAYOUT(hierarchy)
+    };
 }
 
-// [Array Package] [Array Package] Natural → [Array Package]
-// Given JSON data and some constraints (selected packages and current page)
-// adjusts the data accordingly.
-function makeChildren(pkgs, selectedPkgs, page) {
+//
+// TODO
+function makeTree(xs, name) {
     let children =
-        _.cloneDeep(pkgs.children)
-        .filter(x => selectedPkgs.includes(x.name));
-    for (let pkg of children) {
-        pkg.labelValue = pkg.children.reduce((acc, x) => acc + x.value, 0);
-        pkg.pages = Math.ceil(pkg.children.length / LIMIT);
-        pkg.children = pkg.children.slice((page - 1) * LIMIT, page * LIMIT);
-    }
-    return children;
+        xs ?
+        xs.map(x => { return { name: x[name], value: x.count }; }) :
+        [];
+    return { name: "", children };
 }
 
-// Node Node → Node
-// Given the current node and the root of a newly calculated treemap, determines
-// the new root. This is either the same place as `cur` if it exists in `newRoot`
-// or `newRoot` itself if it no longer exists.
-function nextRoot(cur, newRoot) {
-    // Ascend from `cur`
-    let stack = [];
-    do {
-        stack.push(cur.data.name);
-        cur = cur.parent;
-    } while (cur);
-
-    // Descend from `newRoot` using path in `stack`
-    stack.pop();
-    cur = newRoot;
-    while (cur && stack.length > 0) {
-        let name = stack.pop();
-        cur = cur.children && cur.children.find(e => e.data.name === name);
-    }
-
-    // Old position if it exists, otherwise use new root
-    return cur || newRoot;
+//
+// TODO
+function makeHierarchy(data) {
+    return d3.hierarchy(data)
+        .sum(d => d.value)
+        .sort((a, b) => b.value - a.value);
 }
-
-// Node Number Number Number Number → Any
-// Sets the dimensions of the children of the current node based on the
-// treemap layout algorithm.
-function tile(node, x0, y0, x1, y1) {
-    TILING(node, 0, 0, WIDTH, HEIGHT);
-    for (const child of node.children) {
-        child.x0 = x0 + child.x0 / WIDTH * (x1 - x0);
-        child.x1 = x0 + child.x1 / WIDTH * (x1 - x0);
-        child.y0 = y0 + child.y0 / HEIGHT * (y1 - y0);
-        child.y1 = y0 + child.y1 / HEIGHT * (y1 - y0);
-    }
-}
-
-// HACK: For when your language doesn't have value equality.
-const nodeFun = node => JSON.stringify([node.parent.data.name, node.data.name]);
-
-
-/*function availablePkgs() {
-  return this.selectedPkgs.length > 0
-    ? this.selectedPkgs
-    : this.pkgsList;
-}*/
-
-// Updates the treemap of packages
-function processPkgsList() {
-  const pkgsList = this.availablePkgs; //availablePkgs();
-  //console.log(this.pkgsList);
-  for (const pkg of pkgsList) {
-    pkg.name = pkg.package;
-  }
-  let start = 0;
-  for (let end = 1; end < pkgsList.length; ++end) {
-    const needsBreak = (end - start == PKG_LIMIT)
-      || ((pkgsList[start].count / pkgsList[end].count) > 6);
-    if (needsBreak) {
-      let chunk = pkgsList.slice(start, end);
-      this.pkgsListPages.push(
-        { name: "packages"
-        , children: chunk }
-      );
-      start = end;
-    }
-  }
-  //console.log(this.pkgsListPages);
-  this.pkgsPage = 1;
-}
-
-function updatePkgsTreemap() {
-  const hierarchy = d3.hierarchy(this.pkgsListPages[this.pkgsPage-1])
-    .sum(d => d.count).sort((a, b) => b.count - a.count);
-  //console.log(hierarchy);
-  this.pkgsRoot = d3.treemap().tile(d3.treemapSquarify)(hierarchy);
-  //console.log({root: this.pkgsRoot});
-}
-
-/*function updateAllTreemaps() {
-  updateTreemap();
-  //updatePkgsTreemap()
-}*/
 
 //
 // Exports
@@ -353,81 +211,34 @@ function updatePkgsTreemap() {
 export default {
     name: "NavPanel",
 
-    // Query package information to populate autocomplete
+    // Query package information to packages
     created() {
-      this.$store.dispatch("queryPkgs");
-      this.$store.dispatch("queryPkgsList");
+        this.$store.dispatch("queryPkgs");
     },
 
-    // Update treemap if a package is selected, the package list changes (due
-    // to analyzed packages changing), or the page changed.
-    watch: {
-        selectedPkgs: updateTreemap, //updateAllTreemaps,
-        pkgs: updateTreemap,
-        page: updateTreemap,
-        pkgsList: processPkgsList,
-        pkgsPage: updatePkgsTreemap,
-    },
-
-    // Computed properties for rendering based on the root
     computed: {
-        TM_WIDTH()  { return WIDTH; },
-        TM_HEIGHT() { return HEIGHT; },
-        TM_ROOT_HEIGHT() { return 120; },
-        nodes() {
-            let root = this.root;
-            return root && root.children ? root.children.concat(root) : [];
-        },
-        x() { return mkXScale(this.root); },
-        y() { return mkYScale(this.root); },
-        pkgNames() {
-            return this.pkgs ? this.pkgs.children.map(x => x.name) : [];
-        },
-        availablePkgs() {
-          return (this.selectedPkgs && this.selectedPkgs.length > 0)
-            ? this.selectedPkgs
-            : this.pkgsList;
-        },
-        pkgsNodes() {
-          let root = this.pkgsRoot;
-          return root && root.children ? root.children.concat(root) : [];
-        },
-        pkgsX() { return mkXScale(this.pkgsRoot); },
-        pkgsY() { return mkYScale(this.pkgsRoot); },
-        ...mapState(["pkgs", "funs", "pkgsList"])
+        // [Or #f Object]
+        // Root of the package treemap
+        pkgRoot: makeRoot("pkgs", "package"),
+
+        // [Or #f Object]
+        // Root of the functions treemap
+        funRoot: makeRoot("funs", "fun_name"),
+
+        ...mapState(["pkgs", "selectedPkg", "funs", "selectedFuns"])
     },
+
     methods: {
+        selectPkg,
+        colorPkg,
+        selectFun,
+        colorFun,
+        leafName,
         setLeafUID,
-        setClipUID,
-        exactFormat,
-        color,
-        select
+        setClipUID
     },
+
     data: () => ({
-        // [Or Node false]
-        // The current root node or false if there is no treemap.
-        root: false,
-
-        // Natural
-        // The current page of function results.
-        page: 1,
-
-        // [Array Package]
-        // An array containing currently selected packages (from the
-        // autocomplete).
-        selectedPkgs: [],
-
-        // [Or Node false]
-        // The current pkgs root node or false if there is no treemap.
-        pkgsRoot: false,
-        // An array of pages with data for packages treemap
-        pkgsListPages: [],
-        // Natural
-        // The current page of packages list.
-        pkgsPage: 0,
-        // Natural
-        // Total number of calls in all packages
-
     })
 };
 </script>
