@@ -41,6 +41,10 @@ const allAnalyzed = [];
 const pkgs = false;
 
 // List
+// An array of defined packages.
+const pkgsList = [];
+
+// List
 // An array of results from querying function type information.
 const types = [];
 
@@ -57,12 +61,14 @@ export default new Vuex.Store({
     funs,
     allAnalyzed,
     pkgs,
+    pkgsList, // list of defined pkgs
     types,
     count
   },
 
   mutations: {
     pkgs(state, val) { state.pkgs = val; },
+    pkgsList(state, val) { state.pkgsList = val; },
     types(state, val) { state.types = val; },
     count(state, val) { state.count = val; },
     analyzed(state, val) { state.analyzed = val; },
@@ -73,23 +79,30 @@ export default new Vuex.Store({
   actions: {
     // Query for the list of defined packages and function information
     queryPkgs({ commit, state }) {
-      axios.get("/api/pkgs", {
+      axios.get("api/pkgs", {
         params: { analyzed: state.analyzed}
       }).then(response => commit("pkgs", response.data));
     },
 
     // Query for the list of analyzed packages
     queryAnalyzed({ commit }) {
-      axios.get("/api/analyzed")
+      axios.get("api/analyzed")
            .then(response => commit("allAnalyzed", response.data));
     },
 
     // Query for type information
     queryTypes({ commit, state }) {
       let funs = state.funs.map(JSON.parse);
-      axios.get("/api/types", {
-        params: { funs, analyzed: state.analyzed }
+      axios.get("api/types", {
+        params: { funs, analyzed: state.analyzed}
       }).then(response =>  commit("types", response.data));
+    },
+
+    // Query for the list of defined packages
+    queryPkgsList({ commit, state }) {
+      axios.get("api/pkgslist", {
+        params: { analyzed: state.analyzed}
+      }).then(response => commit("pkgsList", response.data));
     },
 
     // Given a function, toggles whether that function is selected
@@ -115,6 +128,7 @@ export default new Vuex.Store({
     setAnalyzed({ commit, dispatch }, pkgs) {
       commit("analyzed", pkgs);
       dispatch("queryPkgs");
+      dispatch("queryPkgsList");
       dispatch("queryTypes");
     }
   },

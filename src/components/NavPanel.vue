@@ -13,17 +13,62 @@
     @input="$store.dispatch('pruneFuns', selectedPkgs)"
     />
 
-  <!--
-  <svg viewBox="0.5 -120.5 954 1020" style="font: 30px sans-serif">
-    <text> {{ pkgNames }} </text>
-    <g
-      v-for="(pkgName, k) in pkgNames"
-      :key="k"
-      >
-      <text> {{ pkgName }} </text>
+  <!-- Packages Treemap -->
+  <svg viewBox="-0.5 -120.5 954 1320" style="font: 30px sans-serif">
+    <!-- No Data -->
+    <g v-if="pkgsList.length === 0">
+      <rect
+        fill="none"
+        stroke-width="2"
+        rx="5"
+        stroke="#666"
+        x="25"
+        y="25"
+        width="904"
+        height="1150"
+        />
+      <text text-anchor="middle" x="477" y="660">
+        No Defined Packages
+      </text>
+    </g>
+
+    <!-- Packages Data -->
+    <g v-for="(node, k) in pkgsNodes"
+       :key="k"
+       :transform="node === pkgsRoot ? `translate(0,-${TM_ROOT_HEIGHT})` : `translate(${pkgsX(node.x0)},${pkgsY(node.y0)})`"
+       :cursor="(node !== pkgsRoot) ? 'pointer' : 'auto'"
+       >
+      <title> {{ node.data.name }} ({{ exactFormat(node.value) }}) </title>
+      <rect
+        stroke="#000" fill="#fff"
+        :id="setLeafUID(node)"
+        :width="node === pkgsRoot ? TM_WIDTH : pkgsX(node.x1) - pkgsX(node.x0)"
+        :height="node === pkgsRoot ? TM_ROOT_HEIGHT : pkgsY(node.y1) - pkgsY(node.y0)"
+        />
+      <clipPath :id="setClipUID(node)">
+        <use :xlink:href="node.leafUid.href" />
+      </clipPath>
+      <text
+        dominant-baseline="hanging"
+        :clip-path="node.clipUid"
+        :font-weight="node === pkgsRoot ? 'bold' : null"
+        >
+        <tspan x="1em" y="1em">
+          {{ node.data.name }}
+        </tspan>
+        <tspan x="1em" y="2.25em" fill-opacity="0.7" font-weight="normal">
+          {{ exactFormat(node.value) }}
+        </tspan>
+      </text>
     </g>
   </svg>
-  -->
+
+  <!-- Packages Pagination -->
+  <v-pagination
+    v-if="pkgsListPages.length > 1"
+    v-model="pkgsPage"
+    :length="pkgsListPages.length"
+    />
 
   <!-- Treemap -->
   <svg id="nav-svg" viewBox="0.5 -120.5 954 1320">
@@ -55,8 +100,8 @@
       <rect
         stroke="#fff"
         :id="setLeafUID(node)"
-        :width="node === root ? 954 : x(node.x1) - x(node.x0)"
-        :height="node === root ? 120 : y(node.y1) - y(node.y0)"
+        :width="node === root ? TM_WIDTH : x(node.x1) - x(node.x0)"
+        :height="node === root ? TM_ROOT_HEIGHT : y(node.y1) - y(node.y0)"
         :fill="color(node)"
         />
       <clipPath :id="setClipUID(node)">
@@ -110,6 +155,7 @@ const TILING = d3.treemapSquarify;
 const LIMIT = 20;
 const WIDTH = 954;
 const HEIGHT = 1200;
+const PKG_LIMIT = 10; // max number of packages on the treemap
 
 //
 // Methods
@@ -165,6 +211,25 @@ function Id(id) {
 
 Id.prototype.toString = function() {
     return "url(" + this.href + ")";
+}
+
+//
+// Helper Treemap Functions
+//
+
+// Makes linear scale for the given root
+function mkXScale(root) {
+    return d3
+      .scaleLinear()
+      .rangeRound([0, WIDTH])
+      .domain([root.x0, root.x1]);
+}
+
+function mkYScale(root) {
+    return d3
+      .scaleLinear()
+      .rangeRound([0, HEIGHT])
+      .domain([root.y0, root.y1]);
 }
 
 //
@@ -238,6 +303,50 @@ function tile(node, x0, y0, x1, y1) {
 // HACK: For when your language doesn't have value equality.
 const nodeFun = node => JSON.stringify([node.parent.data.name, node.data.name]);
 
+
+/*function availablePkgs() {
+  return this.selectedPkgs.length > 0
+    ? this.selectedPkgs
+    : this.pkgsList;
+}*/
+
+// Updates the treemap of packages
+function processPkgsList() {
+  const pkgsList = this.availablePkgs; //availablePkgs();
+  //console.log(this.pkgsList);
+  for (const pkg of pkgsList) {
+    pkg.name = pkg.package;
+  }
+  let start = 0;
+  for (let end = 1; end < pkgsList.length; ++end) {
+    const needsBreak = (end - start == PKG_LIMIT)
+      || ((pkgsList[start].count / pkgsList[end].count) > 6);
+    if (needsBreak) {
+      let chunk = pkgsList.slice(start, end);
+      this.pkgsListPages.push(
+        { name: "packages"
+        , children: chunk }
+      );
+      start = end;
+    }
+  }
+  //console.log(this.pkgsListPages);
+  this.pkgsPage = 1;
+}
+
+function updatePkgsTreemap() {
+  const hierarchy = d3.hierarchy(this.pkgsListPages[this.pkgsPage-1])
+    .sum(d => d.count).sort((a, b) => b.count - a.count);
+  //console.log(hierarchy);
+  this.pkgsRoot = d3.treemap().tile(d3.treemapSquarify)(hierarchy);
+  //console.log({root: this.pkgsRoot});
+}
+
+/*function updateAllTreemaps() {
+  updateTreemap();
+  //updatePkgsTreemap()
+}*/
+
 //
 // Exports
 //
@@ -245,38 +354,47 @@ export default {
     name: "NavPanel",
 
     // Query package information to populate autocomplete
-    created() { this.$store.dispatch("queryPkgs"); },
+    created() {
+      this.$store.dispatch("queryPkgs");
+      this.$store.dispatch("queryPkgsList");
+    },
 
     // Update treemap if a package is selected, the package list changes (due
     // to analyzed packages changing), or the page changed.
     watch: {
-        selectedPkgs: updateTreemap,
+        selectedPkgs: updateTreemap, //updateAllTreemaps,
         pkgs: updateTreemap,
-        page: updateTreemap
+        page: updateTreemap,
+        pkgsList: processPkgsList,
+        pkgsPage: updatePkgsTreemap,
     },
 
     // Computed properties for rendering based on the root
     computed: {
+        TM_WIDTH()  { return WIDTH; },
+        TM_HEIGHT() { return HEIGHT; },
+        TM_ROOT_HEIGHT() { return 120; },
         nodes() {
             let root = this.root;
             return root && root.children ? root.children.concat(root) : [];
         },
-        x() {
-            return d3
-                .scaleLinear()
-                .rangeRound([0, WIDTH])
-                .domain([this.root.x0, this.root.x1]);
-        },
-        y() {
-            return d3
-                .scaleLinear()
-                .rangeRound([0, HEIGHT])
-                .domain([this.root.y0, this.root.y1]);
-        },
+        x() { return mkXScale(this.root); },
+        y() { return mkYScale(this.root); },
         pkgNames() {
             return this.pkgs ? this.pkgs.children.map(x => x.name) : [];
         },
-        ...mapState(["pkgs", "funs"])
+        availablePkgs() {
+          return (this.selectedPkgs && this.selectedPkgs.length > 0)
+            ? this.selectedPkgs
+            : this.pkgsList;
+        },
+        pkgsNodes() {
+          let root = this.pkgsRoot;
+          return root && root.children ? root.children.concat(root) : [];
+        },
+        pkgsX() { return mkXScale(this.pkgsRoot); },
+        pkgsY() { return mkYScale(this.pkgsRoot); },
+        ...mapState(["pkgs", "funs", "pkgsList"])
     },
     methods: {
         setLeafUID,
@@ -297,7 +415,19 @@ export default {
         // [Array Package]
         // An array containing currently selected packages (from the
         // autocomplete).
-        selectedPkgs: []
+        selectedPkgs: [],
+
+        // [Or Node false]
+        // The current pkgs root node or false if there is no treemap.
+        pkgsRoot: false,
+        // An array of pages with data for packages treemap
+        pkgsListPages: [],
+        // Natural
+        // The current page of packages list.
+        pkgsPage: 0,
+        // Natural
+        // Total number of calls in all packages
+
     })
 };
 </script>
