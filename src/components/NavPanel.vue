@@ -21,8 +21,7 @@
          :transform="`translate(${leaf.x0}, ${leaf.y0})`">
         <title> {{ leafName(leaf) }} </title>
         <rect
-          stroke-width="1"
-          stroke="#666"
+          class="treemap-block"
           cursor="pointer"
           :id="setLeafUID(leaf)"
           :fill="colorPkg(leaf)"
@@ -41,6 +40,14 @@
           :clip-path="leaf.clipUID"
           >
           {{ leafName(leaf) }}
+        </text>
+        <text
+          class="treemap-number"
+          dominant-baseline="hanging"
+          dx="0.5em"
+          dy="2em"
+          >
+          {{ leafValue(leaf) }}
         </text>
       </g>
     </g>
@@ -62,8 +69,7 @@
          :transform="`translate(${leaf.x0}, ${leaf.y0})`">
         <title> {{ leafName(leaf) }} </title>
         <rect
-          stroke-width="1"
-          stroke="#666"
+          class="treemap-block"
           cursor="pointer"
           :id="setLeafUID(leaf)"
           :fill="colorFun(leaf)"
@@ -82,6 +88,14 @@
           :clip-path="leaf.clipUID"
           >
           {{ leafName(leaf) }}
+        </text>
+        <text
+          class="treemap-number"
+          dominant-baseline="hanging"
+          dx="0.5em"
+          dy="2em"
+          >
+          {{ leafValue(leaf) }}
         </text>
       </g>
     </g>
@@ -103,9 +117,23 @@
 
 }
 
+.treemap-block {
+  stroke: #666;
+  stroke-width: 1;
+}
+.treemap-block:hover {
+  fill: #bfd3e6;
+}
+
 .treemap-text {
     pointer-events: none;
-    font-size: 10px;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 12px;
+}
+.treemap-number {
+    pointer-events: none;
+    font-size: 12px;
 }
 
 .treemap-pagination {
@@ -119,12 +147,14 @@
 //
 import { mapState } from "vuex";
 import * as d3 from "d3";
+import numeral from "numeral";
 
 //
 // Constants
 //
 
-const SELECTED_COLOR = "#da4f81";
+const SELECTED_COLOR = "#8c6bb1"; //"#da4f81";
+const DEFAULT_COLOR = "#f9fbfb";
 const LIMIT = 5;
 const TILE = d3.treemapSquarify;
 const WIDTH = 380;
@@ -150,7 +180,7 @@ function selectPkg(leaf) {
 //
 // TODO
 function colorPkg(leaf) {
-    return leafName(leaf) === this.selectedPkg ? SELECTED_COLOR : '#fff';
+    return leafName(leaf) === this.selectedPkg ? SELECTED_COLOR : DEFAULT_COLOR;
 }
 
 //
@@ -169,12 +199,17 @@ function colorFun(leaf) {
     let fun = leafFun(leaf, this.selectedPkg);
     return this.selectedFuns.map(x => x.value).includes(fun) ?
         SELECTED_COLOR :
-        "#fff";
+        DEFAULT_COLOR;
 }
+
+// Number → String
+// Returns the given number in plain-English (approximate) format.
+const plainFormat = (x) => numeral(x).format("0a");
 
 //
 // TODO
-const leafName = leaf => leaf.data.name;
+const leafName  = leaf => leaf.data.name;
+const leafValue = leaf => plainFormat(Math.exp(leaf.data.value));
 
 // Node → String
 // Sets and returns a node's leaf UID.
@@ -225,7 +260,7 @@ function makeRoot(dataName, name, pageKey) {
 function makeTree(xs, name, page) {
     let children =
         xs ?
-        xs.map(x => { return { name: x[name], value: x.count }; }) :
+        xs.map(x => { return { name: x[name], value: Math.log(x.count) }; }) :
         [];
     children = children.slice((page - 1) * LIMIT, page * LIMIT);
     return { name: "", children };
@@ -304,6 +339,7 @@ export default {
         selectFun,
         colorFun,
         leafName,
+        leafValue,
         setLeafUID,
         setClipUID
     },
