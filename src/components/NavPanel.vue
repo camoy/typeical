@@ -34,6 +34,13 @@
     </g>
   </svg>
 
+  <!-- Package Pagination -->
+  <v-pagination
+    v-if="pkgs.length > 0"
+    v-model="pkgPage"
+    class="treemap-pagination"
+    :length="pkgPages" />
+
   <!-- Function Treemap -->
   <svg class="treemap-svg">
     <!-- Data -->
@@ -67,18 +74,30 @@
       </g>
     </g>
   </svg>
+
+  <!-- Package Pagination -->
+  <v-pagination
+    v-if="funs.length > 0"
+    v-model="funPage"
+    class="treemap-pagination"
+    :length="funPages" />
 </v-container>
 </template>
 
 <style>
 .treemap-svg {
     width: 100%;
-    height: 50%;
+    height: 40%;
+
 }
 
 .treemap-text {
     pointer-events: none;
     font-size: 10px;
+}
+
+.treemap-pagination {
+    margin-bottom: 1rem;
 }
 </style>
 
@@ -94,9 +113,10 @@ import * as d3 from "d3";
 //
 
 const SELECTED_COLOR = "#da4f81";
+const LIMIT = 5;
 const TILE = d3.treemapSquarify;
 const WIDTH = 380;
-const HEIGHT = 300;
+const HEIGHT = 240;
 const PADDING = 3;
 const LAYOUT =
       d3.treemap()
@@ -179,9 +199,10 @@ Id.prototype.toString = function() {
 
 //
 // TODO
-function makeRoot(dataName, name) {
+function makeRoot(dataName, name, pageKey) {
     return function() {
-        let data = makeTree(this[dataName], name);
+        let page = this[pageKey];
+        let data = makeTree(this[dataName], name, page);
         let hierarchy = makeHierarchy(data);
         return LAYOUT(hierarchy)
     };
@@ -189,11 +210,12 @@ function makeRoot(dataName, name) {
 
 //
 // TODO
-function makeTree(xs, name) {
+function makeTree(xs, name, page) {
     let children =
         xs ?
         xs.map(x => { return { name: x[name], value: x.count }; }) :
         [];
+    children = children.slice((page - 1) * LIMIT, page * LIMIT);
     return { name: "", children };
 }
 
@@ -219,11 +241,23 @@ export default {
     computed: {
         // [Or #f Object]
         // Root of the package treemap
-        pkgRoot: makeRoot("pkgs", "package"),
+        pkgRoot: makeRoot("pkgs", "package", "pkgPage"),
 
         // [Or #f Object]
         // Root of the functions treemap
-        funRoot: makeRoot("funs", "fun_name"),
+        funRoot: makeRoot("funs", "fun_name", "funPage"),
+
+        //
+        // TODO
+        pkgPages() {
+            return this.pkgs ? Math.ceil(this.pkgs.length / LIMIT) : 1;
+        },
+
+        //
+        // TODO
+        funPages() {
+            return this.funs ? Math.ceil(this.funs.length / LIMIT) : 1;
+        },
 
         ...mapState(["pkgs", "selectedPkg", "funs", "selectedFuns"])
     },
@@ -239,6 +273,13 @@ export default {
     },
 
     data: () => ({
+        // Natural
+        // The current page of package results.
+        pkgPage: 1,
+
+        // Natural
+        // The current page of function results.
+        funPage: 1
     })
 };
 </script>

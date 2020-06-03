@@ -75,6 +75,7 @@
 
   <!-- Pagination -->
   <v-pagination
+    v-if="nodes.length > 0"
     v-model="page"
     :length="pages"
     />
