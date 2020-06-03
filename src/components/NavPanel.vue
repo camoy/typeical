@@ -1,5 +1,17 @@
 <template>
 <v-container>
+  <!-- Function Autocomplete -->
+  <v-autocomplete
+    v-model="selectedFuns"
+    outlined
+    chips
+    small-chips
+    full-width
+    label="Functions"
+    multiple
+    :items="autocompleteFuns"
+    />
+
   <!-- Package Treemap -->
   <svg class="treemap-svg">
     <!-- Data -->
@@ -155,7 +167,7 @@ function selectFun(leaf) {
 // TODO
 function colorFun(leaf) {
     let fun = leafFun(leaf, this.selectedPkg);
-    return this.selectedFuns.includes(fun) ?
+    return this.selectedFuns.map(x => x.value).includes(fun) ?
         SELECTED_COLOR :
         "#fff";
 }
@@ -235,6 +247,7 @@ export default {
 
     // Query package information to packages
     created() {
+        this.$store.dispatch("queryAllFuns");
         this.$store.dispatch("queryPkgs");
     },
 
@@ -259,7 +272,30 @@ export default {
             return this.funs ? Math.ceil(this.funs.length / LIMIT) : 1;
         },
 
-        ...mapState(["pkgs", "selectedPkg", "funs", "selectedFuns"])
+        //
+        // TODO
+        autocompleteFuns() {
+            return this.allFuns.map(function(x){
+                return {
+                    text: `${x.package}.${x.fun_name}`,
+                    value: JSON.stringify([x.package, x.fun_name])
+                }
+            });
+        },
+
+        //
+        //
+        selectedFuns: {
+            get() {
+                return this.$store.state.selectedFuns.map(function(value) {
+                    let fun = JSON.parse(value);
+                    return { text: `${fun[0]}.${fun[1]}`, value };
+                });
+            },
+            set(value) { this.$store.dispatch("setSelectedFuns", value); }
+        },
+
+        ...mapState(["pkgs", "selectedPkg", "funs", "allFuns"])
     },
 
     methods: {

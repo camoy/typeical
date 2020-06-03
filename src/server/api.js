@@ -16,6 +16,9 @@ let db = new sqlite3.Database(url);
 //
 
 const ANALYZED = `SELECT * FROM analyzed_packages`;
+const ALL_FUNS =
+  where => `SELECT DISTINCT package, fun_name FROM sums WHERE ${where}`;
+
 const PKGS =
   where => `SELECT package, SUM(count) as count FROM sums
             WHERE ${where} GROUP BY package ORDER BY count DESC`;
@@ -55,6 +58,15 @@ module.exports = (app, server) => {
   //
   router.get("/api/analyzed", function(req, res) {
     query(ANALYZED, [], names => res.json(names));
+  });
+
+  //
+  // GET /api/all_funs
+  //
+  router.get("/api/all_funs", function(req, res) {
+    const analyzed = req.query.analyzed || [];
+    const where = OR(ANALYZED_EQ, analyzed.length, TRUE);
+    query(ALL_FUNS(where), analyzed, names => res.json(names));
   });
 
   //

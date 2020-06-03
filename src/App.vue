@@ -1,7 +1,7 @@
 <template>
 <v-app>
   <v-content>
-    <v-container class="fill-height" fluid>
+    <v-container fluid>
       <v-row justify="center">
         <v-col id="app-vcol" cols="11">
           <TabView />

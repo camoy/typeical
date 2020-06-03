@@ -39,6 +39,10 @@ const selectedFuns = [];
 // List of packages that were analyzed.
 const allAnalyzed = [];
 
+// [Listof String]
+// List of all the functions.
+const allFuns = [];
+
 // [Or #f List]
 // List of defined packages.
 const pkgs = false;
@@ -60,6 +64,7 @@ export default new Vuex.Store({
     selectedPkg,
     selectedFuns,
     allAnalyzed,
+    allFuns,
     funs,
     pkgs,
     types
@@ -70,6 +75,7 @@ export default new Vuex.Store({
     selectedPkg(state, val) { state.selectedPkg = val; },
     selectedFuns(state, val) { state.selectedFuns = val; },
     allAnalyzed(state, val) { state.allAnalyzed = val; },
+    allFuns(state, val) { state.allFuns = val; },
     funs(state, val) { state.funs = val; },
     pkgs(state, val) { state.pkgs = val; },
     types(state, val) { state.types = val; }
@@ -82,11 +88,15 @@ export default new Vuex.Store({
            .then(response => commit("allAnalyzed", response.data));
     },
 
+    // Query for the list of analyzed packages
+    queryAllFuns({ commit }) {
+      axios.get("api/all_funs")
+           .then(response => commit("allFuns", response.data));
+    },
+
     // Query for the list of defined packages
     queryPkgs({ commit, state }) {
-      // TODO return back to real endpoint
-      // axios.get("api/pkgs", {
-      axios.get("pkgs.json", {
+       axios.get("api/pkgs", {
         params: { analyzed: state.analyzed }
       }).then(response => commit("pkgs", response.data));
     },
@@ -117,13 +127,12 @@ export default new Vuex.Store({
     },
 
     // Given a function, toggles whether that function is selected
-    toggleFun({ commit, dispatch, state }, fun) {
+    toggleFun({ dispatch, state }, fun) {
       let selectedFuns =
         state.selectedFuns.includes(fun) ?
         state.selectedFuns.filter(x => x !== fun) :
         state.selectedFuns.concat([fun]);
-      commit("selectedFuns", selectedFuns);
-      dispatch("queryTypes");
+      dispatch("setSelectedFuns", selectedFuns);
     },
 
     // Set the analyzed packages and update other (dependent) data sources
@@ -131,7 +140,13 @@ export default new Vuex.Store({
       commit("analyzed", pkgs);
       dispatch("queryPkgs");
       dispatch("queryTypes");
-    }
+    },
+
+    // Sets the selected functions.
+    setSelectedFuns({ commit, dispatch }, selectedFuns) {
+      commit("selectedFuns", selectedFuns);
+      dispatch("queryTypes");
+    },
   },
 
   modules: {}
