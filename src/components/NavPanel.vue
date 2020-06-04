@@ -12,6 +12,7 @@
     :items="autocompleteFuns"
     />
 
+  <h4>Packages</h4>
   <!-- Package Treemap -->
   <svg class="treemap-svg">
     <!-- Data -->
@@ -19,7 +20,7 @@
       <g v-for="(leaf, k) in pkgRoot.leaves()"
          :key="'pkg-treemap-g' + k"
          :transform="`translate(${leaf.x0}, ${leaf.y0})`">
-        <title> {{ leafName(leaf) }} </title>
+        <title> {{ leafName(leaf) }} ({{ leafValue(leaf) }}) </title>
         <rect
           class="treemap-block"
           cursor="pointer"
@@ -37,6 +38,7 @@
           dominant-baseline="hanging"
           dx="0.5em"
           dy="0.5em"
+          :fill="colorPkgText(leaf)"
           :clip-path="leaf.clipUID"
           >
           {{ leafName(leaf) }}
@@ -46,6 +48,7 @@
           dominant-baseline="hanging"
           dx="0.5em"
           dy="2em"
+          :fill="colorPkgText(leaf)"
           >
           {{ leafValue(leaf) }}
         </text>
@@ -60,6 +63,11 @@
     class="treemap-pagination"
     :length="pkgPages" />
 
+  <h4>Functions</h4>
+  <div>
+    <input type="checkbox" id="checkboxMultipleFuns" class="checkbox" v-model="multipleFuns">
+    <label for="checkboxMultipleFuns" class="checkLabel">Select multiple functions</label>
+  </div>
   <!-- Function Treemap -->
   <svg class="treemap-svg">
     <!-- Data -->
@@ -67,7 +75,7 @@
       <g v-for="(leaf, k) in funRoot.leaves()"
          :key="'fun-treemap-g' + k"
          :transform="`translate(${leaf.x0}, ${leaf.y0})`">
-        <title> {{ leafName(leaf) }} </title>
+        <title> {{ leafName(leaf) }} ({{ leafValue(leaf) }}) </title>
         <rect
           class="treemap-block"
           cursor="pointer"
@@ -85,17 +93,19 @@
           dominant-baseline="hanging"
           dx="0.5em"
           dy="0.5em"
+          :fill="colorFunText(leaf)"
           :clip-path="leaf.clipUID"
           >
-          {{ leafName(leaf) }}
+          {{ leafName(leaf) == "" ? "No Selected Packages" : leafName(leaf) }}
         </text>
         <text
           class="treemap-number"
           dominant-baseline="hanging"
           dx="0.5em"
           dy="2em"
+          :fill="colorFunText(leaf)"
           >
-          {{ leafValue(leaf) }}
+          {{ leafName(leaf) == "" ? "" : leafValue(leaf) }}
         </text>
       </g>
     </g>
@@ -111,18 +121,34 @@
 </template>
 
 <style>
+h4 {
+    text-align: center;
+    margin: 5px;
+}
+
 .treemap-svg {
     width: 100%;
     height: 40%;
 
 }
 
+.checkbox {
+    vertical-align: middle;
+}
+.checkLabel {
+    font-size: 13px;
+    line-height: 1;
+    padding-left: 4px;
+    vertical-align: middle;
+}
+
 .treemap-block {
-  stroke: #666;
-  stroke-width: 1;
+  stroke: #333;
+  stroke-width: 0.75;
+  rx: 4px;
 }
 .treemap-block:hover {
-  fill: #bfd3e6;
+  fill: #77B5F1;
 }
 
 .treemap-text {
@@ -153,8 +179,10 @@ import numeral from "numeral";
 // Constants
 //
 
-const SELECTED_COLOR = "#8c6bb1"; //"#da4f81";
-const DEFAULT_COLOR = "#f9fbfb";
+const SELECTED_COLOR = "#1976d2"; //"#8c6bb1"; //"#da4f81";
+const DEFAULT_COLOR  = "#fdfdfd"; //"#f9fbfb";
+const SELECTED_TEXT_COLOR = "white";
+const DEFAULT_TEXT_COLOR  = "black";
 const LIMIT = 5;
 const TILE = d3.treemapSquarify;
 const WIDTH = 380;
@@ -177,10 +205,19 @@ function selectPkg(leaf) {
     this.$store.dispatch("togglePkg", leafName(leaf));
 }
 
+// Leaf -> Bool
+// Checks if leaf corresponds to a selected package
+function isSelectedPkg(receiver, leaf) {
+    return leafName(leaf) === receiver.selectedPkg;
+}
+
 //
 // TODO
 function colorPkg(leaf) {
-    return leafName(leaf) === this.selectedPkg ? SELECTED_COLOR : DEFAULT_COLOR;
+    return isSelectedPkg(this, leaf) ? SELECTED_COLOR : DEFAULT_COLOR;
+}
+function colorPkgText(leaf) {
+    return isSelectedPkg(this, leaf) ? SELECTED_TEXT_COLOR : DEFAULT_TEXT_COLOR;
 }
 
 //
@@ -190,16 +227,29 @@ const leafFun = (leaf, pkg) => JSON.stringify([pkg, leafName(leaf)]);
 // Leaf → Any
 // TODO
 function selectFun(leaf) {
-    this.$store.dispatch("toggleFun", leafFun(leaf, this.selectedPkg));
+    const canToggle = this.multipleFuns || isSelectedFun(this, leaf)
+      || this.selectedFuns.length == 0;
+    if (canToggle)
+        this.$store.dispatch("toggleFun", leafFun(leaf, this.selectedPkg));
+    else {
+        this.selectedFuns = [leafFun(leaf, this.selectedPkg)];
+    }
+}
+
+// Leaf -> Bool
+// Checks if leaf corresponds to a selected functions
+function isSelectedFun(receiver, leaf) {
+    let fun = leafFun(leaf, receiver.selectedPkg);
+    return receiver.selectedFuns.map(x => x.value).includes(fun);
 }
 
 //
 // TODO
 function colorFun(leaf) {
-    let fun = leafFun(leaf, this.selectedPkg);
-    return this.selectedFuns.map(x => x.value).includes(fun) ?
-        SELECTED_COLOR :
-        DEFAULT_COLOR;
+    return isSelectedFun(this, leaf) ? SELECTED_COLOR : DEFAULT_COLOR;
+}
+function colorFunText(leaf) {
+    return isSelectedFun(this, leaf) ? SELECTED_TEXT_COLOR : DEFAULT_TEXT_COLOR;
 }
 
 // Number → String
@@ -336,8 +386,10 @@ export default {
     methods: {
         selectPkg,
         colorPkg,
+        colorPkgText,
         selectFun,
         colorFun,
+        colorFunText,
         leafName,
         leafValue,
         setLeafUID,
@@ -351,7 +403,11 @@ export default {
 
         // Natural
         // The current page of function results.
-        funPage: 1
+        funPage: 1,
+
+        // Boolean
+        // Multiple functions are allowed
+        multipleFuns: false,
     })
 };
 </script>
