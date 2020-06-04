@@ -12,6 +12,12 @@
       :items="analyzedNames"
       @input="$store.dispatch('setAnalyzed', selectedAnalyzed)"
       />
+
+    <v-checkbox
+      v-model="selectedMultipleFuns"
+      label="Select Multiple Functions"
+      @click="$store.commit('selectMultipleFuns', selectedMultipleFuns)"
+      />
   </v-form>
 </div>
 </template>
@@ -42,6 +48,9 @@ export default {
         },
         ...mapState(["allAnalyzed"])
     },
-    data: () => ({ selectedAnalyzed: [] })
+    data: () => ({
+        selectedMultipleFuns: false,
+        selectedAnalyzed: []
+    })
 }
 </script>

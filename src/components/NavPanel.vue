@@ -1,77 +1,83 @@
 <template>
 <v-container>
+
   <!-- Function Autocomplete -->
   <v-autocomplete
     v-model="selectedFuns"
+    dense
     outlined
     chips
     small-chips
+    deletable-chips
     full-width
     label="Functions"
     multiple
     :items="autocompleteFuns"
     />
 
-  <h4>Packages</h4>
-  <!-- Package Treemap -->
-  <svg class="treemap-svg">
-    <!-- Data -->
-    <g v-if="pkgRoot.children">
-      <g v-for="(leaf, k) in pkgRoot.leaves()"
-         :key="'pkg-treemap-g' + k"
-         :transform="`translate(${leaf.x0}, ${leaf.y0})`">
-        <title> {{ leafName(leaf) }} ({{ leafValue(leaf) }}) </title>
-        <rect
-          class="treemap-block"
-          cursor="pointer"
-          :id="setLeafUID(leaf)"
-          :fill="colorPkg(leaf)"
-          :width="leaf.x1 - leaf.x0"
-          :height="leaf.y1 -leaf.y0"
-          @click="selectPkg(leaf)"
-          />
-        <clipPath :id="setClipUID(leaf)">
-          <use :xlink:href="leaf.leafUID.href" />
-        </clipPath>
-        <text
-          class="treemap-text"
-          dominant-baseline="hanging"
-          dx="0.5em"
-          dy="0.5em"
-          :fill="colorPkgText(leaf)"
-          :clip-path="leaf.clipUID"
-          >
-          {{ leafName(leaf) }}
-        </text>
-        <text
-          class="treemap-number"
-          dominant-baseline="hanging"
-          dx="0.5em"
-          dy="2em"
-          :fill="colorPkgText(leaf)"
-          >
-          {{ leafValue(leaf) }}
-        </text>
+  <!-- Packages -->
+  <div class="treemap-div">
+    <h4>Packages</h4>
+
+    <!-- Package Treemap -->
+    <svg class="treemap-svg">
+      <!-- Data -->
+      <g v-if="pkgRoot.children">
+        <g v-for="(leaf, k) in pkgRoot.leaves()"
+           :key="'pkg-treemap-g' + k"
+           :transform="`translate(${leaf.x0}, ${leaf.y0})`">
+          <title> {{ leafName(leaf) }} ({{ leafValue(leaf) }}) </title>
+          <rect
+            class="treemap-block"
+            cursor="pointer"
+            :id="setLeafUID(leaf)"
+            :fill="colorPkg(leaf)"
+            :width="leaf.x1 - leaf.x0"
+            :height="leaf.y1 -leaf.y0"
+            @click="selectPkg(leaf)"
+            />
+          <clipPath :id="setClipUID(leaf)">
+            <use :xlink:href="leaf.leafUID.href" />
+          </clipPath>
+          <text
+            class="treemap-text"
+            dominant-baseline="hanging"
+            dx="0.5em"
+            dy="0.5em"
+            :fill="colorPkgText(leaf)"
+            :clip-path="leaf.clipUID"
+            >
+            {{ leafName(leaf) }}
+          </text>
+          <text
+            class="treemap-number"
+            dominant-baseline="hanging"
+            dx="0.5em"
+            dy="2em"
+            :fill="colorPkgText(leaf)"
+            >
+            {{ leafValue(leaf) }}
+          </text>
+        </g>
       </g>
-    </g>
-  </svg>
+    </svg>
 
-  <!-- Package Pagination -->
-  <v-pagination
-    v-if="pkgs.length > 0"
-    v-model="pkgPage"
-    class="treemap-pagination"
-    :length="pkgPages" />
-
-  <h4>Functions</h4>
-  <div>
-    <input type="checkbox" id="checkboxMultipleFuns" class="checkbox" v-model="multipleFuns">
-    <label for="checkboxMultipleFuns" class="checkLabel">Select multiple functions</label>
+    <!-- Package Pagination -->
+    <v-pagination
+      v-if="pkgs.length > 0"
+      v-model="pkgPage"
+      class="treemap-pagination"
+      :length="pkgPages"
+      />
   </div>
-  <!-- Function Treemap -->
-  <svg class="treemap-svg">
-    <!-- Data -->
-    <g v-if="funRoot.children">
+
+  <!-- Functions -->
+  <div class="treemap-div" v-if="funRoot.children">
+    <h4>Functions</h4>
+
+    <!-- Function Treemap -->
+    <svg class="treemap-svg">
+      <!-- Data -->
       <g v-for="(leaf, k) in funRoot.leaves()"
          :key="'fun-treemap-g' + k"
          :transform="`translate(${leaf.x0}, ${leaf.y0})`">
@@ -96,7 +102,7 @@
           :fill="colorFunText(leaf)"
           :clip-path="leaf.clipUID"
           >
-          {{ leafName(leaf) == "" ? "No Selected Packages" : leafName(leaf) }}
+          {{ leafName(leaf) }}
         </text>
         <text
           class="treemap-number"
@@ -105,18 +111,19 @@
           dy="2em"
           :fill="colorFunText(leaf)"
           >
-          {{ leafName(leaf) == "" ? "" : leafValue(leaf) }}
+          {{ leafValue(leaf) }}
         </text>
       </g>
-    </g>
-  </svg>
+    </svg>
 
-  <!-- Package Pagination -->
-  <v-pagination
-    v-if="funs.length > 0"
-    v-model="funPage"
-    class="treemap-pagination"
-    :length="funPages" />
+    <!-- Function Pagination -->
+    <v-pagination
+      v-if="funs.length > 0"
+      v-model="funPage"
+      class="treemap-pagination"
+      :length="funPages"
+      />
+  </div>
 </v-container>
 </template>
 
@@ -128,18 +135,12 @@ h4 {
 
 .treemap-svg {
     width: 100%;
-    height: 40%;
-
+    height: 195px;
+    margin-bottom: 10px;
 }
 
-.checkbox {
-    vertical-align: middle;
-}
-.checkLabel {
-    font-size: 13px;
-    line-height: 1;
-    padding-left: 4px;
-    vertical-align: middle;
+.treemap-div {
+    width: 100%;
 }
 
 .treemap-block {
@@ -187,7 +188,7 @@ const DEFAULT_TEXT_COLOR  = "black";
 const LIMIT = 5;
 const TILE = d3.treemapSquarify;
 const WIDTH = 380;
-const HEIGHT = 240;
+const HEIGHT = 195;
 const PADDING = 3;
 const LAYOUT =
       d3.treemap()
@@ -228,11 +229,13 @@ const leafFun = (leaf, pkg) => JSON.stringify([pkg, leafName(leaf)]);
 // Leaf → Any
 // TODO
 function selectFun(leaf) {
-    const canToggle = this.multipleFuns || isSelectedFun(this, leaf)
-      || this.selectedFuns.length == 0;
-    if (canToggle)
+    const canToggle =
+          this.selectMultipleFuns ||
+          isSelectedFun(this, leaf) ||
+          this.selectedFuns.length === 0;
+    if (canToggle) {
         this.$store.dispatch("toggleFun", leafFun(leaf, this.selectedPkg));
-    else {
+    } else {
         this.selectedFuns = [leafFun(leaf, this.selectedPkg)];
     }
 }
@@ -381,7 +384,7 @@ export default {
             set(value) { this.$store.dispatch("setSelectedFuns", value); }
         },
 
-        ...mapState(["pkgs", "selectedPkg", "funs", "allFuns"])
+        ...mapState(["pkgs", "selectedPkg", "funs", "allFuns", "selectMultipleFuns"])
     },
 
     methods: {
@@ -404,11 +407,7 @@ export default {
 
         // Natural
         // The current page of function results.
-        funPage: 1,
-
-        // Boolean
-        // Multiple functions are allowed
-        multipleFuns: false,
+        funPage: 1
     })
 };
 </script>

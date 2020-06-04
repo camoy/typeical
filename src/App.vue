@@ -14,7 +14,7 @@
 
 <style>
   #app-vcol {
-    height: 90vh;
+    height: 95vh;
   }
 </style>
 

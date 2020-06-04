@@ -20,6 +20,10 @@ Vue.use(Vuex);
 // then include all analysis results.
 const analyzed = [];
 
+// Boolean
+// Can you select multiple functions at once or only one?
+const selectMultipleFuns = false;
+
 //
 // Filtering
 //
@@ -64,6 +68,7 @@ const types = [];
 export default new Vuex.Store({
   state: {
     analyzed,
+    selectMultipleFuns,
     selectedPkg,
     selectedFuns,
     allAnalyzed,
@@ -75,6 +80,7 @@ export default new Vuex.Store({
 
   mutations: {
     analyzed(state, val) { state.analyzed = val; },
+    selectMultipleFuns(state, val) { state.selectMultipleFuns = val; },
     selectedPkg(state, val) { state.selectedPkg = val; },
     selectedFuns(state, val) { state.selectedFuns = val; },
     allAnalyzed(state, val) { state.allAnalyzed = val; },
