@@ -4,7 +4,7 @@
   <v-tab key="settings" href="#tab-settings"> Settings </v-tab>
   <v-tab key="about" href="#tab-about"> About </v-tab>
   <v-tab-item class="fill-height" key="typevis" value="tab-typevis">
-    <v-container>
+    <v-container id="panels-container">
       <v-row>
         <v-col id="flow-panel" cols="9">
           <FlowPanel />
@@ -25,6 +25,10 @@
 </template>
 
 <style>
+body {
+    overflow-x: scroll;
+}
+
 /* These are hacks to get the tab items to be full height. */
 .v-tabs {
   height: 100%;
@@ -42,8 +46,26 @@
   height: 100% !important;
 }
 
+#panels-container {
+    max-height: 720px;
+    min-width: 1350px;
+}
+
 #flow-panel {
-    min-width: 1000px;
+    min-width: 1260px;
+    /*max-width: 1400px;*/
+    max-height: 710px;
+    margin-bottom: 30px;
+}
+#nav-panel {
+    min-width: 440px;
+}
+
+@media (max-width: 1900px) {
+    #nav-panel {
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 </style>
 

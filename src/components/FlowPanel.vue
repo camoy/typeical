@@ -1,5 +1,5 @@
 <template>
-<v-container>
+<v-container id="flow-svg-container">
   <svg id="flow-svg">
     <!-- No Data -->
     <g v-if="nodes.length === 0">
@@ -74,18 +74,34 @@
   </svg>
 
   <!-- Pagination -->
+  <div>
   <v-pagination
     v-if="nodes.length > 0"
     v-model="page"
     :length="pages"
     />
+  </div>
 </v-container>
 </template>
 
 <style>
+#flow-svg-container {
+    margin: 5px;
+    min-width: 1270px;
+}
+
+@media (min-width: 1350px) and (max-width: 1900px) {
+    #flow-svg-container {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
 #flow-svg {
-    width: 100%;
+    width:  100%;
     height: 100%;
+    min-width:  1250px;
+    min-height: 610px;
     /*overflow-x: scroll;*/
 }
 
@@ -130,7 +146,7 @@ const LIMIT_FLOWS = 15;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
 const HEIGHT = 600;
-const WIDTH = 1100;
+const WIDTH = 1240;
 
 //
 // Methods
@@ -241,7 +257,7 @@ function updateSankey() {
           .linkSort(null)
           .nodeWidth(NODE_WIDTH)
           .nodePadding(NODE_PADDING)
-          .extent([[0, 5], [WIDTH, HEIGHT - 5]])
+          .extent([[10, 5], [WIDTH-10, HEIGHT - 5]])
           .nodeAlign(ALIGN)
           .nodeOrientation(ORIENTATION);
     const { nodes, links } = layout({
