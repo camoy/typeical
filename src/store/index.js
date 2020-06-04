@@ -6,6 +6,9 @@ import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
 
+// API config
+axios.defaults.baseURL = "https://cors-anywhere.herokuapp.com/https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
+
 Vue.use(Vuex);
 
 //
@@ -96,7 +99,7 @@ export default new Vuex.Store({
 
     // Query for the list of defined packages
     queryPkgs({ commit, state }) {
-       axios.get("api/pkgs", {
+      axios.get(`api/pkgs`, {
         params: { analyzed: state.analyzed }
       }).then(response => commit("pkgs", response.data));
     },
