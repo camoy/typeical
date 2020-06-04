@@ -38,7 +38,9 @@ const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
 const TRUE = "0 = 0";
 const FALSE = "0 = 1";
 const OR =
-  (clause, n, empty) => (n === 0) ? empty : FALSE + ` OR ${clause}`.repeat(n);
+  (clause, n, empty) => (n === 0) ?
+                        empty :
+                        "(" + FALSE + ` OR ${clause}`.repeat(n) + ")";
 
 function query(sql, params, f) {
   db.all(sql, params, (err, rows) => {
