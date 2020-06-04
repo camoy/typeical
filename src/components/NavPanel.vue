@@ -209,7 +209,7 @@ const plainFormat = (x) => numeral(x).format("0a");
 //
 // TODO
 const leafName  = leaf => leaf.data.name;
-const leafValue = leaf => plainFormat(Math.exp(leaf.data.value));
+const leafValue = leaf => plainFormat(Math.exp(leaf.data.value - 1));
 
 // Node → String
 // Sets and returns a node's leaf UID.
@@ -260,7 +260,7 @@ function makeRoot(dataName, name, pageKey) {
 function makeTree(xs, name, page) {
     let children =
         xs ?
-        xs.map(x => { return { name: x[name], value: Math.log(x.count) }; }) :
+        xs.map(x => { return { name: x[name], value: Math.log(x.count) + 1 }; }) :
         [];
     children = children.slice((page - 1) * LIMIT, page * LIMIT);
     return { name: "", children };
