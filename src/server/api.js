@@ -25,7 +25,7 @@ const PKGS =
             WHERE ${where} GROUP BY package ORDER BY count DESC`;
 const FUNS =
   where => `SELECT fun_name, SUM(count) as count FROM sums
-            WHERE ${where} GROUP BY fun_name`;
+            WHERE ${where} GROUP BY fun_name ORDER BY count DESC`;
 const TYPES = where => `SELECT * FROM aggregated_types WHERE ${where}`;
 
 const ANALYZED_EQ = "package_being_analyzed = ?";
