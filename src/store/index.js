@@ -24,6 +24,10 @@ const analyzed = [];
 // Can you select multiple functions at once or only one?
 const selectMultipleFuns = false;
 
+// Boolean
+// Does the autocomplete use functions or packages?
+const autocompleteWithFuns = false;
+
 //
 // Filtering
 //
@@ -69,6 +73,7 @@ export default new Vuex.Store({
   state: {
     analyzed,
     selectMultipleFuns,
+    autocompleteWithFuns,
     selectedPkg,
     selectedFuns,
     allAnalyzed,
@@ -81,6 +86,7 @@ export default new Vuex.Store({
   mutations: {
     analyzed(state, val) { state.analyzed = val; },
     selectMultipleFuns(state, val) { state.selectMultipleFuns = val; },
+    autocompleteWithFuns(state, val) { state.autocompleteWithFuns = val; },
     selectedPkg(state, val) { state.selectedPkg = val; },
     selectedFuns(state, val) { state.selectedFuns = val; },
     allAnalyzed(state, val) { state.allAnalyzed = val; },

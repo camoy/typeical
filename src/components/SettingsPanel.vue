@@ -2,7 +2,7 @@
 <div class="pa-10">
   <v-form id="settings-form">
     <v-autocomplete
-      v-model="selectedAnalyzed"
+      v-model="analyzed"
       outlined
       chips
       small-chips
@@ -10,13 +10,19 @@
       label="Analyzed Packages"
       multiple
       :items="analyzedNames"
-      @input="$store.dispatch('setAnalyzed', selectedAnalyzed)"
+      @input="$store.dispatch('setAnalyzed', analyzed)"
       />
 
     <v-checkbox
-      v-model="selectedMultipleFuns"
+      v-model="selectMultipleFuns"
       label="Select Multiple Functions"
-      @click="$store.commit('selectMultipleFuns', selectedMultipleFuns)"
+      @click="$store.commit('selectMultipleFuns', selectMultipleFuns)"
+      />
+
+    <v-checkbox
+      v-model="autocompleteWithFuns"
+      label="Autocomplete with Functions"
+      @click="$store.commit('autocompleteWithFuns', autocompleteWithFuns)"
       />
   </v-form>
 </div>
@@ -49,8 +55,9 @@ export default {
         ...mapState(["allAnalyzed"])
     },
     data: () => ({
-        selectedMultipleFuns: false,
-        selectedAnalyzed: []
+        analyzed: [],
+        selectMultipleFuns: false,
+        autocompleteWithFuns: false
     })
 }
 </script>

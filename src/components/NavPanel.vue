@@ -1,8 +1,19 @@
 <template>
 <v-container>
+  <!-- Package Autocomplete -->
+  <v-autocomplete
+    v-if="!autocompleteWithFuns"
+    v-model="selectedPkg"
+    dense
+    outlined
+    full-width
+    label="Packages"
+    :items="pkgNames"
+    />
 
   <!-- Function Autocomplete -->
   <v-autocomplete
+    v-if="autocompleteWithFuns"
     v-model="selectedFuns"
     dense
     outlined
@@ -357,6 +368,12 @@ export default {
 
         //
         // TODO
+        pkgNames() {
+            return this.pkgs.map(x => x.package);
+        },
+
+        //
+        // TODO
         funPages() {
             return this.funs ? Math.ceil(this.funs.length / LIMIT) : 1;
         },
@@ -373,7 +390,14 @@ export default {
         },
 
         //
+        // TODO
+        selectedPkg: {
+            get() { return this.$store.state.selectedPkg; },
+            set(value) { this.$store.dispatch("setSelectedPkg", value); }
+        },
+
         //
+        // TODO
         selectedFuns: {
             get() {
                 return this.$store.state.selectedFuns.map(function(value) {
@@ -384,7 +408,13 @@ export default {
             set(value) { this.$store.dispatch("setSelectedFuns", value); }
         },
 
-        ...mapState(["pkgs", "selectedPkg", "funs", "allFuns", "selectMultipleFuns"])
+        ...mapState([
+            "pkgs",
+            "funs",
+            "allFuns",
+            "selectMultipleFuns",
+            "autocompleteWithFuns"
+        ])
     },
 
     methods: {
