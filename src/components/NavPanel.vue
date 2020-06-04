@@ -15,7 +15,7 @@
   <!-- Package Treemap -->
   <svg class="treemap-svg">
     <!-- Data -->
-    <g v-if="pkgRoot">
+    <g v-if="pkgRoot.children">
       <g v-for="(leaf, k) in pkgRoot.leaves()"
          :key="'pkg-treemap-g' + k"
          :transform="`translate(${leaf.x0}, ${leaf.y0})`">
@@ -63,7 +63,7 @@
   <!-- Function Treemap -->
   <svg class="treemap-svg">
     <!-- Data -->
-    <g v-if="funRoot">
+    <g v-if="funRoot.children">
       <g v-for="(leaf, k) in funRoot.leaves()"
          :key="'fun-treemap-g' + k"
          :transform="`translate(${leaf.x0}, ${leaf.y0})`">
@@ -121,6 +121,7 @@
   stroke: #666;
   stroke-width: 1;
 }
+
 .treemap-block:hover {
   fill: #bfd3e6;
 }
@@ -153,7 +154,7 @@ import numeral from "numeral";
 // Constants
 //
 
-const SELECTED_COLOR = "#8c6bb1"; //"#da4f81";
+const SELECTED_COLOR = "#8c6bb1";
 const DEFAULT_COLOR = "#f9fbfb";
 const LIMIT = 5;
 const TILE = d3.treemapSquarify;
@@ -251,7 +252,7 @@ function makeRoot(dataName, name, pageKey) {
         let page = this[pageKey];
         let data = makeTree(this[dataName], name, page);
         let hierarchy = makeHierarchy(data);
-        return LAYOUT(hierarchy)
+        return LAYOUT(hierarchy);
     };
 }
 

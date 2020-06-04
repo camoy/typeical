@@ -46,13 +46,13 @@ const allAnalyzed = [];
 // List of all the functions.
 const allFuns = [];
 
-// [Or #f List]
+// List
 // List of defined packages.
-const pkgs = false;
+const pkgs = [];
 
-// [Or #f List]
+// List
 // List of functions defined in the current package.
-const funs = false;
+const funs = [];
 
 // List
 // An array of results from querying function type information.
