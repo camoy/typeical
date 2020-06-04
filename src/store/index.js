@@ -7,7 +7,8 @@ import Vuex from "vuex";
 import axios from "axios";
 
 // API config
-axios.defaults.baseURL = "https://cors-anywhere.herokuapp.com/https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
+//axios.defaults.baseURL = "https://cors-anywhere.herokuapp.com/https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
+//axios.defaults.baseURL = "https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
 
 Vue.use(Vuex);
 

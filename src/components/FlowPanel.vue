@@ -86,6 +86,7 @@
 #flow-svg {
     width: 100%;
     height: 100%;
+    /*overflow-x: scroll;*/
 }
 
 .flow-path {
@@ -115,14 +116,17 @@ import * as d3 from "d3";
 //
 // Constants
 //
-const KEYS = ["fun_name", "arg_t0", "arg_t1", "arg_t2", "arg_t3", "arg_t_r"];
+const KEYS = ["fun_name", 
+    "arg_t0", "arg_t1", "arg_t2", "arg_t3", "arg_t4", "arg_t5",
+    "arg_t_r"];
 const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
 const HIGHLIGHT_COLOR = d3.color("#da4f81");
 const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
 const ORIENTATION = sankeyVertical;
 const LAYOUT = sankeyLinkVertical();
-const LIMIT = 3;
+//const LIMIT = 3;
+const LIMIT_FLOWS = 15;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
 const HEIGHT = 600;
@@ -209,6 +213,13 @@ function descendants(link) {
 // Sankey
 //
 
+// When data is updated, we need to restore page number
+function updateSankeyData() {
+    this.page = 1;
+    // updateSankey() fails with "this is undefined"
+    updateSankey.call(this);
+}
+
 // → Any
 // Create Sankey diagram from JSON data.
 function updateSankey() {
@@ -219,9 +230,11 @@ function updateSankey() {
         this.nodes = this.links = [];
         return;
     }
+    //console.log(data);
 
     // Some data
-    const graph = makeGraph(limitPage(data, this.selectedFuns, this.page));
+    //const graph = makeGraph(limitPage(data, this.selectedFuns, this.page));
+    const graph = makeGraph(limitPageFlow(data, this.page));
     const layout =
           sankey()
           .nodeSort(null)
@@ -248,7 +261,7 @@ function removeNA(data) {
     return data.map((row) => {
         let d = { value: row.count, package: row.package };
         for (let k of KEYS) {
-            if (row[k] == "NA") {
+            if (row[k] == "NA" && k != "fun_name") {
                 d[k] = row["arg_t_r"];
                 break;
             }
@@ -260,9 +273,12 @@ function removeNA(data) {
 
 // JSON → JSON
 // Return only rows that correspond to the current page of results.
-function limitPage(data, selectedFuns, page) {
+/*function limitPage(data, selectedFuns, page) {
     let funsSlice = selectedFuns.slice((page - 1) * LIMIT, page * LIMIT);
     return data.filter(x => funsSlice.includes(JSON.stringify([x.package, x.fun_name])));
+}*/
+function limitPageFlow(data, page) {
+    return data.slice((page - 1) * LIMIT_FLOWS, page * LIMIT_FLOWS);
 }
 
 // JSON → [Array Node] [Array Links]
@@ -320,13 +336,14 @@ export default {
 
     // Update Sankey when $store.types changes
     watch: {
-        types: updateSankey,
+        types: updateSankeyData,
         page: updateSankey
     },
 
     computed: {
         pages() {
-            return this.selectedFuns ? Math.ceil(this.selectedFuns.length / LIMIT) : 1;
+            //return this.selectedFuns ? Math.ceil(this.selectedFuns.length / LIMIT) : 1;
+            return this.types ? Math.ceil(this.types.length / LIMIT_FLOWS) : 1;
         },
         ...mapState(["types", "selectedFuns"])
     },

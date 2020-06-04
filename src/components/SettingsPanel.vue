@@ -57,7 +57,7 @@ export default {
     data: () => ({
         analyzed: [],
         selectMultipleFuns: false,
-        autocompleteWithFuns: false
+        autocompleteWithFuns: true
     })
 }
 </script>

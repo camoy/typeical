@@ -41,6 +41,10 @@
 .v-window-item .col {
   height: 100% !important;
 }
+
+#flow-panel {
+    min-width: 1000px;
+}
 </style>
 
 <script>
