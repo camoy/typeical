@@ -27,7 +27,7 @@ const selectMultipleFuns = false;
 
 // Boolean
 // Does the autocomplete use functions or packages?
-const autocompleteWithFuns = false;
+const autocompleteWithFuns = true;
 
 //
 // Filtering
