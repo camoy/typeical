@@ -2,6 +2,7 @@
 // Express
 //
 let express = require("express");
+let cors = require("cors");
 let router = express.Router();
 
 //
@@ -54,6 +55,7 @@ function query(sql, params, f) {
 //
 module.exports = (app, server) => {
   app.use(server.options.publicPath, router);
+  router.all("*", cors());
 
   //
   // GET /api/analyzed
