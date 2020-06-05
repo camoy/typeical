@@ -37,6 +37,8 @@ const ANALYZED_EQ = "package_being_analyzed = ?";
 const PKG_EQ = "package = ?";
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
 
+const LIMIT = " LIMIT 15";
+
 //
 // Util
 //
@@ -60,7 +62,7 @@ function query(sql, params, f) {
 //
 module.exports = (app, server) => {
   app.use(server.options.publicPath, router);
-  router.all("*", cors());
+  //router.all("*", cors());
 
   //
   // GET /api/analyzed
@@ -117,9 +119,26 @@ module.exports = (app, server) => {
       });
     }
     else {
-      where = where + " AND " +
-              OR(ANALYZED_EQ, analyzed.length, TRUE);
+      where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
       query(TYPES(where), funs.flat().concat(analyzed), function(results) {
+        res.json(results);
+      });
+    }
+  });
+
+  router.get("/api/types_limited", function(req, res) {
+    let analyzed = req.query.analyzed || [];
+    const pkg = req.query.pkg;
+    const where = PKG_EQ;
+    if (analyzed.length == 0) {
+      query(TYPES_ALL(pkg === "" ? TRUE : where) + LIMIT, 
+        pkg === "" ? [] : [pkg], function(results) {
+        res.json(results);
+      });
+    }
+    else {
+      where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
+      query(TYPES(where) + LIMIT, [pkg].concat(analyzed), function(results) {
         res.json(results);
       });
     }

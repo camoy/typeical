@@ -341,6 +341,12 @@ function makeHierarchy(data) {
 }
 
 //
+// TODO
+function requestTypesLimited() {
+    this.$store.dispatch("queryTypesLimited");
+}
+
+//
 // Exports
 //
 export default {
@@ -350,6 +356,11 @@ export default {
     created() {
         this.$store.dispatch("queryAllFuns");
         this.$store.dispatch("queryPkgs");
+    },
+
+    watch: {
+        pkgs: requestTypesLimited,
+        selectedPkg: requestTypesLimited
     },
 
     computed: {

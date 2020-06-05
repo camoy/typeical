@@ -132,6 +132,15 @@ export default new Vuex.Store({
       }).then(response =>  commit("types", response.data));
     },
 
+    queryTypesLimited({ commit, state }) {
+      axios.get("api/types_limited", {
+        params: { 
+          analyzed: state.analyzed, 
+          pkg: state.selectedPkg ? state.selectedPkg : "",
+        }
+      }).then(response => commit("types", response.data));
+    },
+
     // Given a package, toggles whether that package is selected
     togglePkg({ state, dispatch }, pkg) {
       dispatch("setSelectedPkg", state.selectedPkg === pkg ? false : pkg);
