@@ -31,6 +31,7 @@
 <style>
 #settings-form {
     min-width: 20rem;
+    max-width: 50rem;
 }
 </style>
 

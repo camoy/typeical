@@ -50,12 +50,17 @@
 #flow-panel {
     min-width: 1050px;
     padding: 4px;
-    margin-bottom: 36px;
+    margin-bottom: 40px;
 }
 #nav-panel {
     min-width: 420px;
     padding: 4px;
     margin: auto;
+}
+@media (max-width: 1704px) {
+    #nav-panel {
+        min-width: 840px;
+    }
 }
 </style>
 
