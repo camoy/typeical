@@ -124,7 +124,7 @@ import * as d3 from "d3";
 //
 // Constants
 //
-const KEYS = ["fun_name", 
+const KEYS = ["fun_name",
     "arg_t0", "arg_t1", "arg_t2", "arg_t3", "arg_t4", "arg_t5",
     "arg_t_r"];
 const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
@@ -341,6 +341,11 @@ function makeGraph(data) {
 //
 export default {
     name: "FlowPanel",
+
+    // Get default data
+    created() {
+        this.$store.dispatch("queryTypes");
+    },
 
     // Update Sankey when $store.types changes
     watch: {

@@ -33,9 +33,9 @@ const autocompleteWithFuns = true;
 // Filtering
 //
 
-// [Or #f String]
-// Contains the currently selectede package.
-const selectedPkg = false;
+// [Or undefined String]
+// Contains the currently selected package.
+const selectedPkg = undefined;
 
 // [Listof String]
 // This array contains pairs of package and function names.
@@ -152,7 +152,7 @@ export default new Vuex.Store({
       let funs = state.selectedFuns.map(JSON.parse);
       commit("incrementPending");
       axios.get("api/types", {
-        params: { funs, analyzed: state.analyzed }
+        params: { analyzed: state.analyzed, pkg: state.selectedPkg, funs }
       }).then(response => {
         commit("decrementPending");
         commit("types", response.data);
@@ -172,26 +172,12 @@ export default new Vuex.Store({
       });
     },
 
-    // Given a package, toggles whether that package is selected
-    togglePkg({ state, dispatch }, pkg) {
-      dispatch("setSelectedPkg", state.selectedPkg === pkg ? false : pkg);
-    },
-
-    // Given a function, toggles whether that function is selected
-    toggleFun({ dispatch, state }, fun) {
-      let selectedFuns =
-        state.selectedFuns.includes(fun) ?
-        state.selectedFuns.filter(x => x !== fun) :
-        state.selectedFuns.concat([fun]);
-      dispatch("setSelectedFuns", selectedFuns);
-    },
-
     // Set the analyzed packages. We clear the selected package and functions
     // as they may be unavailable.
     setAnalyzed({ commit, dispatch }, pkgs) {
       commit("analyzed", pkgs);
       dispatch("queryPkgs");
-      dispatch("setSelectedPkg", false);
+      dispatch("setSelectedPkg", undefined);
       dispatch("setSelectedFuns", []);
     },
 

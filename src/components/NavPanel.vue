@@ -216,7 +216,8 @@ const LAYOUT =
 // Leaf → Any
 // TODO
 function selectPkg(leaf) {
-    this.$store.dispatch("togglePkg", leafName(leaf));
+    let pkg = leafName(leaf);
+    this.selectedPkg = this.selectedPkg === pkg ? undefined : pkg;
 }
 
 // Leaf -> Bool
@@ -230,6 +231,9 @@ function isSelectedPkg(receiver, leaf) {
 function colorPkg(leaf) {
     return isSelectedPkg(this, leaf) ? SELECTED_COLOR : DEFAULT_COLOR;
 }
+
+//
+// TODO
 function colorPkgText(leaf) {
     return isSelectedPkg(this, leaf) ? SELECTED_TEXT_COLOR : DEFAULT_TEXT_COLOR;
 }
@@ -243,29 +247,36 @@ const leafFun = (leaf, pkg) => JSON.stringify([pkg, leafName(leaf)]);
 function selectFun(leaf) {
     const canToggle =
           this.selectMultipleFuns ||
-          isSelectedFun(this, leaf) ||
+          isSelectedFun.call(this, leaf) ||
           this.selectedFuns.length === 0;
     if (canToggle) {
-        this.$store.dispatch("toggleFun", leafFun(leaf, this.selectedPkg));
+        let fun = leafFun(leaf, this.selectedPkg);
+        this.selectedFuns =
+            this.selectedFuns.includes(fun) ?
+            this.selectedFuns.filter(x => x !== fun) :
+            this.selectedFuns.concat([fun]);
     } else {
         this.selectedFuns = [leafFun(leaf, this.selectedPkg)];
     }
 }
 
-// Leaf -> Bool
-// Checks if leaf corresponds to a selected functions
-function isSelectedFun(receiver, leaf) {
-    let fun = leafFun(leaf, receiver.selectedPkg);
-    return receiver.selectedFuns.map(x => x.value).includes(fun);
+// Leaf → Bool
+// Returns if leaf is selected.
+function isSelectedFun(leaf) {
+    let fun = leafFun(leaf, this.selectedPkg);
+    return this.selectedFuns.includes(fun);
 }
 
 //
 // TODO
 function colorFun(leaf) {
-    return isSelectedFun(this, leaf) ? SELECTED_COLOR : DEFAULT_COLOR;
+    return isSelectedFun.call(this, leaf) ? SELECTED_COLOR : DEFAULT_COLOR;
 }
+
+//
+// TODO
 function colorFunText(leaf) {
-    return isSelectedFun(this, leaf) ? SELECTED_TEXT_COLOR : DEFAULT_TEXT_COLOR;
+    return isSelectedFun.call(this, leaf) ? SELECTED_TEXT_COLOR : DEFAULT_TEXT_COLOR;
 }
 
 // Number → String
@@ -341,12 +352,6 @@ function makeHierarchy(data) {
 }
 
 //
-// TODO
-function requestTypesLimited() {
-    this.$store.dispatch("queryTypesLimited");
-}
-
-//
 // Exports
 //
 export default {
@@ -362,11 +367,13 @@ export default {
         pkgs() {
             this.pkgPage = 1;
             this.funPage = 1;
-            requestTypesLimited.call(this);
         },
         selectedPkg() {
+            if (this.selectedFuns.length === 0) {
+                this.$store.dispatch("queryTypes");
+            }
+
             this.funPage = 1;
-            requestTypesLimited.call(this);
         }
     },
 
@@ -418,12 +425,7 @@ export default {
         //
         // TODO
         selectedFuns: {
-            get() {
-                return this.$store.state.selectedFuns.map(function(value) {
-                    let fun = JSON.parse(value);
-                    return { text: `${fun[0]}.${fun[1]}`, value };
-                });
-            },
+            get() { return this.$store.state.selectedFuns; },
             set(value) { this.$store.dispatch("setSelectedFuns", value); }
         },
 

@@ -28,7 +28,7 @@ const FUNS =
             WHERE ${where} GROUP BY fun_name ORDER BY count DESC`;
 const TYPES =
   where => `SELECT * FROM aggregated_types WHERE ${where}
-            GROUP BY package_being_analyzed ORDER BY count DESC`;
+            GROUP BY fun_name ORDER BY count DESC`;
 const TYPES_ALL =
   where => `SELECT * FROM aggregated_types_all_analyzed WHERE ${where}
             ORDER BY count DESC`;
@@ -110,36 +110,38 @@ module.exports = (app, server) => {
   //
   router.get("/api/types", function(req, res) {
     let analyzed = req.query.analyzed || [];
-    let funs = req.query.funs || [];
-    funs = funs.map(JSON.parse);
-    let where = OR(PKG_FUN_EQ, funs.length, FALSE);
-    if (analyzed.length == 0) {
-      query(TYPES_ALL(where), funs.flat(), function(results) {
-        res.json(results);
-      });
-    }
-    else {
-      where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
-      query(TYPES(where), funs.flat().concat(analyzed), function(results) {
-        res.json(results);
-      });
-    }
-  });
+    let funs = req.query.funs;
 
-  router.get("/api/types_limited", function(req, res) {
-    let where = PKG_EQ;
-    let analyzed = req.query.analyzed || [];
-    const pkg = req.query.pkg;
-    if (analyzed.length == 0) {
-      query(TYPES_ALL(pkg === "" ? TRUE : where) + LIMIT,
-        pkg === "" ? [] : [pkg], function(results) {
-        res.json(results);
-      });
+    // Normal types
+    if (funs) {
+      funs = funs.map(JSON.parse);
+      let where = OR(PKG_FUN_EQ, funs.length, FALSE);
+      if (analyzed.length == 0) {
+        query(TYPES_ALL(where), funs.flat(), function(results) {
+          res.json(results);
+        });
+      }
+      else {
+        where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
+        query(TYPES(where), funs.flat().concat(analyzed), function(results) {
+          res.json(results);
+        });
+      }
     } else {
-      where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
-      query(TYPES(where) + LIMIT, [pkg].concat(analyzed), function(results) {
-        res.json(results);
-      });
+      const pkg = req.query.pkg;
+      const pkgParam = pkg ? [pkg] : [];
+      let where = pkg ? PKG_EQ : TRUE;
+      let analyzed = req.query.analyzed || [];
+      if (analyzed.length == 0) {
+        query(TYPES_ALL(where) + LIMIT,
+              pkgParam,
+              results => res.json(results));
+      } else {
+        where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
+        query(TYPES(where) + LIMIT,
+              pkgParam.concat(analyzed),
+              results => res.json(results));
+      }
     }
   });
 }
