@@ -26,10 +26,10 @@ const PKGS =
 const FUNS =
   where => `SELECT fun_name, SUM(count) as count FROM sums
             WHERE ${where} GROUP BY fun_name ORDER BY count DESC`;
-const TYPES = 
+const TYPES =
   where => `SELECT * FROM aggregated_types WHERE ${where}
             GROUP BY package_being_analyzed ORDER BY count DESC`;
-const TYPES_ALL = 
+const TYPES_ALL =
   where => `SELECT * FROM aggregated_types_all_analyzed WHERE ${where}
             ORDER BY count DESC`;
 
@@ -127,16 +127,15 @@ module.exports = (app, server) => {
   });
 
   router.get("/api/types_limited", function(req, res) {
+    let where = PKG_EQ;
     let analyzed = req.query.analyzed || [];
     const pkg = req.query.pkg;
-    const where = PKG_EQ;
     if (analyzed.length == 0) {
-      query(TYPES_ALL(pkg === "" ? TRUE : where) + LIMIT, 
+      query(TYPES_ALL(pkg === "" ? TRUE : where) + LIMIT,
         pkg === "" ? [] : [pkg], function(results) {
         res.json(results);
       });
-    }
-    else {
+    } else {
       where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
       query(TYPES(where) + LIMIT, [pkg].concat(analyzed), function(results) {
         res.json(results);

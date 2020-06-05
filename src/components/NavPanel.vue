@@ -359,8 +359,15 @@ export default {
     },
 
     watch: {
-        pkgs: requestTypesLimited,
-        selectedPkg: requestTypesLimited
+        pkgs() {
+            this.pkgPage = 1;
+            this.funPage = 1;
+            requestTypesLimited.call(this);
+        },
+        selectedPkg() {
+            this.funPage = 1;
+            requestTypesLimited.call(this);
+        }
     },
 
     computed: {
