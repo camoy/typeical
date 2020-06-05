@@ -14,16 +14,29 @@
       />
 
     <v-checkbox
+      v-model="autocompleteWithFuns"
+      label="Autocomplete with Functions"
+      @click="$store.commit('autocompleteWithFuns', autocompleteWithFuns)"
+      />
+    
+    <v-checkbox
       v-model="selectMultipleFuns"
       label="Select Multiple Functions"
       @click="$store.commit('selectMultipleFuns', selectMultipleFuns)"
       />
 
-    <v-checkbox
-      v-model="autocompleteWithFuns"
-      label="Autocomplete with Functions"
-      @click="$store.commit('autocompleteWithFuns', autocompleteWithFuns)"
-      />
+    <div class="v-input v-input--selection-controls div-setting">
+      <select v-model="flowsPerPage" class="num-setting"
+        @change="$store.commit('flowsPerPage', flowsPerPage)">
+        <option v-for="(option, k) in validFlows" v-bind:value="option"
+          :key="'flows-per-page-' + k"
+          >
+          {{ option }}
+        </option>
+      </select>
+      <label class="v-label label-setting" style="color: rgba(0, 0, 0, 0.6)">
+        Type flows per page </label>
+    </div>
   </v-form>
 </div>
 </template>
@@ -32,6 +45,19 @@
 #settings-form {
     min-width: 20rem;
     max-width: 50rem;
+}
+
+.label-setting {
+  margin-top: 4px;
+  margin-left: 8px;
+}
+
+.num-setting {
+    width: 2rem;
+    border: 2px solid #777;
+    border-radius: 15%;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.6);
 }
 </style>
 
@@ -53,12 +79,16 @@ export default {
                 this.allAnalyzed.map((x) => x.package_being_analyzed) :
                 [];
         },
+        validFlows() {
+            return (new Array(20)).fill(0).map((_, i) => i + 1).reverse();
+        },
         ...mapState(["allAnalyzed"])
     },
     data: () => ({
         analyzed: [],
         selectMultipleFuns: false,
-        autocompleteWithFuns: true
+        autocompleteWithFuns: true,
+        flowsPerPage: 12,
     })
 }
 </script>

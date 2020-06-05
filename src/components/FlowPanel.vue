@@ -140,7 +140,6 @@ const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
 const ORIENTATION = sankeyVertical;
 const LAYOUT = sankeyLinkVertical();
-const LIMIT_FLOWS = 15;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
 const HEIGHT = 600;
@@ -247,7 +246,8 @@ function updateSankey() {
     }
 
     // Some data
-    const graph = makeGraph(limitPageFlow(data, this.page));
+    const limit = this.flowsPerPage;
+    const graph = makeGraph(limitPageFlow(data, limit, this.page));
     const layout =
           sankey()
           .nodeSort(null)
@@ -284,10 +284,10 @@ function removeNA(data) {
     });
 }
 
-// JSON Natural → JSON
+// JSON Natural Natural → JSON
 // Return only rows that correspond to the current page of results.
-function limitPageFlow(data, page) {
-    return data.slice((page - 1) * LIMIT_FLOWS, page * LIMIT_FLOWS);
+function limitPageFlow(data, limit, page) {
+    return data.slice((page - 1) * limit, page * limit);
 }
 
 // JSON → [Array Node] [Array Links]
@@ -351,14 +351,15 @@ export default {
     // Update visualization when this.$store.types changes or page changes.
     watch: {
         types: updateSankeyWithReset,
-        page: updateSankey
+        page: updateSankey,
+        flowsPerPage: updateSankey
     },
 
     computed: {
         pages() {
-            return this.types ? Math.ceil(this.types.length / LIMIT_FLOWS) : 1;
+            return this.types ? Math.ceil(this.types.length / this.flowsPerPage) : 1;
         },
-        ...mapState(["types", "selectedFuns"])
+        ...mapState(["types", "selectedFuns", "flowsPerPage"])
     },
 
     methods: {

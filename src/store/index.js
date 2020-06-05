@@ -31,6 +31,14 @@ const selectMultipleFuns = false;
 // Does the autocomplete use functions or packages?
 const autocompleteWithFuns = true;
 
+// Natural
+// Number of datums loaded by default
+const defaultLimit = 36;
+
+// Natural
+// Number of flows per page
+const flowsPerPage = 12;
+
 //
 // Filtering
 //
@@ -82,6 +90,8 @@ export default new Vuex.Store({
     analyzed,
     selectMultipleFuns,
     autocompleteWithFuns,
+    defaultLimit,
+    flowsPerPage,
     selectedPkg,
     selectedFuns,
     allAnalyzed,
@@ -97,6 +107,8 @@ export default new Vuex.Store({
     analyzed(state, val) { state.analyzed = val; },
     selectMultipleFuns(state, val) { state.selectMultipleFuns = val; },
     autocompleteWithFuns(state, val) { state.autocompleteWithFuns = val; },
+    defaultLimit(state, val) { state.defaultLimit = val; },
+    flowsPerPage(state, val) { state.flowsPerPage = val; },
     selectedPkg(state, val) { state.selectedPkg = val; },
     selectedFuns(state, val) { state.selectedFuns = val; },
     allAnalyzed(state, val) { state.allAnalyzed = val; },

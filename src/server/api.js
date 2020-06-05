@@ -37,7 +37,7 @@ const ANALYZED_EQ = "package_being_analyzed = ?";
 const PKG_EQ = "package = ?";
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
 
-const LIMIT = " LIMIT 30";
+const LIMIT = " LIMIT 36";
 
 //
 // Util
