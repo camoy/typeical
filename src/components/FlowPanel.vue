@@ -124,16 +124,22 @@ import * as d3 from "d3";
 //
 // Constants
 //
-const KEYS = ["fun_name",
-    "arg_t0", "arg_t1", "arg_t2", "arg_t3", "arg_t4", "arg_t5",
-    "arg_t_r"];
+const KEYS = [
+    "fun_name",
+    "arg_t0",
+    "arg_t1",
+    "arg_t2",
+    "arg_t3",
+    "arg_t4",
+    "arg_t5",
+    "arg_t_r"
+];
 const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
 const HIGHLIGHT_COLOR = d3.color("#da4f81");
 const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
 const ORIENTATION = sankeyVertical;
 const LAYOUT = sankeyLinkVertical();
-//const LIMIT = 3;
 const LIMIT_FLOWS = 15;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
@@ -179,9 +185,10 @@ function highlight(link, shouldHighlight) {
 function color(link) {
     if (link.highlighted) return HIGHLIGHT_COLOR;
 
-    if (this.focusedFun && linkFun(link) !== this.focusedFun)
+    if (this.focusedFun && linkFun(link) !== this.focusedFun) {
         return d3.color(DEFAULT_COLOR(link.target.name))
-        .copy({ opacity: UNFOCUSED_OPACITY });
+            .copy({ opacity: UNFOCUSED_OPACITY });
+    }
 
     return DEFAULT_COLOR(link.target.name);
 }
@@ -221,10 +228,10 @@ function descendants(link) {
 // Sankey
 //
 
-// When data is updated, we need to restore page number
-function updateSankeyData() {
+// → Any
+// Update Sankey, but also reset the page number.
+function updateSankeyWithReset() {
     this.page = 1;
-    // updateSankey() fails with "this is undefined"
     updateSankey.call(this);
 }
 
@@ -238,10 +245,8 @@ function updateSankey() {
         this.nodes = this.links = [];
         return;
     }
-    //console.log(data);
 
     // Some data
-    //const graph = makeGraph(limitPage(data, this.selectedFuns, this.page));
     const graph = makeGraph(limitPageFlow(data, this.page));
     const layout =
           sankey()
@@ -279,12 +284,8 @@ function removeNA(data) {
     });
 }
 
-// JSON → JSON
+// JSON Natural → JSON
 // Return only rows that correspond to the current page of results.
-/*function limitPage(data, selectedFuns, page) {
-    let funsSlice = selectedFuns.slice((page - 1) * LIMIT, page * LIMIT);
-    return data.filter(x => funsSlice.includes(JSON.stringify([x.package, x.fun_name])));
-}*/
 function limitPageFlow(data, page) {
     return data.slice((page - 1) * LIMIT_FLOWS, page * LIMIT_FLOWS);
 }
@@ -342,20 +343,19 @@ function makeGraph(data) {
 export default {
     name: "FlowPanel",
 
-    // Get default data
+    // Request default data.
     created() {
         this.$store.dispatch("queryTypes");
     },
 
-    // Update Sankey when $store.types changes
+    // Update visualization when this.$store.types changes or page changes.
     watch: {
-        types: updateSankeyData,
+        types: updateSankeyWithReset,
         page: updateSankey
     },
 
     computed: {
         pages() {
-            //return this.selectedFuns ? Math.ceil(this.selectedFuns.length / LIMIT) : 1;
             return this.types ? Math.ceil(this.types.length / LIMIT_FLOWS) : 1;
         },
         ...mapState(["types", "selectedFuns"])
@@ -371,7 +371,7 @@ export default {
     },
 
     data: () => ({
-        // [Or String false]
+        // [Or false String]
         // The currently focused function or false if none is focused.
         focusedFun: false,
 
