@@ -47,6 +47,10 @@ const selectedFuns = [];
 // Results
 //
 
+// Natural
+// Number of pending API requests.
+const pending = 0;
+
 // [Listof String]
 // List of packages that were analyzed.
 const allAnalyzed = [];
@@ -72,6 +76,7 @@ const types = [];
 //
 export default new Vuex.Store({
   state: {
+    pending,
     analyzed,
     selectMultipleFuns,
     autocompleteWithFuns,
@@ -85,6 +90,8 @@ export default new Vuex.Store({
   },
 
   mutations: {
+    incrementPending(state) { ++state.pending; },
+    decrementPending(state) { --state.pending; },
     analyzed(state, val) { state.analyzed = val; },
     selectMultipleFuns(state, val) { state.selectMultipleFuns = val; },
     autocompleteWithFuns(state, val) { state.autocompleteWithFuns = val; },
@@ -100,45 +107,69 @@ export default new Vuex.Store({
   actions: {
     // Query for the list of analyzed packages
     queryAnalyzed({ commit }) {
+      commit("incrementPending");
       axios.get("api/analyzed")
-           .then(response => commit("allAnalyzed", response.data));
+           .then(response => {
+             commit("decrementPending");
+             commit("allAnalyzed", response.data);
+           });
     },
 
     // Query for the list of analyzed packages
     queryAllFuns({ commit }) {
+      commit("incrementPending");
       axios.get("api/all_funs")
-           .then(response => commit("allFuns", response.data));
+           .then(response => {
+             commit("decrementPending");
+             commit("allFuns", response.data);
+           });
     },
 
     // Query for the list of defined packages
     queryPkgs({ commit, state }) {
+      commit("incrementPending");
       axios.get(`api/pkgs`, {
         params: { analyzed: state.analyzed }
-      }).then(response => commit("pkgs", response.data));
+      }).then(response => {
+        commit("decrementPending");
+        commit("pkgs", response.data);
+      });
     },
 
     // Query for the list of functions
     queryFuns({ commit, state }) {
+      commit("incrementPending");
       axios.get("api/funs", {
         params: { analyzed: state.analyzed, pkg: state.selectedPkg }
-      }).then(response => commit("funs", response.data));
+      }).then(response => {
+        commit("decrementPending");
+        commit("funs", response.data);
+      });
     },
 
     // Query for type information
     queryTypes({ commit, state }) {
       let funs = state.selectedFuns.map(JSON.parse);
+      commit("incrementPending");
       axios.get("api/types", {
         params: { funs, analyzed: state.analyzed }
-      }).then(response =>  commit("types", response.data));
+      }).then(response => {
+        commit("decrementPending");
+        commit("types", response.data);
+      });
     },
 
     queryTypesLimited({ commit, state }) {
+      commit("incrementPending");
       axios.get("api/types_limited", {
-        params: { 
-          analyzed: state.analyzed, 
+        params: {
+          analyzed: state.analyzed,
           pkg: state.selectedPkg ? state.selectedPkg : "",
         }
-      }).then(response => commit("types", response.data));
+      }).then(response => {
+        commit("decrementPending");
+        commit("types", response.data);
+      });
     },
 
     // Given a package, toggles whether that package is selected

@@ -64,11 +64,17 @@ body {
 </style>
 
 <script>
+//
+// Imports
+//
 import FlowPanel from "./FlowPanel";
 import NavPanel from "./NavPanel";
 import SettingsPanel from "./SettingsPanel";
 import AboutPanel from "./AboutPanel";
 
+//
+// Exports
+//
 export default {
   name: "TabView",
 

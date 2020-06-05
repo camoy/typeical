@@ -8,6 +8,11 @@
         </v-col>
       </v-row>
     </v-container>
+
+    <v-overlay
+      :value="pending > 0">
+      <v-progress-circular indeterminate size="64" />
+    </v-overlay>
   </v-content>
 </v-app>
 </template>
@@ -19,10 +24,18 @@
 </style>
 
 <script>
+//
+// Imports
+//
+import { mapState } from "vuex";
 import TabView from "./components/TabView";
 
+//
+// Exports
+//
 export default {
   name: "App",
+  computed: mapState(["pending"]),
   components: { TabView }
 };
 </script>
