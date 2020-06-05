@@ -5,12 +5,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
+Vue.use(Vuex);
 
-// API config
+//
+// Base URL
+//
+
 //axios.defaults.baseURL = "https://cors-anywhere.herokuapp.com/https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
 //axios.defaults.baseURL = "https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
-
-Vue.use(Vuex);
 
 //
 // Settings
@@ -153,19 +155,6 @@ export default new Vuex.Store({
       commit("incrementPending");
       axios.get("api/types", {
         params: { analyzed: state.analyzed, pkg: state.selectedPkg, funs }
-      }).then(response => {
-        commit("decrementPending");
-        commit("types", response.data);
-      });
-    },
-
-    queryTypesLimited({ commit, state }) {
-      commit("incrementPending");
-      axios.get("api/types_limited", {
-        params: {
-          analyzed: state.analyzed,
-          pkg: state.selectedPkg ? state.selectedPkg : "",
-        }
       }).then(response => {
         commit("decrementPending");
         commit("types", response.data);

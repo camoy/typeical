@@ -2,7 +2,6 @@
 // Express
 //
 let express = require("express");
-let cors = require("cors");
 let router = express.Router();
 
 //
@@ -62,7 +61,6 @@ function query(sql, params, f) {
 //
 module.exports = (app, server) => {
   app.use(server.options.publicPath, router);
-  //router.all("*", cors());
 
   //
   // GET /api/analyzed
@@ -109,39 +107,23 @@ module.exports = (app, server) => {
   // GET /api/types
   //
   router.get("/api/types", function(req, res) {
-    let analyzed = req.query.analyzed || [];
-    let funs = req.query.funs;
+    const analyzed = req.query.analyzed || [];
+    const whereAnalyzed = OR(ANALYZED_EQ, analyzed.length, TRUE)
 
-    // Normal types
-    if (funs) {
-      funs = funs.map(JSON.parse);
-      let where = OR(PKG_FUN_EQ, funs.length, FALSE);
-      if (analyzed.length == 0) {
-        query(TYPES_ALL(where), funs.flat(), function(results) {
-          res.json(results);
-        });
-      }
-      else {
-        where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
-        query(TYPES(where), funs.flat().concat(analyzed), function(results) {
-          res.json(results);
-        });
-      }
-    } else {
-      const pkg = req.query.pkg;
-      const pkgParam = pkg ? [pkg] : [];
-      let where = pkg ? PKG_EQ : TRUE;
-      let analyzed = req.query.analyzed || [];
-      if (analyzed.length == 0) {
-        query(TYPES_ALL(where) + LIMIT,
-              pkgParam,
-              results => res.json(results));
-      } else {
-        where = where + " AND " + OR(ANALYZED_EQ, analyzed.length, TRUE);
-        query(TYPES(where) + LIMIT,
-              pkgParam.concat(analyzed),
-              results => res.json(results));
-      }
-    }
+    const funs = (req.query.funs || []).map(JSON.parse);
+    const defaultData = funs.length === 0;
+    const whereFuns = OR(PKG_FUN_EQ, funs.length, TRUE);
+
+    const pkg = req.query.pkg && defaultData ? [req.query.pkg] : [];
+    const wherePkg = defaultData ?
+                     OR(PKG_EQ, pkg.length, TRUE) :
+                     TRUE;
+
+    const limit = defaultData ? LIMIT : "";
+    const where = [whereAnalyzed, whereFuns, wherePkg].join(" AND ");
+    const params = analyzed.concat(funs.flat()).concat(pkg);
+    const QUERY = analyzed.length == 0 ? TYPES_ALL : TYPES;
+
+    query(QUERY(where) + limit, params, results => res.json(results))
   });
 }
