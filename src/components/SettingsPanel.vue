@@ -30,7 +30,7 @@
 
 <style>
 #settings-form {
-    width: 60rem;
+    min-width: 20rem;
 }
 </style>
 

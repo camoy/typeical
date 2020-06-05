@@ -16,6 +16,6 @@
 
 <style>
   #about-div {
-    width: 60rem;
+    min-width: 20rem;
   }
 </style>
