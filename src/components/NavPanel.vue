@@ -145,6 +145,7 @@
 <style>
 #navigationDiv {
     text-align: center;
+    min-width: 454px;
 }
 
 h4 {
@@ -153,7 +154,9 @@ h4 {
 }
 
 .v-text-field.v-text-field--enclosed.autocomplete-list {
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
 }
 
 .v-input.autocomplete-list {
@@ -163,6 +166,7 @@ h4 {
 #treemapsDiv {
     display: flex;
     flex-direction: column;
+    min-width: 430px;
 }
 
 .treemap-svg {
@@ -181,6 +185,9 @@ h4 {
     #treemapsDiv {
         flex-direction: row;
         max-width: 920px;
+    }
+    .v-text-field.v-text-field--enclosed.autocomplete-list {
+        margin-top: 0px;
     }
 }
 

@@ -1,4 +1,6 @@
 <template>
+<div>
+<h1>Visualization of type usage in R language</h1>
 <v-tabs>
   <v-tab key="typevis" href="#tab-typevis"> TypeVis </v-tab>
   <v-tab key="settings" href="#tab-settings"> Settings </v-tab>
@@ -22,6 +24,7 @@
     <AboutPanel />
   </v-tab-item>
 </v-tabs>
+</div>
 </template>
 
 <style>
@@ -50,16 +53,17 @@
 #flow-panel {
     min-width: 1050px;
     padding: 4px;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
 }
 #nav-panel {
-    min-width: 420px;
+    min-width: 454px;
     padding: 4px;
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 @media (max-width: 1704px) {
     #nav-panel {
-        min-width: 840px;
+        min-width: 900px;
     }
 }
 </style>

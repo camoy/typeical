@@ -94,7 +94,7 @@
 #flow-svg {
     width:  100%;
     height: 100%;
-    min-height: 610px;
+    min-height: 636px;
 }
 
 .flow-path {
