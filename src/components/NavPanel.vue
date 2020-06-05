@@ -152,6 +152,7 @@ h4 {
 
 .treemap-div {
     width: 100%;
+    margin: auto;
 }
 
 .treemap-block {

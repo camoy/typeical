@@ -6,7 +6,7 @@
   <v-tab-item class="fill-height" key="typevis" value="tab-typevis">
     <v-container id="panels-container">
       <v-row>
-        <v-col id="flow-panel" cols="9">
+        <v-col id="flow-panel" cols="8">
           <FlowPanel />
         </v-col>
         <v-col id="nav-panel" cols="3">
@@ -47,25 +47,19 @@ body {
 }
 
 #panels-container {
-    max-height: 720px;
-    min-width: 1350px;
+    max-height: 680px;
+    min-width: 1050px;
 }
 
 #flow-panel {
-    min-width: 1260px;
-    /*max-width: 1400px;*/
-    max-height: 710px;
-    margin-bottom: 30px;
+    min-width: 1050px;
+    padding: 4px;
+    margin-bottom: 36px;
 }
 #nav-panel {
-    min-width: 440px;
-}
-
-@media (max-width: 1900px) {
-    #nav-panel {
-        margin-left: auto;
-        margin-right: auto;
-    }
+    min-width: 420px;
+    padding: 4px;
+    margin: auto;
 }
 </style>
 

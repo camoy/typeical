@@ -87,22 +87,14 @@
 <style>
 #flow-svg-container {
     margin: 5px;
-    min-width: 1270px;
-}
-
-@media (min-width: 1350px) and (max-width: 1900px) {
-    #flow-svg-container {
-        margin-left: auto;
-        margin-right: auto;
-    }
+    padding: 0px;
+    min-width: 1050px;
 }
 
 #flow-svg {
     width:  100%;
     height: 100%;
-    min-width:  1250px;
     min-height: 610px;
-    /*overflow-x: scroll;*/
 }
 
 .flow-path {
@@ -146,7 +138,7 @@ const LIMIT_FLOWS = 15;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
 const HEIGHT = 600;
-const WIDTH = 1240;
+const WIDTH = 1040;
 
 //
 // Methods
