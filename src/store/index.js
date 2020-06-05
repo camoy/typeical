@@ -166,7 +166,10 @@ export default new Vuex.Store({
       let funs = state.selectedFuns.map(JSON.parse);
       commit("incrementPending");
       axios.get("api/types", {
-        params: { analyzed: state.analyzed, pkg: state.selectedPkg, funs }
+        params: { 
+          analyzed: state.analyzed, pkg: state.selectedPkg, 
+          funs, limit: state.defaultLimit 
+        }
       }).then(response => {
         commit("decrementPending");
         commit("types", response.data);
@@ -193,6 +196,12 @@ export default new Vuex.Store({
       commit("selectedFuns", selectedFuns);
       dispatch("queryTypes");
     },
+
+    setDefaultLimit({ commit, dispatch }, defaultLimit) {
+      commit("defaultLimit", defaultLimit);
+      dispatch("queryTypes");
+    },
+
   },
 
   modules: {}

@@ -29,13 +29,24 @@
       <select v-model="flowsPerPage" class="num-setting"
         @change="$store.commit('flowsPerPage', flowsPerPage)">
         <option v-for="(option, k) in validFlows" v-bind:value="option"
-          :key="'flows-per-page-' + k"
-          >
+          :key="'flows-per-page-' + k">
           {{ option }}
         </option>
       </select>
       <label class="v-label label-setting" style="color: rgba(0, 0, 0, 0.6)">
-        Type flows per page </label>
+        Type flows shown per page </label>
+    </div>
+
+    <div class="v-input v-input--selection-controls div-setting">
+      <select v-model="defaultLimit" class="num-setting"
+        @change="$store.dispatch('setDefaultLimit', defaultLimit)">
+        <option v-for="(option, k) in validLimits" v-bind:value="option"
+          :key="'valid-limit-' + k">
+          {{ option }}
+        </option>
+      </select>
+      <label class="v-label label-setting" style="color: rgba(0, 0, 0, 0.6)">
+        Type flows requested when no function is selected </label>
     </div>
   </v-form>
 </div>
@@ -58,6 +69,7 @@
     border-radius: 15%;
     text-align: center;
     color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 16px;
 }
 </style>
 
@@ -80,7 +92,10 @@ export default {
                 [];
         },
         validFlows() {
-            return (new Array(20)).fill(0).map((_, i) => i + 1).reverse();
+            return (new Array(30)).fill(1).map((min, i) => i + min);
+        },
+        validLimits() {
+            return (new Array(61)).fill(10).map((min, i) => i + min);
         },
         ...mapState(["allAnalyzed"])
     },
@@ -89,6 +104,7 @@ export default {
         selectMultipleFuns: false,
         autocompleteWithFuns: true,
         flowsPerPage: 12,
+        defaultLimit: 36,
     })
 }
 </script>

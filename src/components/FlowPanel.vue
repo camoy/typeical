@@ -352,7 +352,7 @@ export default {
     watch: {
         types: updateSankeyWithReset,
         page: updateSankey,
-        flowsPerPage: updateSankey
+        flowsPerPage: updateSankey,
     },
 
     computed: {
