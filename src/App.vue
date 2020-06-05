@@ -18,9 +18,13 @@
 </template>
 
 <style>
-  #app-vcol {
+#app-vcol {
     height: 95vh;
-  }
+}
+
+.v-application--wrap {
+    min-height: 100% !important;
+}
 </style>
 
 <script>

@@ -25,10 +25,6 @@
 </template>
 
 <style>
-body {
-    overflow-x: scroll;
-}
-
 /* These are hacks to get the tab items to be full height. */
 .v-tabs {
   height: 100%;
