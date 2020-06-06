@@ -15,5 +15,5 @@ TYPEVIS_DB=~/data.db npm run serve
 Running on server:
 
 ```
-BASE_MODE=server TYPEVIS_DB=small.db npm run serve -- --port 8006
+BASE_MODE=server TYPEVIS_DB=realdata.db npm run serve -- --port 8006
 ```
