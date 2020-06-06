@@ -1,9 +1,10 @@
 <template>
-<v-container>
+<v-container id="navigationDiv">
   <!-- Package Autocomplete -->
   <v-autocomplete
     v-if="!autocompleteWithFuns"
     v-model="selectedPkg"
+    class="autocomplete-list"
     dense
     outlined
     full-width
@@ -15,6 +16,7 @@
   <v-autocomplete
     v-if="autocompleteWithFuns"
     v-model="selectedFuns"
+    class="autocomplete-list"
     dense
     outlined
     chips
@@ -26,122 +28,150 @@
     :items="autocompleteFuns"
     />
 
-  <!-- Packages -->
-  <div class="treemap-div">
-    <h4>Packages</h4>
+  <div id="treemapsDiv">
+    <!-- Packages -->
+    <div class="treemap-div">
+        <h4>Packages</h4>
 
-    <!-- Package Treemap -->
-    <svg class="treemap-svg">
-      <!-- Data -->
-      <g v-if="pkgRoot.children">
-        <g v-for="(leaf, k) in pkgRoot.leaves()"
-           :key="'pkg-treemap-g' + k"
-           :transform="`translate(${leaf.x0}, ${leaf.y0})`">
-          <title> {{ leafName(leaf) }} ({{ leafValue(leaf) }}) </title>
-          <rect
+        <!-- Package Treemap -->
+        <svg class="treemap-svg">
+        <!-- Data -->
+        <g v-if="pkgRoot.children">
+            <g v-for="(leaf, k) in pkgRoot.leaves()"
+            :key="'pkg-treemap-g' + k"
+            :transform="`translate(${leaf.x0}, ${leaf.y0})`">
+            <title> {{ leafName(leaf) }} ({{ leafValue(leaf) }}) </title>
+            <rect
+                class="treemap-block"
+                cursor="pointer"
+                :id="setLeafUID(leaf)"
+                :fill="colorPkg(leaf)"
+                :width="leaf.x1 - leaf.x0"
+                :height="leaf.y1 -leaf.y0"
+                @click="selectPkg(leaf)"
+                />
+            <clipPath :id="setClipUID(leaf)">
+                <use :xlink:href="leaf.leafUID.href" />
+            </clipPath>
+            <text
+                class="treemap-text"
+                dominant-baseline="hanging"
+                dx="0.5em"
+                dy="0.5em"
+                :fill="colorPkgText(leaf)"
+                :clip-path="leaf.clipUID"
+                >
+                {{ leafName(leaf) }}
+            </text>
+            <text
+                class="treemap-number"
+                dominant-baseline="hanging"
+                dx="0.5em"
+                dy="2em"
+                :fill="colorPkgText(leaf)"
+                >
+                {{ leafValue(leaf) }}
+            </text>
+            </g>
+        </g>
+        </svg>
+
+        <!-- Package Pagination -->
+        <v-pagination
+        v-if="pkgs.length > 0"
+        v-model="pkgPage"
+        class="treemap-pagination"
+        :length="pkgPages"
+        />
+    </div>
+
+    <!-- Functions -->
+    <div class="treemap-div">
+        <h4>Functions</h4>
+
+        <!-- No Function Data -->
+        <svg class="no-fun-div" v-if="!funRoot.children">
+            <text x="50%" y="50%" fill="#666"
+              text-anchor="middle">No Packages Selected</text>
+        </svg>
+        <!-- Function Treemap -->
+        <svg class="treemap-svg" v-if="funRoot.children">
+        <!-- Data -->
+        <g v-for="(leaf, k) in funRoot.leaves()"
+            :key="'fun-treemap-g' + k"
+            :transform="`translate(${leaf.x0}, ${leaf.y0})`">
+            <title> {{ leafName(leaf) }} ({{ leafValue(leaf) }}) </title>
+            <rect
             class="treemap-block"
             cursor="pointer"
             :id="setLeafUID(leaf)"
-            :fill="colorPkg(leaf)"
+            :fill="colorFun(leaf)"
             :width="leaf.x1 - leaf.x0"
             :height="leaf.y1 -leaf.y0"
-            @click="selectPkg(leaf)"
+            @click="selectFun(leaf)"
             />
-          <clipPath :id="setClipUID(leaf)">
+            <clipPath :id="setClipUID(leaf)">
             <use :xlink:href="leaf.leafUID.href" />
-          </clipPath>
-          <text
+            </clipPath>
+            <text
             class="treemap-text"
             dominant-baseline="hanging"
             dx="0.5em"
             dy="0.5em"
-            :fill="colorPkgText(leaf)"
+            :fill="colorFunText(leaf)"
             :clip-path="leaf.clipUID"
             >
             {{ leafName(leaf) }}
-          </text>
-          <text
+            </text>
+            <text
             class="treemap-number"
             dominant-baseline="hanging"
             dx="0.5em"
             dy="2em"
-            :fill="colorPkgText(leaf)"
+            :fill="colorFunText(leaf)"
             >
             {{ leafValue(leaf) }}
-          </text>
+            </text>
         </g>
-      </g>
-    </svg>
+        </svg>
 
-    <!-- Package Pagination -->
-    <v-pagination
-      v-if="pkgs.length > 0"
-      v-model="pkgPage"
-      class="treemap-pagination"
-      :length="pkgPages"
-      />
-  </div>
-
-  <!-- Functions -->
-  <div class="treemap-div" v-if="funRoot.children">
-    <h4>Functions</h4>
-
-    <!-- Function Treemap -->
-    <svg class="treemap-svg">
-      <!-- Data -->
-      <g v-for="(leaf, k) in funRoot.leaves()"
-         :key="'fun-treemap-g' + k"
-         :transform="`translate(${leaf.x0}, ${leaf.y0})`">
-        <title> {{ leafName(leaf) }} ({{ leafValue(leaf) }}) </title>
-        <rect
-          class="treemap-block"
-          cursor="pointer"
-          :id="setLeafUID(leaf)"
-          :fill="colorFun(leaf)"
-          :width="leaf.x1 - leaf.x0"
-          :height="leaf.y1 -leaf.y0"
-          @click="selectFun(leaf)"
-          />
-        <clipPath :id="setClipUID(leaf)">
-          <use :xlink:href="leaf.leafUID.href" />
-        </clipPath>
-        <text
-          class="treemap-text"
-          dominant-baseline="hanging"
-          dx="0.5em"
-          dy="0.5em"
-          :fill="colorFunText(leaf)"
-          :clip-path="leaf.clipUID"
-          >
-          {{ leafName(leaf) }}
-        </text>
-        <text
-          class="treemap-number"
-          dominant-baseline="hanging"
-          dx="0.5em"
-          dy="2em"
-          :fill="colorFunText(leaf)"
-          >
-          {{ leafValue(leaf) }}
-        </text>
-      </g>
-    </svg>
-
-    <!-- Function Pagination -->
-    <v-pagination
-      v-if="funs.length > 0"
-      v-model="funPage"
-      class="treemap-pagination"
-      :length="funPages"
-      />
+        <!-- Function Pagination -->
+        <v-pagination
+        v-if="funs.length > 0"
+        v-model="funPage"
+        class="treemap-pagination"
+        :length="funPages"
+        />
+    </div>
   </div>
 </v-container>
 </template>
 
 <style>
+#navigationDiv {
+    text-align: center;
+    min-width: 454px;
+}
+
 h4 {
     text-align: center;
     margin: 5px;
+}
+
+.v-text-field.v-text-field--enclosed.autocomplete-list {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+}
+
+.v-input.autocomplete-list {
+    max-width: 30rem;
+}
+
+#treemapsDiv {
+    display: flex;
+    flex-direction: column;
+    min-width: 430px;
 }
 
 .treemap-svg {
@@ -151,8 +181,27 @@ h4 {
 }
 
 .treemap-div {
-    width: 100%;
+    width: 430px;
     margin: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+@media (max-width: 1704px) {
+    #treemapsDiv {
+        flex-direction: row;
+        max-width: 920px;
+    }
+    .v-text-field.v-text-field--enclosed.autocomplete-list {
+        margin-top: 0px;
+    }
+}
+.no-fun-div {
+    height: 190px;
+    width: 400px;
+    border-radius: 4px;
+    border: 2px solid #aaa;
+    margin: 0px;
+    margin-bottom: 70px;
 }
 
 .treemap-block {
@@ -177,7 +226,10 @@ h4 {
 }
 
 .treemap-pagination {
+    margin-left: auto;
+    margin-right: auto;
     margin-bottom: 1rem;
+    max-width: 400px;
 }
 </style>
 
@@ -199,7 +251,7 @@ const SELECTED_TEXT_COLOR = "white";
 const DEFAULT_TEXT_COLOR  = "black";
 const LIMIT = 5;
 const TILE = d3.treemapSquarify;
-const WIDTH = 380;
+const WIDTH = 400;
 const HEIGHT = 195;
 const PADDING = 3;
 const LAYOUT =

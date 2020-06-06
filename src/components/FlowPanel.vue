@@ -94,7 +94,7 @@
 #flow-svg {
     width:  100%;
     height: 100%;
-    min-height: 610px;
+    min-height: 636px;
 }
 
 .flow-path {
@@ -148,7 +148,6 @@ const LAYOUT = sankeyLinkVertical();
 // const DECROSS = d3dag.decrossOpt();
 const DECROSS = d3dag.decrossTwoLayer().order(d3dag.twolayerOpt());
 
-const LIMIT_FLOWS = 15;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
 const HEIGHT = 600;
@@ -255,6 +254,7 @@ function updateSankey() {
     }
 
     // Some data
+    const limit = this.flowsPerPage;
     let graph = makeGraph(limitPageFlow(data, this.page));
     let { nodeSort, linkSort } = sankeySorts(graph);
     const layout =
@@ -293,10 +293,10 @@ function removeNA(data) {
     });
 }
 
-// JSON Natural → JSON
+// JSON Natural Natural → JSON
 // Return only rows that correspond to the current page of results.
-function limitPageFlow(data, page) {
-    return data.slice((page - 1) * LIMIT_FLOWS, page * LIMIT_FLOWS);
+function limitPageFlow(data, limit, page) {
+    return data.slice((page - 1) * limit, page * limit);
 }
 
 // JSON → [Array Node] [Array Links]
@@ -409,14 +409,15 @@ export default {
     // Update visualization when this.$store.types changes or page changes.
     watch: {
         types: updateSankeyWithReset,
-        page: updateSankey
+        page: updateSankey,
+        flowsPerPage: updateSankey,
     },
 
     computed: {
         pages() {
-            return this.types ? Math.ceil(this.types.length / LIMIT_FLOWS) : 1;
+            return this.types ? Math.ceil(this.types.length / this.flowsPerPage) : 1;
         },
-        ...mapState(["types", "selectedFuns"])
+        ...mapState(["types", "selectedFuns", "flowsPerPage"])
     },
 
     methods: {

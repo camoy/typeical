@@ -2,6 +2,7 @@
 // Express
 //
 let express = require("express");
+let cors = require("cors");
 let router = express.Router();
 
 //
@@ -36,7 +37,8 @@ const ANALYZED_EQ = "package_being_analyzed = ?";
 const PKG_EQ = "package = ?";
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
 
-const LIMIT = " LIMIT 15";
+const LIMIT = where => ` LIMIT ${where}`;
+const DEFAULT_LIMIT = 36;
 
 //
 // Util
@@ -61,6 +63,7 @@ function query(sql, params, f) {
 //
 module.exports = (app, server) => {
   app.use(server.options.publicPath, router);
+  router.all("*", cors());
 
   //
   // GET /api/analyzed
@@ -108,6 +111,7 @@ module.exports = (app, server) => {
   //
   router.get("/api/types", function(req, res) {
     const analyzed = req.query.analyzed || [];
+    const limitVal = req.query.limit || DEFAULT_LIMIT;
     const whereAnalyzed = OR(ANALYZED_EQ, analyzed.length, TRUE)
 
     const funs = (req.query.funs || []).map(JSON.parse);
@@ -119,7 +123,7 @@ module.exports = (app, server) => {
                      OR(PKG_EQ, pkg.length, TRUE) :
                      TRUE;
 
-    const limit = defaultData ? LIMIT : "";
+    const limit = defaultData ? LIMIT(limitVal) : "";
     const where = [whereAnalyzed, whereFuns, wherePkg].join(" AND ");
     const params = analyzed.concat(funs.flat()).concat(pkg);
     const QUERY = analyzed.length == 0 ? TYPES_ALL : TYPES;

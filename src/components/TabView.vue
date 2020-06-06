@@ -1,9 +1,13 @@
 <template>
-<v-tabs>
-  <v-tab key="typevis" href="#tab-typevis"> TypeVis </v-tab>
-  <v-tab key="settings" href="#tab-settings"> Settings </v-tab>
-  <v-tab key="about" href="#tab-about"> About </v-tab>
-  <v-tab-item class="fill-height" key="typevis" value="tab-typevis">
+<div>
+<h1>Visualization of type usage in R language</h1>
+<v-tabs v-model="tab">
+  <v-tab :key="typevis" href="#tab-typevis"> TypeVis </v-tab>
+  <v-tab :key="settings" href="#tab-settings"> Settings </v-tab>
+  <v-tab :key="about" href="#tab-about"> About </v-tab>
+</v-tabs>
+<v-tabs-items v-model="tab" touchless="true">
+  <v-tab-item class="fill-height" :key="typevis" value="tab-typevis">
     <v-container id="panels-container">
       <v-row>
         <v-col id="flow-panel" cols="8">
@@ -15,13 +19,14 @@
       </v-row>
     </v-container>
   </v-tab-item>
-  <v-tab-item key="settings" value="tab-settings">
+  <v-tab-item :key="settings" value="tab-settings">
     <SettingsPanel />
   </v-tab-item>
-  <v-tab-item key="about" value="tab-about">
+  <v-tab-item :key="about" value="tab-about">
     <AboutPanel />
   </v-tab-item>
-</v-tabs>
+</v-tabs-items>
+</div>
 </template>
 
 <style>
@@ -50,12 +55,18 @@
 #flow-panel {
     min-width: 1050px;
     padding: 4px;
-    margin-bottom: 36px;
+    margin-bottom: 10px;
 }
 #nav-panel {
-    min-width: 420px;
+    min-width: 454px;
     padding: 4px;
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+@media (max-width: 1704px) {
+    #nav-panel {
+        min-width: 900px;
+    }
 }
 </style>
 
@@ -79,6 +90,10 @@ export default {
     NavPanel,
     SettingsPanel,
     AboutPanel
-  }
+  },
+
+  data: () => ({
+      tab: 0
+  })
 };
 </script>

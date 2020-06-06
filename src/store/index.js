@@ -12,7 +12,7 @@ Vue.use(Vuex);
 //
 
 //axios.defaults.baseURL = "https://cors-anywhere.herokuapp.com/https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
-//axios.defaults.baseURL = "https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
+axios.defaults.baseURL = "https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
 
 //
 // Settings
@@ -30,6 +30,14 @@ const selectMultipleFuns = false;
 // Boolean
 // Does the autocomplete use functions or packages?
 const autocompleteWithFuns = true;
+
+// Natural
+// Number of datums loaded by default
+const defaultLimit = 36;
+
+// Natural
+// Number of flows per page
+const flowsPerPage = 12;
 
 //
 // Filtering
@@ -82,6 +90,8 @@ export default new Vuex.Store({
     analyzed,
     selectMultipleFuns,
     autocompleteWithFuns,
+    defaultLimit,
+    flowsPerPage,
     selectedPkg,
     selectedFuns,
     allAnalyzed,
@@ -97,6 +107,8 @@ export default new Vuex.Store({
     analyzed(state, val) { state.analyzed = val; },
     selectMultipleFuns(state, val) { state.selectMultipleFuns = val; },
     autocompleteWithFuns(state, val) { state.autocompleteWithFuns = val; },
+    defaultLimit(state, val) { state.defaultLimit = val; },
+    flowsPerPage(state, val) { state.flowsPerPage = val; },
     selectedPkg(state, val) { state.selectedPkg = val; },
     selectedFuns(state, val) { state.selectedFuns = val; },
     allAnalyzed(state, val) { state.allAnalyzed = val; },
@@ -154,7 +166,10 @@ export default new Vuex.Store({
       let funs = state.selectedFuns.map(JSON.parse);
       commit("incrementPending");
       axios.get("api/types", {
-        params: { analyzed: state.analyzed, pkg: state.selectedPkg, funs }
+        params: { 
+          analyzed: state.analyzed, pkg: state.selectedPkg, 
+          funs, limit: state.defaultLimit 
+        }
       }).then(response => {
         commit("decrementPending");
         commit("types", response.data);
@@ -181,6 +196,12 @@ export default new Vuex.Store({
       commit("selectedFuns", selectedFuns);
       dispatch("queryTypes");
     },
+
+    setDefaultLimit({ commit, dispatch }, defaultLimit) {
+      commit("defaultLimit", defaultLimit);
+      dispatch("queryTypes");
+    },
+
   },
 
   modules: {}
