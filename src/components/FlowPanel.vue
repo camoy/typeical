@@ -247,7 +247,7 @@ function updateSankey() {
   }
 
   // Some data
-  let graph = makeGraph(limitPageFlow(data, this.page));
+  let graph = makeGraph(limitPageFlow(data, this.flowsPerPage, this.page));
   let { nodeSort, linkSort } = sankeySorts(graph);
   const layout = sankey()
     .nodeSort(nodeSort)

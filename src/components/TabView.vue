@@ -2,12 +2,12 @@
   <div>
     <h1>TypeVis for R</h1>
     <v-tabs v-model="tab">
-      <v-tab :key="typevis" href="#tab-typevis"> TypeVis </v-tab>
-      <v-tab :key="settings" href="#tab-settings"> Settings </v-tab>
-      <v-tab :key="about" href="#tab-about"> About </v-tab>
+      <v-tab key="typevis" href="#tab-typevis"> TypeVis </v-tab>
+      <v-tab key="settings" href="#tab-settings"> Settings </v-tab>
+      <v-tab key="about" href="#tab-about"> About </v-tab>
     </v-tabs>
-    <v-tabs-items v-model="tab" touchless="true">
-      <v-tab-item class="fill-height" :key="typevis" value="tab-typevis">
+    <v-tabs-items v-model="tab" :touchless="true">
+      <v-tab-item class="fill-height" key="typevis" value="tab-typevis">
         <v-container id="panels-container">
           <v-row>
             <v-col id="flow-panel" cols="8">
@@ -19,10 +19,10 @@
           </v-row>
         </v-container>
       </v-tab-item>
-      <v-tab-item :key="settings" value="tab-settings">
+      <v-tab-item key="settings" value="tab-settings">
         <SettingsPanel />
       </v-tab-item>
-      <v-tab-item :key="about" value="tab-about">
+      <v-tab-item key="about" value="tab-about">
         <AboutPanel />
       </v-tab-item>
     </v-tabs-items>
