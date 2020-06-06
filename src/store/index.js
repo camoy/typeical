@@ -12,7 +12,7 @@ Vue.use(Vuex);
 //
 
 //axios.defaults.baseURL = "https://cors-anywhere.herokuapp.com/https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
-//axios.defaults.baseURL = "https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
+axios.defaults.baseURL = "https://julia.prl.fit.cvut.cz/rtypes-viz-new/";
 
 //
 // Settings
