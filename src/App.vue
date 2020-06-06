@@ -1,29 +1,28 @@
 <template>
-<v-app>
-  <v-content>
-    <v-container fluid>
-      <v-row justify="center">
-        <v-col id="app-vcol" cols="11">
-          <TabView />
-        </v-col>
-      </v-row>
-    </v-container>
+  <v-app>
+    <v-content>
+      <v-container fluid>
+        <v-row justify="center">
+          <v-col id="app-vcol" cols="11">
+            <TabView />
+          </v-col>
+        </v-row>
+      </v-container>
 
-    <v-overlay
-      :value="pending > 0">
-      <v-progress-circular indeterminate size="64" />
-    </v-overlay>
-  </v-content>
-</v-app>
+      <v-overlay :value="pending > 0">
+        <v-progress-circular indeterminate size="64" />
+      </v-overlay>
+    </v-content>
+  </v-app>
 </template>
 
 <style>
 #app-vcol {
-    height: 95vh;
+  height: 95vh;
 }
 
 .v-application--wrap {
-    min-height: 100% !important;
+  min-height: 100% !important;
 }
 </style>
 
