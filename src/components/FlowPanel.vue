@@ -141,7 +141,13 @@ const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
 const ORIENTATION = sankeyVertical;
 const LAYOUT = sankeyLinkVertical();
-const DECROSS = d3dag.decrossOpt; //d3dag.decrossTwoLayer;
+
+// TODO: decrossOpt is much better, but can have very bad performance.
+// Ideally we use that and decrossTwoLayer as a backup (although this
+// is hard to do owing to JS's lack of threads).
+// const DECROSS = d3dag.decrossOpt();
+const DECROSS = d3dag.decrossTwoLayer().order(d3dag.twolayerOpt());
+
 const LIMIT_FLOWS = 15;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
@@ -344,7 +350,7 @@ function makeGraph(data) {
 // Based on the data, generate node and link comparators that minimize edge crossings.
 function sankeySorts(data) {
     const { links } = data;
-    const layout = d3dag.sugiyama().size([800, 800]).decross(DECROSS());
+    const layout = d3dag.sugiyama().size([800, 800]).decross(DECROSS);
     let dag = d3dag.dagConnect()(links.map(x => [x.source, x.target]));
     const getX = {}, namesToLink = {};
 
