@@ -86,11 +86,16 @@
     </div>
 
     <!-- Functions -->
-    <div class="treemap-div" v-if="funRoot.children">
+    <div class="treemap-div">
         <h4>Functions</h4>
 
+        <!-- No Function Data -->
+        <svg class="no-fun-div" v-if="!funRoot.children">
+            <text x="50%" y="50%" fill="#666"
+              text-anchor="middle">No Packages Selected</text>
+        </svg>
         <!-- Function Treemap -->
-        <svg class="treemap-svg">
+        <svg class="treemap-svg" v-if="funRoot.children">
         <!-- Data -->
         <g v-for="(leaf, k) in funRoot.leaves()"
             :key="'fun-treemap-g' + k"
@@ -189,6 +194,14 @@ h4 {
     .v-text-field.v-text-field--enclosed.autocomplete-list {
         margin-top: 0px;
     }
+}
+.no-fun-div {
+    height: 190px;
+    width: 400px;
+    border-radius: 4px;
+    border: 2px solid #aaa;
+    margin: 0px;
+    margin-bottom: 70px;
 }
 
 .treemap-block {

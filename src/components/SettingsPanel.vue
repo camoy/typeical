@@ -68,6 +68,7 @@
     border: 2px solid #777;
     border-radius: 15%;
     text-align: center;
+    text-align-last: center;
     color: rgba(0, 0, 0, 0.6);
     margin-bottom: 16px;
 }
