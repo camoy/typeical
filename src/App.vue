@@ -19,11 +19,17 @@
 <style>
 #app-vcol {
   height: 95vh;
-  min-width: 1050px;
+  width: 1050px;
 }
 
 .v-application--wrap {
   min-height: 100% !important;
+}
+
+@media (max-width: 1160px) {
+  .col-11 {
+    max-width: 100%;
+  }
 }
 </style>
 
