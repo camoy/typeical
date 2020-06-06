@@ -119,6 +119,7 @@
 import { mapState } from "vuex";
 import numeral from "numeral";
 import { sankey, sankeyLeft, sankeyVertical, sankeyLinkVertical } from "d3-sankey";
+import * as d3dag from "d3-dag";
 import * as d3 from "d3";
 
 //
@@ -140,6 +141,7 @@ const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
 const ORIENTATION = sankeyVertical;
 const LAYOUT = sankeyLinkVertical();
+const DECROSS = d3dag.decrossOpt; //d3dag.decrossTwoLayer;
 const LIMIT_FLOWS = 15;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
@@ -247,11 +249,12 @@ function updateSankey() {
     }
 
     // Some data
-    const graph = makeGraph(limitPageFlow(data, this.page));
+    let graph = makeGraph(limitPageFlow(data, this.page));
+    let { nodeSort, linkSort } = sankeySorts(graph);
     const layout =
           sankey()
-          .nodeSort(null)
-          .linkSort(null)
+          .nodeSort(nodeSort)
+          .linkSort(linkSort)
           .nodeWidth(NODE_WIDTH)
           .nodePadding(NODE_PADDING)
           .extent([[10, 5], [WIDTH-10, HEIGHT - 5]])
@@ -335,6 +338,55 @@ function makeGraph(data) {
     }
 
     return { nodes, links };
+}
+
+// Data → { NodeComparator, LinkComparator }
+// Based on the data, generate node and link comparators that minimize edge crossings.
+function sankeySorts(data) {
+    const { links } = data;
+    const layout = d3dag.sugiyama().size([800, 800]).decross(DECROSS());
+    let dag = d3dag.dagConnect()(links.map(x => [x.source, x.target]));
+    const getX = {}, namesToLink = {};
+
+    layout(dag);
+    extractX(dag, getX);
+    extractLinks(links, namesToLink);
+
+    function nodeSort(a, b) {
+        if (typeof a === "object") return getX[a.index] - getX[b.index];
+        else return getX[a] - getX[b];
+    }
+
+    function linkSort(a, b) {
+        // Inherit order from parent flows, or use source if root link
+        let aParent = parentLink(a, namesToLink),
+            bParent = parentLink(b, namesToLink),
+            result = aParent && bParent ? linkSort(aParent, bParent) : nodeSort(a.source, b.source);
+
+        // If there's a tie, use the target
+        return result === 0 ? nodeSort(a.target, b.target) : result;
+    }
+
+    return { nodeSort, linkSort };
+}
+
+// Node Object → Any
+// Updates the object to map node ID's to x coordinates derivied from Sugiyama layout.
+function extractX(node, obj) {
+    if (node.data) obj[node.data.id] = node.x;
+    node.children.forEach(node => extractX(node, obj));
+}
+
+// [Listof Link] Object → Any
+// Updates the object to map link paths to the links themselves.
+function extractLinks(links, linkObj) {
+    links.forEach(x => linkObj[JSON.stringify(x.names)] = x);
+}
+
+// Link Object → Link
+// Returns the link that flows into the given one.
+function parentLink(link, namesToLink) {
+    return namesToLink[JSON.stringify(link.names.slice(0, -1))];
 }
 
 //
