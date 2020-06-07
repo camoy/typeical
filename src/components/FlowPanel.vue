@@ -110,6 +110,8 @@ import numeral from "numeral";
 import {
   sankey,
   sankeyLeft,
+  sankeyHorizontal,
+  sankeyLinkHorizontal,
   sankeyVertical,
   sankeyLinkVertical
 } from "d3-sankey";
@@ -134,8 +136,6 @@ const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
 const HIGHLIGHT_COLOR = d3.color("#da4f81");
 const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
-const ORIENTATION = sankeyVertical;
-const LAYOUT = sankeyLinkVertical();
 const DECROSS_TIMEOUT = 2000;
 
 const NODE_WIDTH = 2;
@@ -287,7 +287,7 @@ function layoutSankey(dag, nodes, links) {
       [WIDTH - 10, HEIGHT - 5]
     ])
     .nodeAlign(ALIGN)
-    .nodeOrientation(ORIENTATION);
+    .nodeOrientation(this.orientation);
   const { nodes: newNodes, links: newLinks } = layout({
     nodes: nodes.map(d => Object.assign({}, d)),
     links: links.map(d => Object.assign({}, d))
@@ -434,6 +434,7 @@ export default {
   // Update visualization when this.$store.types changes or page changes.
   watch: {
     types: updateSankeyWithReset,
+    horizontalLayout: updateSankey,
     page: updateSankey,
     flowsPerPage: updateSankey
   },
@@ -442,7 +443,15 @@ export default {
     pages() {
       return this.types ? Math.ceil(this.types.length / this.flowsPerPage) : 1;
     },
-    ...mapState(["types", "selectedFuns", "flowsPerPage"])
+    layout() {
+      return this.horizontalLayout
+        ? sankeyLinkHorizontal()
+        : sankeyLinkVertical();
+    },
+    orientation() {
+      return this.horizontalLayout ? sankeyHorizontal : sankeyVertical;
+    },
+    ...mapState(["types", "selectedFuns", "flowsPerPage", "horizontalLayout"])
   },
 
   methods: {
@@ -450,8 +459,7 @@ export default {
     exactFormat,
     typeFormat,
     highlight,
-    color,
-    layout: LAYOUT
+    color
   },
 
   data: () => ({

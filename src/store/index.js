@@ -40,6 +40,11 @@ const defaultLimit = 36;
 const flowsPerPage = 12;
 
 //
+// Boolean
+// If the Sankey diagram should be horizontal.
+const horizontalLayout = true;
+
+//
 // Filtering
 //
 
@@ -92,6 +97,7 @@ export default new Vuex.Store({
     autocompleteWithFuns,
     defaultLimit,
     flowsPerPage,
+    horizontalLayout,
     selectedPkg,
     selectedFuns,
     allAnalyzed,
@@ -102,78 +108,115 @@ export default new Vuex.Store({
   },
 
   mutations: {
-    incrementPending(state) { ++state.pending; },
-    decrementPending(state) { --state.pending; },
-    analyzed(state, val) { state.analyzed = val; },
-    selectMultipleFuns(state, val) { state.selectMultipleFuns = val; },
-    autocompleteWithFuns(state, val) { state.autocompleteWithFuns = val; },
-    defaultLimit(state, val) { state.defaultLimit = val; },
-    flowsPerPage(state, val) { state.flowsPerPage = val; },
-    selectedPkg(state, val) { state.selectedPkg = val; },
-    selectedFuns(state, val) { state.selectedFuns = val; },
-    allAnalyzed(state, val) { state.allAnalyzed = val; },
-    allFuns(state, val) { state.allFuns = val; },
-    funs(state, val) { state.funs = val; },
-    pkgs(state, val) { state.pkgs = val; },
-    types(state, val) { state.types = val; }
+    incrementPending(state) {
+      ++state.pending;
+    },
+    decrementPending(state) {
+      --state.pending;
+    },
+    analyzed(state, val) {
+      state.analyzed = val;
+    },
+    selectMultipleFuns(state, val) {
+      state.selectMultipleFuns = val;
+    },
+    autocompleteWithFuns(state, val) {
+      state.autocompleteWithFuns = val;
+    },
+    defaultLimit(state, val) {
+      state.defaultLimit = val;
+    },
+    flowsPerPage(state, val) {
+      state.flowsPerPage = val;
+    },
+    horizontalLayout(state, val) {
+      state.horizontalLayout = val;
+    },
+    selectedPkg(state, val) {
+      state.selectedPkg = val;
+    },
+    selectedFuns(state, val) {
+      state.selectedFuns = val;
+    },
+    allAnalyzed(state, val) {
+      state.allAnalyzed = val;
+    },
+    allFuns(state, val) {
+      state.allFuns = val;
+    },
+    funs(state, val) {
+      state.funs = val;
+    },
+    pkgs(state, val) {
+      state.pkgs = val;
+    },
+    types(state, val) {
+      state.types = val;
+    }
   },
 
   actions: {
     // Query for the list of analyzed packages
     queryAnalyzed({ commit }) {
       commit("incrementPending");
-      axios.get("api/analyzed")
-           .then(response => {
-             commit("decrementPending");
-             commit("allAnalyzed", response.data);
-           });
+      axios.get("api/analyzed").then(response => {
+        commit("decrementPending");
+        commit("allAnalyzed", response.data);
+      });
     },
 
     // Query for the list of analyzed packages
     queryAllFuns({ commit }) {
       commit("incrementPending");
-      axios.get("api/all_funs")
-           .then(response => {
-             commit("decrementPending");
-             commit("allFuns", response.data);
-           });
+      axios.get("api/all_funs").then(response => {
+        commit("decrementPending");
+        commit("allFuns", response.data);
+      });
     },
 
     // Query for the list of defined packages
     queryPkgs({ commit, state }) {
       commit("incrementPending");
-      axios.get(`api/pkgs`, {
-        params: { analyzed: state.analyzed }
-      }).then(response => {
-        commit("decrementPending");
-        commit("pkgs", response.data);
-      });
+      axios
+        .get(`api/pkgs`, {
+          params: { analyzed: state.analyzed }
+        })
+        .then(response => {
+          commit("decrementPending");
+          commit("pkgs", response.data);
+        });
     },
 
     // Query for the list of functions
     queryFuns({ commit, state }) {
       commit("incrementPending");
-      axios.get("api/funs", {
-        params: { analyzed: state.analyzed, pkg: state.selectedPkg }
-      }).then(response => {
-        commit("decrementPending");
-        commit("funs", response.data);
-      });
+      axios
+        .get("api/funs", {
+          params: { analyzed: state.analyzed, pkg: state.selectedPkg }
+        })
+        .then(response => {
+          commit("decrementPending");
+          commit("funs", response.data);
+        });
     },
 
     // Query for type information
     queryTypes({ commit, state }) {
       let funs = state.selectedFuns.map(JSON.parse);
       commit("incrementPending");
-      axios.get("api/types", {
-        params: { 
-          analyzed: state.analyzed, pkg: state.selectedPkg, 
-          funs, limit: state.defaultLimit 
-        }
-      }).then(response => {
-        commit("decrementPending");
-        commit("types", response.data);
-      });
+      axios
+        .get("api/types", {
+          params: {
+            analyzed: state.analyzed,
+            pkg: state.selectedPkg,
+            funs,
+            limit: state.defaultLimit
+          }
+        })
+        .then(response => {
+          commit("decrementPending");
+          commit("types", response.data);
+        });
     },
 
     // Set the analyzed packages. We clear the selected package and functions
@@ -200,8 +243,7 @@ export default new Vuex.Store({
     setDefaultLimit({ commit, dispatch }, defaultLimit) {
       commit("defaultLimit", defaultLimit);
       dispatch("queryTypes");
-    },
-
+    }
   },
 
   modules: {}

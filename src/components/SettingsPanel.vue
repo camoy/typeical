@@ -25,6 +25,12 @@
         @click="$store.commit('selectMultipleFuns', selectMultipleFuns)"
       />
 
+      <v-checkbox
+        v-model="horizontalLayout"
+        label="Horizontal Layout"
+        @click="$store.commit('horizontalLayout', horizontalLayout)"
+      />
+
       <div class="v-input v-input--selection-controls div-setting">
         <select
           v-model="flowsPerPage"
@@ -120,6 +126,7 @@ export default {
     analyzed: [],
     selectMultipleFuns: false,
     autocompleteWithFuns: true,
+    horizontalLayout: true,
     flowsPerPage: 12,
     defaultLimit: 36
   })
