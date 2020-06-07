@@ -138,7 +138,7 @@ const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
 const HIGHLIGHT_COLOR = d3.color("#da4f81");
 const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
-const DECROSS_TIMEOUT = 2000;
+const DECROSS_TIMEOUT = 1200;
 
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
