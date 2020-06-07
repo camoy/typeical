@@ -51,14 +51,15 @@ h1 {
 }
 
 #panels-container {
-  max-height: 680px;
-  min-width: 1050px;
+  max-width: 100%;
+  padding: 0px;
 }
 
 #flow-panel {
-  min-width: 1050px;
   padding: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
+  margin-left: auto;
+  margin-right: auto;
 }
 #nav-panel {
   min-width: 454px;
@@ -69,6 +70,19 @@ h1 {
 @media (max-width: 1704px) {
   #nav-panel {
     min-width: 900px;
+  }
+  .col-8 {
+    max-width: 100%;
+  }
+  #flow-panel {
+    flex: 0 0 100%;
+  }
+  #flow-svg-container.container {
+    width: 100%;
+    max-width: 100%;
+  }
+  #flow-svg {
+    max-height: 860px;
   }
 }
 </style>

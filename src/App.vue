@@ -19,7 +19,8 @@
 <style>
 #app-vcol {
   height: 95vh;
-  width: 1050px;
+  /*width: 1050px;*/
+  padding: 0px;
 }
 
 .v-application--wrap {

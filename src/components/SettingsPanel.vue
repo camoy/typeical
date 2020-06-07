@@ -126,7 +126,7 @@ export default {
     analyzed: [],
     selectMultipleFuns: false,
     autocompleteWithFuns: true,
-    horizontalLayout: true,
+    horizontalLayout: false,
     flowsPerPage: 12,
     defaultLimit: 36
   })

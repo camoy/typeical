@@ -1,6 +1,8 @@
 <template>
   <v-container id="flow-svg-container">
-    <svg id="flow-svg">
+    <svg id="flow-svg"
+      :viewBox="viewBox"
+      preserveAspectRatio="xMidYMid meet">
       <!-- No Data -->
       <g v-if="nodes.length === 0">
         <rect
@@ -83,13 +85,13 @@
 #flow-svg-container {
   margin: 5px;
   padding: 0px;
-  min-width: 1050px;
+  min-width: 900px;
+  width: 100%;
 }
 
 #flow-svg {
   width: 100%;
   height: 100%;
-  min-height: 636px;
 }
 
 .flow-path {
@@ -146,8 +148,10 @@ const DECROSS_TIMEOUT = 2000;
 
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
-const HEIGHT = 600;
+const HEIGHT = 720;
 const WIDTH = 1040;
+const HEIGHT_PADDING = 6;
+const WIDTH_PADDING = 12;
 
 //
 // Methods
@@ -289,8 +293,8 @@ function layoutSankey(dag, nodes, links) {
     .nodeWidth(NODE_WIDTH)
     .nodePadding(NODE_PADDING)
     .extent([
-      [10, 5],
-      [WIDTH - 10, HEIGHT - 5]
+      [WIDTH_PADDING, HEIGHT_PADDING],
+      [WIDTH - WIDTH_PADDING, HEIGHT - HEIGHT_PADDING]
     ])
     .nodeAlign(ALIGN)
     .nodeOrientation(this.orientation);
@@ -456,6 +460,9 @@ export default {
     },
     orientation() {
       return this.horizontalLayout ? sankeyHorizontal : sankeyVertical;
+    },
+    viewBox() {
+      return `${-WIDTH_PADDING} ${-HEIGHT_PADDING} ${WIDTH+WIDTH_PADDING*2} ${HEIGHT+HEIGHT_PADDING*6}`;
     },
     ...mapState(["types", "selectedFuns", "flowsPerPage", "horizontalLayout"])
   },
