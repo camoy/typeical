@@ -23,7 +23,7 @@
         <rect
           v-for="(node, k) in nodes"
           class="flow-rect"
-          fill="#555"
+          fill="#9a9a9a"
           :x="node.x0"
           :y="node.y0"
           :height="node.y1 - node.y0"
