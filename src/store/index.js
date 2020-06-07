@@ -42,7 +42,7 @@ const flowsPerPage = 12;
 //
 // Boolean
 // If the Sankey diagram should be horizontal.
-const horizontalLayout = true;
+const horizontalLayout = false;
 
 //
 // Filtering

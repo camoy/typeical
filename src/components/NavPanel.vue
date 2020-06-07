@@ -156,6 +156,7 @@
 #navigationDiv {
   text-align: center;
   min-width: 454px;
+  padding: 6px;
 }
 
 h4 {
