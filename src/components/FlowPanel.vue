@@ -298,10 +298,19 @@ function layoutSankey(dag, nodes, links) {
     ])
     .nodeAlign(ALIGN)
     .nodeOrientation(this.orientation);
+  links.forEach(d => d.value = Math.log2(d.value) + 1);
   const { nodes: newNodes, links: newLinks } = layout({
     nodes: nodes.map(d => Object.assign({}, d)),
     links: links.map(d => Object.assign({}, d))
   });
+
+  // Correct log for labels after laying out
+  newNodes.forEach(d => {
+    return d.value = (d.sourceLinks.length === 0 ? d.targetLinks : d.sourceLinks)
+                       .map(x => Math.pow(2, x.value - 1))
+                       .reduce((x, y) => x + y, 0);
+  });
+  newLinks.forEach(d => d.value = Math.pow(2, d.value - 1));
 
   // Update nodes and links
   this.nodes = newNodes;
