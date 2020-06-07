@@ -108,10 +108,10 @@
 import { mapState } from "vuex";
 import numeral from "numeral";
 import {
-    sankey,
-    sankeyLeft,
-    sankeyVertical,
-    sankeyLinkVertical
+  sankey,
+  sankeyLeft,
+  sankeyVertical,
+  sankeyLinkVertical
 } from "d3-sankey";
 import * as d3 from "d3";
 import PromiseWorker from "promise-worker";
@@ -121,14 +121,14 @@ import Decrosser from "worker-loader!@/decrosser";
 // Constants
 //
 const KEYS = [
-    "fun_name",
-    "arg_t0",
-    "arg_t1",
-    "arg_t2",
-    "arg_t3",
-    "arg_t4",
-    "arg_t5",
-    "arg_t_r"
+  "fun_name",
+  "arg_t0",
+  "arg_t1",
+  "arg_t2",
+  "arg_t3",
+  "arg_t4",
+  "arg_t5",
+  "arg_t_r"
 ];
 const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
 const HIGHLIGHT_COLOR = d3.color("#da4f81");
@@ -159,7 +159,7 @@ const exactFormat = x => x.toLocaleString();
 // Given an array of strings, starting with the function name and listing all
 // the argument and return types, gives back a type signature string.
 function typeFormat(xs) {
-    return xs[0] + " : " + xs.slice(1).join(" → ");
+  return xs[0] + " : " + xs.slice(1).join(" → ");
 }
 
 // Link → String
@@ -170,8 +170,8 @@ const linkFun = link => link.names[0];
 // Given a link and a boolean indicating if the path should be highlighted,
 // modifies all incoming and outgoing links to be highlighted.
 function highlight(link, shouldHighlight) {
-    this.focusedFun = shouldHighlight && linkFun(link);
-    pathLinks(link).forEach(link => (link.highlighted = shouldHighlight));
+  this.focusedFun = shouldHighlight && linkFun(link);
+  pathLinks(link).forEach(link => (link.highlighted = shouldHighlight));
 }
 
 // Link → Color
@@ -180,15 +180,15 @@ function highlight(link, shouldHighlight) {
 // that function then it's opacity is reduced. Otherwise, give a default color
 // based on the type name.
 function color(link) {
-    if (link.highlighted) return HIGHLIGHT_COLOR;
+  if (link.highlighted) return HIGHLIGHT_COLOR;
 
-    if (this.focusedFun && linkFun(link) !== this.focusedFun) {
-        return d3
-            .color(DEFAULT_COLOR(link.target.name))
-            .copy({ opacity: UNFOCUSED_OPACITY });
-    }
+  if (this.focusedFun && linkFun(link) !== this.focusedFun) {
+    return d3
+      .color(DEFAULT_COLOR(link.target.name))
+      .copy({ opacity: UNFOCUSED_OPACITY });
+  }
 
-    return DEFAULT_COLOR(link.target.name);
+  return DEFAULT_COLOR(link.target.name);
 }
 
 //
@@ -203,9 +203,9 @@ const pathLinks = link => ancestors(link).concat(descendants(link));
 // Link → [Array Link]
 // Returns the list of all links that are ancestors of the given one.
 function ancestors(link) {
-    let names = link.names.join();
-    return link.source.targetLinks
-        .filter(x => names.startsWith(x.names.join()))
+  let names = link.names.join();
+  return link.source.targetLinks
+    .filter(x => names.startsWith(x.names.join()))
     .flatMap(ancestors)
     .concat([link]);
 }
@@ -243,7 +243,10 @@ function updateSankey() {
   }
 
   // Some data
-  const { nodes, links } = makeGraph(limitPageFlow(data, this.flowsPerPage, this.page));
+  const { nodes, links } = makeGraph(
+    limitPageFlow(data, this.flowsPerPage, this.page)
+  );
+  this.$store.commit("incrementPending");
   decrossSankey.call(this, true, nodes, links);
 }
 
@@ -256,15 +259,15 @@ function decrossSankey(opt, nodes, links) {
   let done = false;
   promise.postMessage([opt, links]).then(decrossedDag => {
     done = true;
-    layoutSankey.call(this, decrossedDag, nodes, links)
+    layoutSankey.call(this, decrossedDag, nodes, links);
   });
 
   // Terminate optimal decrosser after timeout and fallback to faster method
   if (opt) {
     setTimeout(() => {
-        if (done) return;
-        decrosser.terminate();
-        decrossSankey.call(this, false, nodes, links);
+      if (done) return;
+      decrosser.terminate();
+      decrossSankey.call(this, false, nodes, links);
     }, DECROSS_TIMEOUT);
   }
 }
@@ -272,6 +275,7 @@ function decrossSankey(opt, nodes, links) {
 // DAG Nodes Links → Any
 // Update the nodes and links according to the Sankey layout.
 function layoutSankey(dag, nodes, links) {
+  this.$store.commit("decrementPending");
   const { nodeSort, linkSort } = sankeySorts(dag, links);
   const layout = sankey()
     .nodeSort(nodeSort)
@@ -370,7 +374,8 @@ function makeGraph(data) {
 // Data → { NodeComparator, LinkComparator }
 // Based on the data, generate node and link comparators that minimize edge crossings.
 function sankeySorts(dag, links) {
-  const getX = {}, namesToLink = {};
+  const getX = {},
+    namesToLink = {};
 
   extractX(dag, getX);
   extractLinks(links, namesToLink);
