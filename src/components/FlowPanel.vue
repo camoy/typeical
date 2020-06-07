@@ -35,16 +35,22 @@
         <text
           v-for="(node, k) in nodes"
           class="flow-type-text"
-          text-anchor="middle"
-          dy="2em"
+          :dominant-baseline="horizontalLayout ? 'auto' : 'hanging'"
+          :text-anchor="horizontalLayout ? 'start' : 'middle'"
+          :dx="horizontalLayout ? '1em' : '0'"
+          :dy="horizontalLayout ? '0' : '1em'"
           :x="(node.x0 + node.x1) / 2"
           :y="(node.y1 + node.y0) / 2"
           :key="'flow-type-text-' + k"
         >
           <tspan>{{ node.name }}</tspan>
-          <tspan fill-opacity="0.7" dy="1.5em" :x="(node.x0 + node.x1) / 2">
-            {{ plainFormat(node.value) }}
-          </tspan>
+          <!-- prettier-ignore -->
+          <tspan
+            fill-opacity="0.7"
+            dy="1.5em"
+            :dx="horizontalLayout ? '1em' : '0'"
+            :x="(node.x0 + node.x1) / 2"
+            >{{ plainFormat(node.value) }}</tspan>
         </text>
 
         <!-- Flow -->
