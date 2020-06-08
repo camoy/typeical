@@ -1,76 +1,79 @@
 <template>
-  <v-container id="flow-svg-container">
-    <svg id="flow-svg" :viewBox="viewBox" preserveAspectRatio="xMidYMid meet">
-      <!-- No Data -->
-      <g v-if="nodes.length === 0">
-        <rect
-          width="98%"
-          height="98%"
-          fill="none"
-          stroke-width="1"
-          stroke="#666"
-        />
-        <text x="50%" y="50%" fill="#666" text-anchor="middle">
-          No Data
-        </text>
-      </g>
+  <v-container>
+    <div id="flow-svg-div">
+      <!-- <svg id="flow-svg" :viewBox="viewBox" preserveAspectRatio="xMidYMid meet"> -->
+      <svg id="flow-svg" preserveAspectRatio="xMidYMid meet">
+        <!-- No Data -->
+        <g v-if="nodes.length === 0">
+          <rect
+            width="98%"
+            height="98%"
+            fill="none"
+            stroke-width="1"
+            stroke="#666"
+          />
+          <text x="50%" y="50%" fill="#666" text-anchor="middle">
+            No Data
+          </text>
+        </g>
 
-      <!-- Data -->
-      <g id="flow-g">
-        <!-- Type Rect -->
-        <rect
-          v-for="(node, k) in nodes"
-          class="flow-rect"
-          fill="#555"
-          :x="node.x0"
-          :y="node.y0"
-          :height="node.y1 - node.y0"
-          :width="node.x1 - node.x0"
-          :key="'flow-rect-' + k"
-        >
-          <title>{{ node.name }} ({{ exactFormat(node.value) }})</title>
-        </rect>
+        <!-- Data -->
+        <g id="flow-g">
+          <!-- Type Rect -->
+          <rect
+            v-for="(node, k) in nodes"
+            class="flow-rect"
+            fill="#555"
+            :x="node.x0"
+            :y="node.y0"
+            :height="node.y1 - node.y0"
+            :width="node.x1 - node.x0"
+            :key="'flow-rect-' + k"
+          >
+            <title>{{ node.name }} ({{ exactFormat(node.value) }})</title>
+          </rect>
 
-        <!-- Type Label -->
-        <text
-          v-for="(node, k) in nodes"
-          class="flow-type-text"
-          :dominant-baseline="horizontalLayout ? 'auto' : 'hanging'"
-          :text-anchor="horizontalLayout ? 'start' : 'middle'"
-          :dx="horizontalLayout ? '1em' : '0'"
-          :dy="horizontalLayout ? '0' : '1em'"
-          :x="(node.x0 + node.x1) / 2"
-          :y="(node.y1 + node.y0) / 2"
-          :key="'flow-type-text-' + k"
-        >
-          <tspan>{{ node.name }}</tspan>
-          <!-- prettier-ignore -->
-          <tspan
+          <!-- Type Label -->
+          <text
+            v-for="(node, k) in nodes"
+            class="flow-type-text"
+            :dominant-baseline="typeAlign.call(this, node, true)"
+            :text-anchor="typeAlign.call(this, node, false)"
+            :dx="typePosition.call(this, node, true)"
+            :dy="typePosition.call(this, node, false)"
+            :x="(node.x0 + node.x1) / 2"
+            :y="(node.y1 + node.y0) / 2"
+            :key="'flow-type-text-' + k"
+          >
+            <tspan>{{ node.name }}</tspan>
+            <!-- prettier-ignore -->
+            <tspan
             fill-opacity="0.7"
             dy="1.5em"
-            :dx="horizontalLayout ? '1em' : '0'"
+            :dx="typePosition.call(this, node, true)"
             :x="(node.x0 + node.x1) / 2"
             >{{ plainFormat(node.value) }}</tspan>
-        </text>
+          </text>
 
-        <!-- Flow -->
-        <path
-          v-for="(link, k) in links"
-          class="flow-path"
-          fill="none"
-          :d="layout(link)"
-          :key="'flow-path-' + k"
-          :stroke="color(link)"
-          :stroke-width="link.width"
-          @mouseenter="highlight(link, true)"
-          @mouseleave="highlight(link, false)"
-        >
-          <title>
-            {{ typeFormat(link.names) }} ({{ exactFormat(link.value) }})
-          </title>
-        </path>
-      </g>
-    </svg>
+          <!-- Flow -->
+          <path
+            v-for="(link, k) in links"
+            class="flow-path"
+            fill="none"
+            :d="layout(link)"
+            :key="'flow-path-' + k"
+            :stroke="color(link)"
+            :stroke-width="link.width"
+            @mouseenter="highlight(link, true)"
+            @mouseleave="highlight(link, false)"
+          >
+            <title>
+              {{ typeFormat(link.names) }} ({{ exactFormat(link.value) }})
+            </title>
+          </path>
+        </g>
+      </svg>
+    </div>
 
     <!-- Pagination -->
     <div>
@@ -80,6 +83,7 @@
 </template>
 
 <style>
+/*
 #flow-svg-container {
   margin: 5px;
   padding: 0px;
@@ -101,6 +105,31 @@
   pointer-events: none;
 }
 
+.flow-type-text {
+  pointer-events: none;
+  font-size: 10px;
+}
+*/
+
+#flow-svg-div {
+  margin: 0px;
+  padding: 0px;
+  /* min-width: 1050px; */
+}
+#flow-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 636px;
+  cursor: move;
+}
+.flow-path {
+  mix-blend-mode: multiply;
+  transition: stroke 0.3s;
+}
+.flow-rect {
+  pointer-events: none;
+}
 .flow-type-text {
   pointer-events: none;
   font-size: 10px;
@@ -161,9 +190,7 @@ const DECROSS_TIMEOUT = 2000;
 
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
-const DEFAULT_HEIGHT = 720;
-const DEFAULT_WIDTH = 1040;
-const HEIGHT_PADDING = 6;
+const HEIGHT_PADDING = 12;
 const WIDTH_PADDING = 12;
 const PX_PER_FLOW = 200;
 
@@ -189,6 +216,31 @@ function typeFormat(xs) {
 // Link → String
 // Returns the name of the function from the given link.
 const linkFun = link => link.names[0];
+
+// Node → String
+//
+function typeAlign(node, baseline) {
+  const last = node.sourceLinks.length === 0;
+  if (baseline) {
+    if (last) return this.horizontalLayout ? "auto" : "baseline";
+    return this.horizontalLayout ? "auto" : "hanging";
+  } else {
+    if (last) return this.horizontalLayout ? "end" : "middle";
+    return this.horizontalLayout ? "start" : "middle";
+  }
+}
+
+// Node → String
+//
+function typePosition(node, dx) {
+  const last = node.sourceLinks.length === 0;
+  if (dx) {
+    return (last ? "-" : "") + (this.horizontalLayout ? "1em" : "0");
+  } else {
+    if (last) return this.horizontalLayout ? "0" : "-2em";
+    return this.horizontalLayout ? "0" : "1em";
+  }
+}
 
 // Link Boolean → Any
 // Given a link and a boolean indicating if the path should be highlighted,
@@ -310,9 +362,13 @@ function decrossSankey(opt, nodes, links) {
 function layoutSankey(dag, nodes, links) {
   this.$store.commit("decrementPending");
   const { nodeSort, linkSort } = sankeySorts(dag, links);
+  const { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT } = d3
+    .select("#flow-svg-div")
+    .node()
+    .getBoundingClientRect();
   const [width, height] = this.horizontalLayout
-    ? [dagHeight(links) * PX_PER_FLOW, DEFAULT_HEIGHT]
-    : [DEFAULT_WIDTH, dagHeight(links) * PX_PER_FLOW];
+    ? [Math.max(DEFAULT_WIDTH, dagHeight(links) * PX_PER_FLOW), DEFAULT_HEIGHT]
+    : [DEFAULT_WIDTH, Math.max(DEFAULT_HEIGHT, dagHeight(links) * PX_PER_FLOW)];
   const extent = [
     [WIDTH_PADDING, HEIGHT_PADDING],
     [width - WIDTH_PADDING, height - HEIGHT_PADDING]
@@ -328,11 +384,15 @@ function layoutSankey(dag, nodes, links) {
   const zoom = d3
     .zoom()
     .scaleExtent([1, 1])
-    .translateExtent(extent)
+    .translateExtent([
+      [0, 0],
+      [width, height]
+    ])
     .on("zoom", () => {
       let transform = d3.event.transform;
       d3.select("#flow-g").attr("transform", transform);
     });
+  (this.width = width), (this.height = height);
   d3.select("#flow-svg").call(zoom);
 
   //links.forEach(d => d.value = Math.log2(d.value) + 1);
@@ -521,8 +581,7 @@ export default {
       return this.horizontalLayout ? sankeyHorizontal : sankeyVertical;
     },
     viewBox() {
-      return `${-WIDTH_PADDING} ${-HEIGHT_PADDING} ${DEFAULT_WIDTH +
-        WIDTH_PADDING * 2} ${DEFAULT_HEIGHT + HEIGHT_PADDING * 6}`;
+      return `0 0 ${this.width} ${this.height}`;
     },
     ...mapState(["types", "selectedFuns", "flowsPerPage", "horizontalLayout"])
   },
@@ -531,6 +590,8 @@ export default {
     plainFormat,
     exactFormat,
     typeFormat,
+    typeAlign,
+    typePosition,
     highlight,
     color
   },
@@ -550,7 +611,15 @@ export default {
 
     // [Array Link]
     // Array of Sankey links for rendering.
-    links: []
+    links: [],
+
+    // Natural
+    // Width of the Sankey viewport.
+    width: 0,
+
+    // Natural
+    // Width of the Sankey viewport.
+    height: 0
   })
 };
 </script>
