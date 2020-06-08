@@ -165,7 +165,6 @@ const DEFAULT_HEIGHT = 720;
 const DEFAULT_WIDTH = 1040;
 const HEIGHT_PADDING = 6;
 const WIDTH_PADDING = 12;
-const PX_PER_FLOW = 200;
 
 //
 // Methods
@@ -310,46 +309,20 @@ function decrossSankey(opt, nodes, links) {
 function layoutSankey(dag, nodes, links) {
   this.$store.commit("decrementPending");
   const { nodeSort, linkSort } = sankeySorts(dag, links);
-  const [width, height] = this.horizontalLayout
-    ? [dagHeight(links) * PX_PER_FLOW, DEFAULT_HEIGHT]
-    : [DEFAULT_WIDTH, dagHeight(links) * PX_PER_FLOW];
-  const extent = [
-    [WIDTH_PADDING, HEIGHT_PADDING],
-    [width - WIDTH_PADDING, height - HEIGHT_PADDING]
-  ];
   const layout = sankey()
     .nodeSort(nodeSort)
     .linkSort(linkSort)
     .nodeWidth(NODE_WIDTH)
     .nodePadding(NODE_PADDING)
-    .extent(extent)
+    .extent([[WIDTH_PADDING, HEIGHT_PADDING],
+             [DEFAULT_WIDTH - WIDTH_PADDING, DEFAULT_HEIGHT - HEIGHT_PADDING]])
     .nodeAlign(ALIGN)
     .nodeOrientation(this.orientation);
-  const zoom = d3
-    .zoom()
-    .scaleExtent([1, 1])
-    .translateExtent(extent)
-    .on("zoom", () => {
-      let transform = d3.event.transform;
-      d3.select("#flow-g").attr("transform", transform);
-    });
-  d3.select("#flow-svg").call(zoom);
 
-  //links.forEach(d => d.value = Math.log2(d.value) + 1);
   const { nodes: newNodes, links: newLinks } = layout({
     nodes: nodes.map(d => Object.assign({}, d)),
     links: links.map(d => Object.assign({}, d))
   });
-
-  // Correct log for labels after laying out
-  /*
-    newNodes.forEach(d => {
-        return d.value = (d.sourceLinks.length === 0 ? d.targetLinks : d.sourceLinks)
-            .map(x => Math.pow(2, x.value - 1))
-            .reduce((x, y) => x + y, 0);
-    });
-    newLinks.forEach(d => d.value = Math.pow(2, d.value - 1));
-   */
 
   // Update nodes and links
   this.nodes = newNodes;
@@ -465,16 +438,6 @@ function extractX(node, obj) {
   if (node.data && obj[node.data.id]) return;
   if (node.data) obj[node.data.id] = node.x;
   node.children.forEach(node => extractX(node, obj));
-}
-
-// DAG → Natural
-// Returns the height of a DAG.
-function dagHeight(links) {
-  let heights = d3dag
-    .dagConnect()(links.map(x => [x.source, x.target]))
-    .height()
-    .children.map(x => x.value);
-  return Math.max.apply(null, heights);
 }
 
 // [Listof Link] Object → Any
