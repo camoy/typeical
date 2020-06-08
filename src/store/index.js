@@ -45,6 +45,11 @@ const flowsPerPage = 12;
 const horizontalLayout = false;
 
 //
+// Boolean
+// If selecting a package should clear function selection
+const clearSelectedFunsOnPkg = true;
+
+//
 // Filtering
 //
 
@@ -98,6 +103,7 @@ export default new Vuex.Store({
     defaultLimit,
     flowsPerPage,
     horizontalLayout,
+    clearSelectedFunsOnPkg,
     selectedPkg,
     selectedFuns,
     allAnalyzed,
@@ -131,6 +137,9 @@ export default new Vuex.Store({
     },
     horizontalLayout(state, val) {
       state.horizontalLayout = val;
+    },
+    clearSelectedFunsOnPkg(state, val) {
+      state.clearSelectedFunsOnPkg = val;
     },
     selectedPkg(state, val) {
       state.selectedPkg = val;
@@ -229,8 +238,10 @@ export default new Vuex.Store({
     },
 
     // Sets the selected package.
-    setSelectedPkg({ commit, dispatch }, selectedPkg) {
+    setSelectedPkg({ commit, dispatch, state }, selectedPkg) {
       commit("selectedPkg", selectedPkg);
+      if (state.clearSelectedFunsOnPkg)
+        commit("selectedFuns", []);
       dispatch("queryFuns");
     },
 
@@ -243,6 +254,10 @@ export default new Vuex.Store({
     setDefaultLimit({ commit, dispatch }, defaultLimit) {
       commit("defaultLimit", defaultLimit);
       dispatch("queryTypes");
+    },
+
+    setClearSelectedFunsOnPkg({ commit }, value) {
+      commit("clearSelectedFunsOnPkg", value);
     }
   },
 

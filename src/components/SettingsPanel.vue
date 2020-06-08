@@ -31,6 +31,12 @@
         @click="$store.commit('horizontalLayout', horizontalLayout)"
       />
 
+      <v-checkbox
+        v-model="clearSelectedFunsOnPkg"
+        label="Clear Selected Functions on Package Selection"
+        @click="$store.commit('clearSelectedFunsOnPkg', clearSelectedFunsOnPkg)"
+      />
+
       <div class="v-input v-input--selection-controls div-setting">
         <select
           v-model="flowsPerPage"
@@ -127,6 +133,7 @@ export default {
     selectMultipleFuns: false,
     autocompleteWithFuns: true,
     horizontalLayout: false,
+    clearSelectedFunsOnPkg: true,
     flowsPerPage: 12,
     defaultLimit: 36
   })
