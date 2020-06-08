@@ -83,7 +83,8 @@
       <span class="text-italic">filtering</span> data by:
       <ul>
         <li>analyzed packages (drop-down list in
-          <span class="text-tab">Settings</span> tab);</li>
+          <span class="text-tab">Settings</span> tab);
+        </li>
         <li>
           definition packages (Packages treemap
           in <span class="text-tab">TypeViz</span> tab);

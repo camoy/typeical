@@ -1,6 +1,11 @@
 <template>
   <v-container id="flow-svg-container">
-    <svg id="flow-svg" :viewBox="viewBox" preserveAspectRatio="xMidYMid meet">
+    <svg
+      id="flow-svg"
+      :viewBox="viewBox"
+      preserveAspectRatio="xMidYMid meet"
+      @dblclick="clickOnSvg()"
+    >
       <!-- No Data -->
       <g v-if="nodes.length === 0">
         <rect
@@ -64,6 +69,7 @@
           :stroke-width="link.width"
           @mouseenter="highlight(link, true)"
           @mouseleave="highlight(link, false)"
+          @click="clickOnLink(link)"
         >
           <title>
             {{ typeFormat(link.names) }} ({{ exactFormat(link.value) }})
@@ -392,6 +398,7 @@ function makeGraph(data) {
         source: indexByKey.get(JSON.stringify([a, d[a]])),
         target: indexByKey.get(JSON.stringify([b, d[b]])),
         names,
+        package: d.package,
         value
       };
       links.push(link);
@@ -453,6 +460,37 @@ function parentLink(link, namesToLink) {
 }
 
 //
+// [[Pkg, Fun]] [Pkg, Fun] → Bool
+// Checks if fun is the only fun in selectedFuns
+function singleFunIsSelected(selectedFuns, fun) {
+  return selectedFuns.length == 1 && selectedFuns.includes(fun);
+}
+
+// Link → _
+// Click on a highlighted link sets the selection to the clicked function
+// if it is not already selected
+function clickOnLink(link) {
+  const linkFun = JSON.stringify([link.package, link.names[0]]);
+  const selectedFuns = this.$store.state.selectedFuns;
+  if (!singleFunIsSelected(selectedFuns, linkFun)) {
+    this.selectedFunsBeforeZoom = selectedFuns;
+    this.$store.dispatch("setSelectedFuns", [linkFun]);
+  }
+}
+
+// Any Any → Bool
+// Checks if two values are equal using JSON.stringify
+function jsonEqual(x, y) {
+  return JSON.stringify(x) == JSON.stringify(y);
+}
+
+// Click outside flows to return to the previous selection
+function clickOnSvg() {
+  if (!jsonEqual(this.selectedFunsBeforeZoom, this.$store.state.selectedFuns))
+    this.$store.dispatch("setSelectedFuns", this.selectedFunsBeforeZoom);
+}
+
+//
 // Exports
 //
 export default {
@@ -495,7 +533,9 @@ export default {
     exactFormat,
     typeFormat,
     highlight,
-    color
+    color,
+    clickOnLink,
+    clickOnSvg
   },
 
   data: () => ({
@@ -513,7 +553,11 @@ export default {
 
     // [Array Link]
     // Array of Sankey links for rendering.
-    links: []
+    links: [],
+
+    // [Array Fun]
+    // Functions selected before zooming in
+    selectedFunsBeforeZoom: []
   })
 };
 </script>

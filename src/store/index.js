@@ -240,8 +240,7 @@ export default new Vuex.Store({
     // Sets the selected package.
     setSelectedPkg({ commit, dispatch, state }, selectedPkg) {
       commit("selectedPkg", selectedPkg);
-      if (state.clearSelectedFunsOnPkg)
-        commit("selectedFuns", []);
+      if (state.clearSelectedFunsOnPkg) commit("selectedFuns", []);
       dispatch("queryFuns");
     },
 
