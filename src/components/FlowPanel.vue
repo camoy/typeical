@@ -1,8 +1,6 @@
 <template>
   <v-container id="flow-svg-container">
-    <svg id="flow-svg"
-      :viewBox="viewBox"
-      preserveAspectRatio="xMidYMid meet">
+    <svg id="flow-svg" :viewBox="viewBox" preserveAspectRatio="xMidYMid meet">
       <!-- No Data -->
       <g v-if="nodes.length === 0">
         <rect
@@ -18,7 +16,7 @@
       </g>
 
       <!-- Data -->
-      <g>
+      <g id="flow-g">
         <!-- Type Rect -->
         <rect
           v-for="(node, k) in nodes"
@@ -124,6 +122,7 @@ import {
   sankeyLinkVertical
 } from "d3-sankey";
 import * as d3 from "d3";
+import * as d3dag from "d3-dag";
 import PromiseWorker from "promise-worker";
 import Decrosser from "worker-loader!@/decrosser";
 
@@ -138,6 +137,20 @@ const KEYS = [
   "arg_t3",
   "arg_t4",
   "arg_t5",
+  "arg_t6",
+  "arg_t7",
+  "arg_t8",
+  "arg_t9",
+  "arg_t10",
+  "arg_t11",
+  "arg_t12",
+  "arg_t13",
+  "arg_t14",
+  "arg_t15",
+  "arg_t16",
+  "arg_t17",
+  "arg_t18",
+  "arg_t19",
   "arg_t_r"
 ];
 const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
@@ -148,10 +161,11 @@ const DECROSS_TIMEOUT = 2000;
 
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
-const HEIGHT = 720;
-const WIDTH = 1040;
+const DEFAULT_HEIGHT = 720;
+const DEFAULT_WIDTH = 1040;
 const HEIGHT_PADDING = 6;
 const WIDTH_PADDING = 12;
+const PX_PER_FLOW = 200;
 
 //
 // Methods
@@ -279,6 +293,15 @@ function decrossSankey(opt, nodes, links) {
       decrosser.terminate();
       decrossSankey.call(this, false, nodes, links);
     }, DECROSS_TIMEOUT);
+  } else {
+    // If the faster method times out too, give up on decrossing
+    setTimeout(() => {
+      if (done) return;
+      decrosser.terminate();
+
+      let dag = d3dag.dagConnect()(links.map(x => [x.source, x.target]));
+      layoutSankey.call(this, dag, nodes, links);
+    }, DECROSS_TIMEOUT);
   }
 }
 
@@ -287,30 +310,46 @@ function decrossSankey(opt, nodes, links) {
 function layoutSankey(dag, nodes, links) {
   this.$store.commit("decrementPending");
   const { nodeSort, linkSort } = sankeySorts(dag, links);
+  const [width, height] = this.horizontalLayout
+    ? [dagHeight(links) * PX_PER_FLOW, DEFAULT_HEIGHT]
+    : [DEFAULT_WIDTH, dagHeight(links) * PX_PER_FLOW];
+  const extent = [
+    [WIDTH_PADDING, HEIGHT_PADDING],
+    [width - WIDTH_PADDING, height - HEIGHT_PADDING]
+  ];
   const layout = sankey()
     .nodeSort(nodeSort)
     .linkSort(linkSort)
     .nodeWidth(NODE_WIDTH)
     .nodePadding(NODE_PADDING)
-    .extent([
-      [WIDTH_PADDING, HEIGHT_PADDING],
-      [WIDTH - WIDTH_PADDING, HEIGHT - HEIGHT_PADDING]
-    ])
+    .extent(extent)
     .nodeAlign(ALIGN)
     .nodeOrientation(this.orientation);
-  links.forEach(d => d.value = Math.log2(d.value) + 1);
+  const zoom = d3
+    .zoom()
+    .scaleExtent([1, 1])
+    .translateExtent(extent)
+    .on("zoom", () => {
+      let transform = d3.event.transform;
+      d3.select("#flow-g").attr("transform", transform);
+    });
+  d3.select("#flow-svg").call(zoom);
+
+  //links.forEach(d => d.value = Math.log2(d.value) + 1);
   const { nodes: newNodes, links: newLinks } = layout({
     nodes: nodes.map(d => Object.assign({}, d)),
     links: links.map(d => Object.assign({}, d))
   });
 
   // Correct log for labels after laying out
-  newNodes.forEach(d => {
-    return d.value = (d.sourceLinks.length === 0 ? d.targetLinks : d.sourceLinks)
-                       .map(x => Math.pow(2, x.value - 1))
-                       .reduce((x, y) => x + y, 0);
-  });
-  newLinks.forEach(d => d.value = Math.pow(2, d.value - 1));
+  /*
+    newNodes.forEach(d => {
+        return d.value = (d.sourceLinks.length === 0 ? d.targetLinks : d.sourceLinks)
+            .map(x => Math.pow(2, x.value - 1))
+            .reduce((x, y) => x + y, 0);
+    });
+    newLinks.forEach(d => d.value = Math.pow(2, d.value - 1));
+   */
 
   // Update nodes and links
   this.nodes = newNodes;
@@ -423,8 +462,19 @@ function sankeySorts(dag, links) {
 // Node Object → Any
 // Updates the object to map node ID's to x coordinates derivied from Sugiyama layout.
 function extractX(node, obj) {
+  if (node.data && obj[node.data.id]) return;
   if (node.data) obj[node.data.id] = node.x;
   node.children.forEach(node => extractX(node, obj));
+}
+
+// DAG → Natural
+// Returns the height of a DAG.
+function dagHeight(links) {
+  let heights = d3dag
+    .dagConnect()(links.map(x => [x.source, x.target]))
+    .height()
+    .children.map(x => x.value);
+  return Math.max.apply(null, heights);
 }
 
 // [Listof Link] Object → Any
@@ -471,7 +521,8 @@ export default {
       return this.horizontalLayout ? sankeyHorizontal : sankeyVertical;
     },
     viewBox() {
-      return `${-WIDTH_PADDING} ${-HEIGHT_PADDING} ${WIDTH+WIDTH_PADDING*2} ${HEIGHT+HEIGHT_PADDING*6}`;
+      return `${-WIDTH_PADDING} ${-HEIGHT_PADDING} ${DEFAULT_WIDTH +
+        WIDTH_PADDING * 2} ${DEFAULT_HEIGHT + HEIGHT_PADDING * 6}`;
     },
     ...mapState(["types", "selectedFuns", "flowsPerPage", "horizontalLayout"])
   },
