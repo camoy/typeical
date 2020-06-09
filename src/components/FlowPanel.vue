@@ -62,11 +62,9 @@
         <path
           v-for="(link, k) in links"
           class="flow-path"
-          fill="none"
           :d="layout(link)"
           :key="'flow-path-' + k"
-          :stroke="color(link)"
-          :stroke-width="link.width"
+          :fill="color(link)"
           @mouseenter="highlight(link, true)"
           @mouseleave="highlight(link, false)"
           @click="clickOnLink(link)"
@@ -100,7 +98,7 @@
 
 .flow-path {
   mix-blend-mode: multiply;
-  transition: stroke 0.3s;
+  transition: fill 0.3s;
 }
 
 .flow-rect {
@@ -123,9 +121,7 @@ import {
   sankey,
   sankeyLeft,
   sankeyHorizontal,
-  sankeyLinkHorizontal,
-  sankeyVertical,
-  sankeyLinkVertical
+  sankeyVertical
 } from "d3-sankey";
 import * as d3 from "d3";
 import * as d3dag from "d3-dag";
@@ -171,6 +167,7 @@ const DEFAULT_HEIGHT = 720;
 const DEFAULT_WIDTH = 1040;
 const HEIGHT_PADDING = 6;
 const WIDTH_PADDING = 12;
+const OFFSET = 0;
 
 //
 // Methods
@@ -490,6 +487,60 @@ function clickOnSvg() {
     this.$store.dispatch("setSelectedFuns", this.selectedFunsBeforeZoom);
 }
 
+// Link → String
+// Replacement for sankeyLinkHorizontal (from https://observablehq.com/@enjalot/weird-sankey-links).
+function sankeyLinkHorizontal(link) {
+  let sx = link.source.x1;
+  let tx = link.target.x0 + 1;
+  let sy0 = link.y0 - link.width/2;
+  let sy1 = link.y0 + link.width/2;
+  let ty0 = link.y1 - link.width/2;
+  let ty1 = link.y1 + link.width/2;
+  let halfx = (tx - sx)/2;
+  let path = d3.path();
+  path.moveTo(sx, sy0);
+  let cpx1 = sx + halfx;
+  let cpy1 = sy0 + OFFSET;
+  let cpx2 = sx + halfx;
+  let cpy2 = ty0 - OFFSET;
+  path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, tx, ty0);
+  path.lineTo(tx, ty1);
+  cpx1 = sx + halfx;
+  cpy1 = ty1 - OFFSET;
+  cpx2 = sx + halfx;
+  cpy2 = sy1 + OFFSET;
+  path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, sx, sy1);
+  path.lineTo(sx, sy0);
+  return path.toString();
+}
+
+// Link → String
+// Replacement for sankeyLinkVertical.
+function sankeyLinkVertical(link) {
+  let sy = link.source.y1;
+  let ty = link.target.y0 + 1;
+  let sx0 = link.y0 - link.width/2;
+  let sx1 = link.y0 + link.width/2;
+  let tx0 = link.y1 - link.width/2;
+  let tx1 = link.y1 + link.width/2;
+  let halfy = (ty - sy)/2;
+  let path = d3.path();
+  path.moveTo(sx1, sy);
+  let cpx1 = sx1 + OFFSET;
+  let cpy1 = sy + halfy;
+  let cpx2 = tx1 - OFFSET;
+  let cpy2 = sy + halfy;
+  path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, tx1, ty);
+  path.lineTo(tx0, ty);
+  cpx1 = tx0 - OFFSET;
+  cpy1 = sy + halfy;
+  cpx2 = sx0 + OFFSET;
+  cpy2 = sy + halfy;
+  path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, sx0, sy);
+  path.lineTo(sx1, sy);
+  return path.toString();
+}
+
 //
 // Exports
 //
@@ -515,8 +566,8 @@ export default {
     },
     layout() {
       return this.horizontalLayout
-        ? sankeyLinkHorizontal()
-        : sankeyLinkVertical();
+        ? sankeyLinkHorizontal
+        : sankeyLinkVertical;
     },
     orientation() {
       return this.horizontalLayout ? sankeyHorizontal : sankeyVertical;
