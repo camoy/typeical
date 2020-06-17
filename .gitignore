@@ -22,3 +22,13 @@ yarn-error.log*
 
 # database
 *.db
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
+*.out
+*.pdf
+*.ps
