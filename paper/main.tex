@@ -235,13 +235,48 @@ Supplemental material, including the data and source code of
 \end{table*}
 \egroup
 
-\todo{Write.}
+We interviewed the primary researcher developing R's gradual type system
+to inventory relevant domain-specific tasks.
+Additionally, we sought feedback throughout the creation of {\sc TypeVis}
+to ensure it was adequately satisfying requirements.
+The domain-specific goals can be reduced to:
+
+\begin{enumerate}
+\item {\bf Find Function.} Quickly search for a particular function and identify basic information. This includes how often the function is called and which package contains it.
+\item {\bf Determine Types.} Given a specific function, determine the argument and return types of the function. Additionally, identify the frequency of a type signature. A user should be able to infer, for example, if the function is polymorphic or if it's a predicate.
+\item {\bf Compare Signatures.} Compare the occurrence of type signatures within a specific function, but also across many different ones. Users must be able to isolate individual signatures and see them in the context of other signatures and functions.
+\end{enumerate}
+
+These goals can be classified using an abstract task analysis framework.
+In table~\ref{tab:tasks}, we use Munzner's mid-level and low-level
+abstract task taxonomy. \todo{Cite Munzner}
 
 %%
 
 \section{Design and Implementation}
 
+\begin{figure*}
+ \centering
+ \includegraphics[width=\linewidth]{img/typevis.png}
+ \caption{The main view of {\sc TypeVis}, with type flows on the left and the package hierarchy on the right.}
+ \label{fig:typevis}
+\end{figure*}
+
+\begin{figure}[tb]
+ \centering
+ \includegraphics[width=\columnwidth]{img/no_decross.png}
+ \includegraphics[width=\columnwidth]{img/decross.png}
+ \caption{Comparison of type flows without decrossing (above) and with decrossing (below).}
+ \label{fig:decross}
+\end{figure}
+
 \todo{Write.}
+
+\subsection{Package and Function Filtering}
+
+\subsection{Types as Flows}
+
+\subsection{Technical Details}
 
 %%
 
