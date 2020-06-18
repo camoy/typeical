@@ -185,14 +185,20 @@ Our visualization supports three broad tasks:
 filtering the dataset down to a digestible subset,
 understanding the types of function arguments and returns,
 and comparing across different functions.
-\todo{Explain the components of the design and how they support these tasks.}
+For filtering, {\sc TypeVis} uses the treemap idiom
+to convey the relative scale of different packages.
+Once a specific function is selected,
+type signatures are represented as flows over types
+where the width of the flow is proportional to frequency.
+These flows can be readily compared within the same function,
+or across different functions.
 
-These tasks can assist language designers during different
-phases of development.
+Tasks enabled by {\sc TypeVis} can assist language designers
+during many phases of development.
 For example, exploratory data analysis can weed out designs that
 are incompatible with existing programs.
-\todo{Give specific motivation, i.e. gradual typing.}
-
+In particular, the visualization is built to answer questions
+relevant to gradual type system development.
 Supplemental material, including the data and source code of
 {\sc TypeVis}, is freely available: \todo{Fill with archival link}
 
@@ -248,8 +254,8 @@ The domain-specific goals can be reduced to:
 \end{enumerate}
 
 These goals can be classified using an abstract task analysis framework.
-In table~\ref{tab:tasks}, we use Munzner's mid-level and low-level
-abstract task taxonomy. \todo{Cite Munzner}
+See table~\ref{tab:tasks} for a categorization of these domain tasks
+into Munzner's mid-level and low-level abstract task taxonomy. \todo{Cite Munzner}
 
 %%
 
@@ -272,7 +278,7 @@ abstract task taxonomy. \todo{Cite Munzner}
 
 \todo{Write.}
 
-\subsection{Package and Function Filtering}
+\subsection{Function Filtering}
 
 \subsection{Types as Flows}
 
