@@ -318,7 +318,7 @@ function layoutSankey(dag, nodes, links) {
     .nodeWidth(NODE_WIDTH)
     .nodePadding(NODE_PADDING)
     .extent([[WIDTH_PADDING, HEIGHT_PADDING],
-             [DEFAULT_WIDTH - WIDTH_PADDING, DEFAULT_HEIGHT - HEIGHT_PADDING]])
+             [DEFAULT_WIDTH - WIDTH_PADDING*3, DEFAULT_HEIGHT - HEIGHT_PADDING]])
     .nodeAlign(ALIGN)
     .nodeOrientation(this.orientation);
 
