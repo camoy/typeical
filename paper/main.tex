@@ -420,13 +420,47 @@ indexed to achieve lookups as fast as possible.
 
 %%
 
-\section{Discussion}
+\section{Limitations and Future Work}
 
-\todo{Point limitations.}
+{\sc TypeVis} suffers from a number of shortcomings
+and does not fully address the entire range of possible tasks
+a language designer may need to perform.
+
+In particular, R supports a wide range of data types
+including types that contain dimensionality information.
+For example, an R array may have type {\tt integer[3]}
+indicating that it is an array of length $3$.
+This will get compressed down into a single array
+type labeled {\tt integer[]}.
+Reducing the number of types can make the visualization
+more understandable---at the expensive of losing some
+precision in type information.
+Ideally a user would be able to interactively tune
+the level of type granularity based on their interest
+in a specific property.
+Such a feature would be especially helpful for R
+since values can come attached with relevant additional
+data such as the dynamic dispatch method
+or user-specified metadata.
+
+Filtering is an central mechanism in the system,
+but it also comes at a cost.
+If one has a specific function or several functions
+in mind, then {\sc TypeVis} provides a useful
+local view of that type information.
+However, it does not support any kind of global
+view of type information across a large amount of
+functions. When the number of flows or nodes
+becomes too great, the visualization will start
+paginating, making comparisons over large amounts
+of data impossible.
+Aggregation and summarization would be key to
+making a global view of the data feasible---that
+remains future work.
 
 %%
 
-\section{Conclusion and Future Work}
+\section{Conclusion}
 
 % more type system features (dimensionality, dispatch)
 % other languages
