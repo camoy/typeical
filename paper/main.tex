@@ -288,7 +288,7 @@ will select it in the function treemap.
 
 These different components support different modes of search.
 If a user has a specific function in mind,
-the search bar supports fuzzy autocomplete
+the search bar supports autocomplete
 that can quickly select a function among thousands.
 However, if one wants to browse
 all available functions and packages,
@@ -379,9 +379,29 @@ between layers computes the layout.
 
 \subsection{Technical Details}
 
-% d3, vue
+Since the amount of data that a user may query is large,
+the application consists of both a frontend and a backend.
 
-% backend node, sqlite3, indexing
+On the frontend, state management, interactivity,
+and DOM manipulation is all done within the Vue framework.
+This is in contrast with many web-based visualizations
+that use D3 for DOM manipulation.
+We chose this setup because of the many different
+individual components whose state must be kept
+sychronized.
+This includes not only the visualizations, but also
+user interface elements like the autocomplete search bar.
+In our experience, Vue's model of reactivity is
+more successful at maintaining consistency across the
+entire system than using D3 and vanilla JavaScript.
+While {\sc TypeVis} does not use D3 for DOM manipulation,
+it still does use D3 for other visualization-related
+computations.
+
+Our backend is a Node.js application that serves
+JSON in a standard REST-style architecture.
+Data is stored in a SQLite database that has been
+indexed to achieve lookups as fast as possible.
 
 \begin{figure*}
  \centering
@@ -402,11 +422,15 @@ between layers computes the layout.
 
 \section{Discussion}
 
-\todo{Should say this is not R specific. Point limitations.}
+\todo{Point limitations.}
 
 %%
 
 \section{Conclusion and Future Work}
+
+% more type system features (dimensionality, dispatch)
+% other languages
+% general philosophy, not just about types
 
 \todo{Write.}
 
