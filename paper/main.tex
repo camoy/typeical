@@ -352,7 +352,30 @@ while hovering.
 Clicking a flow will focus on that function
 only, filtering away all others.
 
-% decrossing
+Flow layout is a critical consideration
+for a sufficiently legible visualization.
+Figure~\ref{fig:decross} exemplifies what
+happens if flow layout is not adequately handled.
+The top layout was generated without any
+flow decrossing algorithm,
+while the bottom layout does
+apply decrossing.
+Even with highlighting,
+the utility of the visualization is vastly
+reduced without some decrossing effort.
+To maintain real-time performance,
+we use two different decrossing methods.
+First, the system attempts to construct
+a layout with the globally optimal
+minimum amount of flow crossing by
+solving a mixed-integer linear program.
+Unfortunately, for even moderately
+sized graphs this can take too long to compute.
+Therefore, after about $1$ second
+the optimal algorithm is terminated
+if it has not finished, and a faster
+algorithm that only locally minimizes crossing
+between layers computes the layout.
 
 \subsection{Technical Details}
 
