@@ -91,11 +91,11 @@
 %%\affiliation{\scriptsize Martha Stewart Enterprises \\ Microsoft Research}
 
 %% Author and Affiliation (multiple authors with multiple affiliations)
-\author{Roy G. Biv\thanks{e-mail: roy.g.biv@aol.com}\\ %
+\author{Roy G. Biv\thanks{roy.g.biv@aol.com}\\ %
         \scriptsize Starbucks Research %
-\and Ed Grimley\thanks{e-mail: ed.grimley@aol.com}\\ %
+\and Ed Grimley\thanks{ed.grimley@aol.com}\\ %
      \scriptsize Grimley Widgets, Inc. %
-\and Martha Stewart\thanks{e-mail: martha.stewart@marthastewart.com}\\ %
+\and Martha Stewart\thanks{martha.stewart@marthastewart.com}\\ %
      \parbox{1.4in}{\scriptsize \centering Martha Stewart Enterprises \\ Microsoft Research}}
 
 %% A teaser figure can be included as follows, but is not recommended since
@@ -234,7 +234,7 @@ Supplemental material, including the data and source code of
 
     Determine Types & Browse & Identify & Determining types is a browse task, where the target type signature is unknown, but the location of the function of interest is known. While browsing, a user must be able to identify the frequencies of particular type signatures.\\
 
-    Compare Signatures & Lookup & Compare & Comparing type signatures is a lookup task where both target type signatures have already been located. A user must be able to how often a signature is used compared to another, both within a function and across different functions.\\
+    Compare Signatures & Lookup & Compare & Comparing type signatures is a lookup task where both target type signatures have already been located. A user must be able to discern how often a signature is used compared to another, both within a function and across different functions.\\
   \end{tabularx}
   \caption{Domain goals and their mid-level and low-level task abstractions.}
   \label{tab:tasks}
@@ -261,6 +261,105 @@ into Munzner's mid-level and low-level abstract task taxonomy. \todo{Cite Munzne
 
 \section{Design and Implementation}
 
+{\sc TypeVis} is an interactive web-based visualization
+that permits real-time exploration,
+even with large datasets.
+The default dataset contains over a million rows
+based on the analysis of almost five hundred
+different R packages.
+Figure~\ref{fig:typevis} displays
+the heart of {\sc TypeVis}
+in its initial configuration.
+Most aspects of the system can be tweaked
+by a user if desired.
+
+\subsection{Function Filtering}
+
+The right-hand panel of figure~\ref{fig:typevis}
+contains three elements: a search bar,
+a package treemap,
+and a function treemap.
+All three are linked.
+Selecting a package
+in the top treemap will immediately narrow the
+bottom view to only functions available in that package.
+Additionally, entering a function name in the search
+will select it in the function treemap.
+
+These different components support different modes of search.
+If a user has a specific function in mind,
+the search bar supports fuzzy autocomplete
+that can quickly select a function among thousands.
+However, if one wants to browse
+all available functions and packages,
+the treemap view is more applicable.
+Nodes in the bottom treemap convey the log-scaled
+frequency of function calls,
+and correspondingly the top treemap
+is scaled based on invocations
+of functions defined in that package.
+Log-scaling and pagination keep
+elements of the treemap legible,
+even if absolute size differences are significant.
+
+If configured, {\sc TypeVis} allows for multiple function selection.
+Both the {\tt length.unit} and {\tt valid.unit} functions
+from the {\tt grid} package are selected in figure~\ref{fig:typevis}.
+These functions are rendered simultaneously in the type flow
+panel, allowing one to make comparisons between them.
+
+\subsection{Types as Flows}
+
+Prominently featured as the center visualization,
+a Sankey diagram encodes type signatures of the selected
+functions as flows.
+Flows begin at nodes labeling a function,
+curve across each argument type in order,
+and terminate at the return type.
+Widths are proportional to how many times a function
+is called with that signature during analysis.
+Flow segments are filled with a hue-varying color scale,
+based on the type where the segment ends.
+Beneath each node label is an approximate count.
+If the node represents a function, then the
+number is how many times the function was invoked.
+If the node represents a type, then the
+number is how often a value of that type
+at that argument position was recorded during analysis.
+
+For example, in figure~\ref{fig:typevis},
+the {\tt length.unit} function is called with
+two different type signatures at run-time.
+Most frequently, the function is used with the
+signature {\tt double $\to$ integer},
+but a substantial fraction of the time it is
+used as {\tt double[] $\to$ integer}.
+Here, {\tt double[]} stands for an array of
+doubles with arbitrary dimension.
+
+Interactivity significantly augments the
+usability of the Sankey visualization.
+Hovering over a flow will highlight the
+entire path of the flow
+and will fade other functions
+into the background.
+When displaying many flows at the same time,
+highlighting becomes especially critical
+for user comprehension.
+Additional quantitative information
+about the flow is also supplied
+while hovering.
+Clicking a flow will focus on that function
+only, filtering away all others.
+
+% decrossing
+
+\subsection{Technical Details}
+
+% d3, vue
+
+% backend node, sqlite3, indexing
+
 \begin{figure*}
  \centering
  \includegraphics[width=\linewidth]{img/typevis.png}
@@ -275,14 +374,6 @@ into Munzner's mid-level and low-level abstract task taxonomy. \todo{Cite Munzne
  \caption{Comparison of type flows without decrossing (above) and with decrossing (below).}
  \label{fig:decross}
 \end{figure}
-
-\todo{Write.}
-
-\subsection{Function Filtering}
-
-\subsection{Types as Flows}
-
-\subsection{Technical Details}
 
 %%
 
