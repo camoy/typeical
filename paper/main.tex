@@ -206,15 +206,40 @@ Supplemental material, including the data and source code of
 
 \section{Background and Related Work}
 
-% R background
-
-% gradual typing background
-
-% vis papers
-
-\todo{
-  We need to take a closer look at the papers we cite.
+R is a dynamically typed programming language widely used for
+statistical computing. Unlike statically typed languages,
+R programs do not contain type annotations
+and never pass through a typechecker.
+At run-time,
+functions may called with values of arbitrary type,
+and may return values of arbitrary type.\footnote{
+  We use the word ``type'' to mean what others may call a ``type tag.''
+  This is a run-time concept---we do not assume a static type system
+  because there is none. Indeed, the goal is to help design one!
+  A ``type signature'' in this context is one particular configuration
+  of argument and return types a function is called with at run-time.
 }
+
+For statically typed languages, the type system is usually
+an inseparable part of the language. Since they are designed
+at the same time, the type system precedes any code written
+in the language.
+A gradual type system, by contrast,
+permits the integration of static and dynamic typing.
+Such a type system is capable of seamlessly mixing typed and untyped regions of code.
+Often, a gradual type system is designed atop
+an existing dynamically typed language.
+Since many R programs already exist,
+a successful gradual type system must be capable of
+typechecking idiomatic R code.
+{\sc TypeVis} aims to clarify how existing R programs
+use types to assist in this task.
+While this is our motivation, the visualization's use
+is not necessarily limited to this application.
+Anyone who has an interest in how the real R programs use types
+may find it useful.
+
+\todo{Prior work}
 
 %%
 
@@ -295,6 +320,13 @@ into Munzner's mid-level and low-level abstract task taxonomy. \todo{Cite Munzne
 %%
 
 \section{Design and Implementation}
+
+\begin{figure*}
+ \centering
+ \includegraphics[width=\linewidth]{img/typevis.png}
+ \caption{The main view of {\sc TypeVis}, with type flows on the left and the package hierarchy on the right. Here, the {\tt length.unit} and {\tt valid.unit} functions from the {\tt grid} package are both selected and displayed simultaneously.}
+ \label{fig:typevis}
+\end{figure*}
 
 {\sc TypeVis} is an interactive web-based visualization
 that permits real-time exploration,
@@ -441,13 +473,6 @@ To avoid execessive memory consumption and speed up computations,
 clients query data from the server on an as-needed basis.
 Thus, a stable network connection is required for
 real-time interaction.
-
-\begin{figure*}
- \centering
- \includegraphics[width=\linewidth]{img/typevis.png}
- \caption{The main view of {\sc TypeVis}, with type flows on the left and the package hierarchy on the right.}
- \label{fig:typevis}
-\end{figure*}
 
 \begin{figure}[tb]
  \centering
