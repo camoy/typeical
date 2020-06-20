@@ -76,9 +76,8 @@
 
 \title{Type Visualization for R}
 
-\author{Roy G. Biv\thanks{e-mail: roy.g.biv@aol.com} %
-\and Ed Grimley\thanks{e-mail:ed.grimley@aol.com} %
-\and Martha Stewart\thanks{e-mail:martha.stewart@marthastewart.com}}
+\author{Cameron Moy\thanks{camoy@ccs.neu.edu}
+\and Julia Belyakova\thanks{belyakovay@ccs.neu.edu}}
 \affiliation{\scriptsize Northeastern University}
 
 \abstract{
@@ -464,7 +463,7 @@ This is in contrast with many web-based visualizations
 that use D3 for DOM manipulation.
 We chose this setup because of the many different
 individual components whose state must be kept
-sychronized.
+synchronized.
 This includes not only the visualizations, but also
 user interface elements like the autocomplete search bar.
 In our experience, Vue's model of reactivity is
@@ -478,7 +477,7 @@ Our backend is a Node.js application that serves
 JSON in a standard REST-style architecture.
 Data is stored in a SQLite database that has been
 indexed to achieve lookups as fast as possible.
-To avoid execessive memory consumption and speed up computations,
+To avoid excessive memory consumption and speed up computations,
 clients query data from the server on an as-needed basis.
 Thus, a stable network connection is required for
 real-time interaction.
@@ -542,7 +541,7 @@ execution traces from a large corpus of R packages.
 To narrow the data under consideration,
 {\sc TypeVis} provides facilities for filtering
 and searching.
-Type signatures are represented as flows travesing across
+Type signatures are represented as flows traversing across
 each argument type and return type in sequence.
 Flow widths are proportional to how often
 that type signature was seen during the dynamic analysis.
