@@ -95,8 +95,6 @@
   Insights derived from our visualization are aimed at informing
   language design decisions---specifically of a gradual type system
   currently being developed for R.
-
-  \todo{Fill in keywords below.}
 }
 
 %% ACM Computing Classification System (CCS).
@@ -108,13 +106,8 @@
 %% In both cases the last two arguments (1998) or last three (2012) can be empty.
 
 \CCScatlist{
-%  \CCScatTwelve{Human-centered computing}{Visu\-al\-iza\-tion}{Visu\-al\-iza\-tion techniques}{Treemaps};%  \CCScatTwelve{Human-centered computing}{Visu\-al\-iza\-tion}{Visualization design and evaluation methods}{}
+  \CCScatTwelve{Human-centered computing}{Visualization}{Visualization systems and tools}{}
 }
-
-%\CCScatlist{
-  %\CCScat{H.5.2}{User Interfaces}{User Interfaces}{Graphical user interfaces (GUI)}{};
-  %\CCScat{H.5.m}{Information Interfaces and Presentation}{Miscellaneous}{}{}
-%}
 
 %% Copyright space is enabled by default as required by guidelines.
 %% It is disabled by the 'review' option or via the following command:
@@ -126,15 +119,9 @@
 
 \begin{document}
 
-%% The ``\maketitle'' command must be the first command after the
-%% ``\begin{document}'' command. It prepares and prints the title block.
-
-%% the only exception to this rule is the \firstsection command
 \firstsection{Introduction}
 
 \maketitle
-
-%% \section{Introduction} %for journal use above \firstsection{..} instead
 
 Programming languages commonly evolve by decree. The designer
 decides that a new feature is necessary or that a past feature was
@@ -218,20 +205,20 @@ We are not aware of any previous work that applies
 visualization techniques for the purposes of programming language design.
 However, there are existing publications on understanding
 software systems through visualization.
-Bohnet visualize massive program execution traces
+Bohnet et al.~\cite{bohnet:2009} visualize massive program execution traces
 to assist developers in code comprehension of large software systems.
 Their tool applies pruning and summarization to reduce trace size.
 The visualization focuses on call topology,
 describing the structure of function invocations,
 rather than types.
-Telea also develop a methodology for displaying call structure.
+Telea et al.~\cite{telea:2009} also develop a methodology for displaying call structure.
 However, they visualize call graphs of systems in their entirety,
 rather than individual execution traces.
 Our visualization can be thought of as a hybrid of the two,
 investigating the system as a whole,
 but doing so via execution traces.
 In addition to standard call graphs,
-LaToza adorn nodes and edges with extra information,
+LaToza and Myers~\cite{latoza:2011} adorn nodes and edges with extra information,
 allowing the user gain further understanding of the system
 under examination.
 This includes indicating methods that come from the same class---a
@@ -311,7 +298,8 @@ The domain-specific goals can be reduced to:
 
 These goals can be classified using an abstract task analysis framework.
 See table~\ref{tab:tasks} for a categorization of these domain tasks
-into Munzner's mid-level and low-level abstract task taxonomy. \todo{Cite Munzner}
+the mid-level and low-level abstract task taxonomy
+established by Brehmer and Munzner~\cite{brehmer:2013}.
 
 %%
 
@@ -365,8 +353,7 @@ Log-scaling and pagination keep
 elements of the treemap legible,
 even if absolute size differences are significant.
 
-Treemaps, introduced by Shneiderman,
-are often used for displaying hierarchical data.
+Treemaps are often used for displaying hierarchical data~\cite{shneiderman:1992}.
 Package systems in many languages,
 like Java,
 contain deeply nested namespace hierarchies.
@@ -391,7 +378,7 @@ Prominently featured as the center visualization,
 a parallel sets diagram encodes type signatures of the selected
 functions as flows.
 Parallel sets,
-proposed by Kosara,
+proposed by Kosara et al.~\cite{kosara:2006},
 are ideally suited for type signatures.
 Each data point is can be thought of as
 a tuple $(f, \tau_1, \ldots, \tau_n)$
@@ -583,11 +570,9 @@ is rich in structure.
 Generic, canned visualizations will not be sufficient.
 {\sc TypeVis} is just the first step in this direction.
 
-\todo{Finish these.}
 \acknowledgments{
-  The authors wish to thank the following people:
-  students of CS 7250 for useful design feedback,
-  contributors to all the open source projects that {\sc TypeVis} depends on.
+  The authors wish to thank the students of CS 7250 for useful design feedback,
+  and contributors to all the open source projects that {\sc TypeVis} depends on.
   This work was supported in part by a Northeastern Graduate Fellowship.
 }
 
