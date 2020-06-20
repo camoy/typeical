@@ -74,38 +74,13 @@
 %% In preprint mode you may define your own headline.
 %\preprinttext{To appear in an IEEE VGTC sponsored conference.}
 
-%% Paper title.
-
 \title{Type Visualization for R}
 
-%% This is how authors are specified in the conference style
+\author{Roy G. Biv\thanks{e-mail: roy.g.biv@aol.com} %
+\and Ed Grimley\thanks{e-mail:ed.grimley@aol.com} %
+\and Martha Stewart\thanks{e-mail:martha.stewart@marthastewart.com}}
+\affiliation{\scriptsize Northeastern University}
 
-%% Author and Affiliation (single author).
-%%\author{Roy G. Biv\thanks{e-mail: roy.g.biv@aol.com}}
-%%\affiliation{\scriptsize Allied Widgets Research}
-
-%% Author and Affiliation (multiple authors with single affiliations).
-%%\author{Roy G. Biv\thanks{e-mail: roy.g.biv@aol.com} %
-%%\and Ed Grimley\thanks{e-mail:ed.grimley@aol.com} %
-%%\and Martha Stewart\thanks{e-mail:martha.stewart@marthastewart.com}}
-%%\affiliation{\scriptsize Martha Stewart Enterprises \\ Microsoft Research}
-
-%% Author and Affiliation (multiple authors with multiple affiliations)
-\author{Roy G. Biv\thanks{roy.g.biv@aol.com}\\ %
-        \scriptsize Starbucks Research %
-\and Ed Grimley\thanks{ed.grimley@aol.com}\\ %
-     \scriptsize Grimley Widgets, Inc. %
-\and Martha Stewart\thanks{martha.stewart@marthastewart.com}\\ %
-     \parbox{1.4in}{\scriptsize \centering Martha Stewart Enterprises \\ Microsoft Research}}
-
-%% A teaser figure can be included as follows, but is not recommended since
-%% the space is now taken up by a full width abstract.
-%\teaser{
-%  \includegraphics[width=1.5in]{sample.eps}
-%  \caption{Lookit! Lookit!}
-%}
-
-%% Abstract section.
 \abstract{
   Data-driven approaches to programming language design are uncommon.
   Despite the availability of large code repositories, distilling useful
@@ -122,7 +97,7 @@
   currently being developed for R.
 
   \todo{Fill in keywords below.}
-} % end of abstract
+}
 
 %% ACM Computing Classification System (CCS).
 %% See <http://www.acm.org/about/class> for details.
@@ -204,7 +179,7 @@ Supplemental material, including the data and source code of
 
 %%
 
-\section{Background and Related Work}
+\section{Background and Prior Work}
 
 R is a dynamically typed programming language widely used for
 statistical computing. Unlike statically typed languages,
@@ -239,9 +214,48 @@ is not necessarily limited to this application.
 Anyone who has an interest in how the real R programs use types
 may find it useful.
 
-\todo{Prior work}
+We are not aware of any previous work that applies
+visualization techniques for the purposes of programming language design.
+However, there are existing publications on understanding
+software systems through visualization.
+Bohnet visualize massive program execution traces
+to assist developers in code comprehension of large software systems.
+Their tool applies pruning and summarization to reduce trace size.
+The visualization focuses on call topology,
+describing the structure of function invocations,
+rather than types.
+Telea also develop a methodology for displaying call structure.
+However, they visualize call graphs of systems in their entirety,
+rather than individual execution traces.
+Our visualization can be thought of as a hybrid of the two,
+investigating the system as a whole,
+but doing so via execution traces.
+In addition to standard call graphs,
+LaToza adorn nodes and edges with extra information,
+allowing the user gain further understanding of the system
+under examination.
+This includes indicating methods that come from the same class---a
+basic form of type information.
 
 %%
+
+\bgroup
+\def\arraystretch{1.75}
+\begin{table*}
+  \centering
+  \begin{tabularx}{\linewidth}{c|c|c|X}
+    Domain Goals & Search Task & Query Task & \multicolumn{1}{c}{Abstract Task Description} \\
+    \hline
+    Find Function & Locate & Identify & Finding a function is a location task, where the target function is known, but its location within the package hierarchy is not. Once the desired function is found, a user must be able to identify data of interest. \\
+
+    Determine Types & Browse & Identify & Determining types is a browse task, where the target type signature is unknown, but the location of the function of interest is known. While browsing, a user must be able to identify the frequencies of particular type signatures.\\
+
+    Compare Signatures & Lookup & Compare & Comparing type signatures is a lookup task where both target type signatures have already been located. A user must be able to discern how often a signature is used compared to another, both within a function and across different functions.\\
+  \end{tabularx}
+  \caption{Domain goals and their mid-level and low-level task abstractions.}
+  \label{tab:tasks}
+\end{table*}
+\egroup
 
 \section{Data and Collection}
 
@@ -282,24 +296,6 @@ work properly without any modifications.
 %%
 
 \section{Task Abstraction}
-
-\bgroup
-\def\arraystretch{1.75}
-\begin{table*}
-  \centering
-  \begin{tabularx}{\linewidth}{c|c|c|X}
-    Domain Goals & Search Task & Query Task & \multicolumn{1}{c}{Abstract Task Description} \\
-    \hline
-    Find Function & Locate & Identify & Finding a function is a location task, where the target function is known, but its location within the package hierarchy is not. Once the desired function is found, a user must be able to identify data of interest. \\
-
-    Determine Types & Browse & Identify & Determining types is a browse task, where the target type signature is unknown, but the location of the function of interest is known. While browsing, a user must be able to identify the frequencies of particular type signatures.\\
-
-    Compare Signatures & Lookup & Compare & Comparing type signatures is a lookup task where both target type signatures have already been located. A user must be able to discern how often a signature is used compared to another, both within a function and across different functions.\\
-  \end{tabularx}
-  \caption{Domain goals and their mid-level and low-level task abstractions.}
-  \label{tab:tasks}
-\end{table*}
-\egroup
 
 We interviewed the primary researcher developing R's gradual type system
 to inventory relevant domain-specific tasks.
@@ -369,6 +365,20 @@ Log-scaling and pagination keep
 elements of the treemap legible,
 even if absolute size differences are significant.
 
+Treemaps, introduced by Shneiderman,
+are often used for displaying hierarchical data.
+Package systems in many languages,
+like Java,
+contain deeply nested namespace hierarchies.
+This idiom is appropriate for navigation of such
+hierarchies.
+R packages are not structured deeply
+so the treemaps in our data are only one
+level deep.
+However, if the dataset was more deeply nested,
+{\sc TypeVis} can be configured to
+handle that.
+
 If configured, {\sc TypeVis} allows for multiple function selection.
 Both the {\tt length.unit} and {\tt valid.unit} functions
 from the {\tt grid} package are selected in figure~\ref{fig:typevis}.
@@ -378,8 +388,20 @@ panel, allowing one to make comparisons between them.
 \subsection{Types as Flows}
 
 Prominently featured as the center visualization,
-a Sankey diagram encodes type signatures of the selected
+a parallel sets diagram encodes type signatures of the selected
 functions as flows.
+Parallel sets,
+proposed by Kosara,
+are ideally suited for type signatures.
+Each data point is can be thought of as
+a tuple $(f, \tau_1, \ldots, \tau_n)$
+corresponding to the function name,
+argument types,
+and return type.
+Every component is categorical,
+and we are interested in visualizing frequencies of these points.
+This is the exact use-case for parallel sets.
+
 Flows begin at nodes labeling a function,
 curve across each argument type in order,
 and terminate at the return type.
@@ -405,7 +427,7 @@ Here, {\tt double[]} stands for an array of
 doubles with arbitrary dimension.
 
 Interactivity significantly augments the
-usability of the Sankey visualization.
+usability of the parallel sets visualization.
 Hovering over a flow will highlight the
 entire path of the flow
 and will fade other functions
@@ -526,18 +548,47 @@ remains future work.
 
 \section{Conclusion}
 
-% other dynamic languages
+We have presented {\sc TypeVis}, an interactive visualization
+of run-time type information for R.
+It supports real-time exploration of a dataset of
+execution traces from a large corpus of R packages.
+To narrow the data under consideration,
+{\sc TypeVis} provides facilities for filtering
+and searching.
+Type signatures are represented as flows travesing across
+each argument type and return type in sequence.
+Flow widths are proportional to how often
+that type signature was seen during the dynamic analysis.
+Interactions provide additional details and
+assist users in comprehension and navigation.
 
-% other featuers not just types
+Our tool is aimed at elucidating how R programmers
+use the language in practice.
+Specifically, the data and visualization will be used to
+inform the design of a gradual type system for R.
+However, {\sc TypeVis} is not tied to the R ecosystem
+and is suitable to use for any dynamically typed language
+with a similar dataset.
+Additionally, the visualization could yield insights
+useful for other purposes than gradual typing.
 
-% general philosophy not just about types
-% vis has role to play in language design
+We hope that, in the future, programming language designers
+will collect and use empirical data about how their languages
+are used in practice.
+Such data can be used to make informed decisions about
+language design.
+Visualization will be unavoidable in these scenarios
+since semantically-meaning information about programs
+is rich in structure.
+Generic, canned visualizations will not be sufficient.
+{\sc TypeVis} is just the first step in this direction.
 
-\todo{Write.}
-
+\todo{Finish these.}
 \acknowledgments{
-  The authors wish to thank A, B, and C. This work was supported in part by
-  a grant from XYZ.
+  The authors wish to thank the following people:
+  students of CS 7250 for useful design feedback,
+  contributors to all the open source projects that {\sc TypeVis} depends on.
+  This work was supported in part by a Northeastern Graduate Fellowship.
 }
 
 \bibliographystyle{abbrv-doi}
