@@ -89,17 +89,16 @@
 \abstract{
   Data-driven approaches to programming language design are uncommon.
   Despite the availability of large code repositories, distilling useful
-  information from programs remain difficult. Important dimensions of
-  code, like run-time type data, are inscrutable without appropriate tools.
-  We built \typevis to explore and analyze run-time types in
-  the R programming language by means of visualization.
-  Our system focuses on understanding and comparing the type signatures of
-  function calls across the R ecosystem.
-  \typevis uses flows to intuitively represent categorical
+  information from programs remains difficult. Important dimensions,
+  like run-time type data, are inscrutable without the appropriate tools.
+  \typevis is an interactive visualization for exploring and analyzing
+  type information from program execution traces---aiding
+  user understanding of function type signatures across many executions.
+  The system uses flows to intuitively represent categorical
   and numerical aspects of type signatures.
   Insights derived from our visualization are aimed at informing
-  language design decisions---specifically of a gradual type system
-  currently being developed for R.
+  language design decisions---specifically of a new gradual type system
+  currently being developed for the R programming language.
 }
 
 %% ACM Computing Classification System (CCS).
@@ -128,77 +127,72 @@
 
 \maketitle
 
-Programming languages commonly evolve by decree. Often, the designer
-decides that a new feature is necessary or that a past feature was
-ill-conceived. Thus, the language moves forward,
+Programming languages commonly evolve by decree. Often, the language designer
+decides that a new feature is necessary, or that a past feature was
+ill-conceived. Thus, the language moves forward---
 forcing its users to adapt to the changes.
 Sometimes, these changes are the result of rigorous theory
 or the product of community feedback. However, rarely is language design
-informed by empirical data about how programs are \emph{actually
-written} in practice.
+informed by empirical data on how programs are \emph{actually
+written} in practice. Why so?
 
 %For a popular language, data collection is no challenge. Vast
-Thanks to the large amount of open source code, collecting data about
+Thanks to the prevalence of open source code, collecting data on
 the usage of a popular programming language is feasible. Vast
-quantities of publicly available code are hosted on open source
-repositories such as Github.
-Furthermore, if there is a concern about the quality of such data
-(for example, code duplication~\cite{lopes:2017}),
+quantities of publicly available code are hosted on repositories such as Github.
+Furthermore, if there is concern about the quality of this data,
+such as code duplication~\cite{lopes:2017},
 code can be obtained from curated
-language-specific package repositories such as npm or CRAN.
+language-specific package repositories like npm or CRAN.
 
-To inform programming language design, all the collected data
-needs to be analyzed and interpreted.
-As code is complex and highly structured, simple semantically-ignorant
-metrics like ``lines of code'' carry little significance.
-Therefore, programming languages researchers often employ static
-and dynamic analyses to gather information about specific aspects
-of programs in the dataset, for example, the use of a language feature.
-And even then it may be hard to make sense of the data,
-especially if the dataset is large.
+To inform programming language design,
+the collected data needs to be analyzed and interpreted.
+Programs are complex and highly structured,
+so simple semantically-ignorant metrics like ``lines of code'' carry little significance.
+Therefore, researchers often employ static and dynamic analyses
+to gather information about specific aspects of programs.
+Even then, it may be difficult to make sense of the
+results of these analyses,
+especially if the data set is large.
 %Rather, the difficulty lies with analyzing and interpreting the data
 %at hand. Code is complex and highly structured. Simple
 
-To analyze one aspect of programming languages---\emph{the use of types}---we
-built \typevis, an interactive visualization of run-time type
-signatures of function calls.
+To analyze just one aspect of programming languages, \emph{type usage}, we
+built \typevis, an interactive visualization of run-time type signatures.
 %an interactive visualization of run-time types for the language R.
-\typevis is instantiated for the language R:
-it builds on a dataset of concrete execution traces over unit tests and vignettes
+\typevis was created with the R programming language in mind,
+and builds on a data set of execution traces
+mined from the unit tests and vignettes
 of the most widely used libraries in the R ecosystem.
-For example, for the function call \code{!(FALSE)},
-the recorded type signature would be \code{logical->logical},
-meaning that function \code{!} took a logical value and returned a logical value.
 
-The visualization supports three broad tasks:
+The tool supports three broad tasks:
 \begin{itemize}
-  \item filtering the dataset down to an amenable subset;
+  \setlength\itemsep{0em}
+  \item filtering the data set down to an amenable subset;
   \item understanding the types of function arguments and returns;
-  \item comparing types across different functions.
+  \item comparing type signatures across different functions.
 \end{itemize}
 %For filtering, \typevis uses the treemap idiom
 %to convey the relative scale of different packages.
-For exploring and filtering the dataset, \typevis relies on the treemap idiom
-to represent R packages and functions, with the block sizes conveying
-the relative popularity in the dataset.
-In addition to the treemaps, a search box can be used to directly filter
-by functions.
-Once a specific subset of one or more functions is selected,
-their type signatures are represented as flows over types
-where the width of the flow is proportional to frequency.
+For exploring and filtering the data set,
+\typevis relies on treemaps to represent R packages and functions,
+with node size conveying relative popularity.
+Additionaly, one can use a search box to directly filter
+by function name.
+Once a subset of one or more functions is selected,
+their type signatures are encoded as flows over types,
+where flow width is proportional to frequency.
 These flows can be readily compared within the same function,
-or across different functions.
+or between different functions.
 
-Tasks enabled by \typevis can assist language designers
-during multiple phases of development.
-For example, exploratory data analysis can identify unexpected uses
-of specific functions, or weed out language designs
-that are incompatible with existing programs.
-In particular, the visualization is built to answer questions
-relevant to the development of a gradual type system for R.
+\typevis can assist language designers during multiple phases of development.
+For example, exploratory data analysis can identify unexpected edge cases,
+or weed out language designs that are incompatible with existing programs.
+\typevis was built in support of a new gradual type system for R,
+whose adoption depends on integrating well with existing R code.
 However, the visualization is not limited to R and can be used to
-analyze type usage in any programming language where type information
-is available at run-time.
+analyze type usage in any language where similar data is available.
+
 Supplemental material, including the data and source code of
 \typevis, is freely available: \todo{Fill with archival link}
 
@@ -306,11 +300,14 @@ together prose and executable code.
 An execution trace is a list of ``raw'' function call signatures
 containing, among other attributes, the function name
 and type tags for each argument and return value.
+For example, for the function call \code{!(FALSE)},
+the recorded type signature would be \code{logical->logical},
+meaning that function \code{!} took a logical value and returned a logical value.
 The type tags are assigned by the dynamic analysis and
 refine over actual type tags in R; for example, the analysis
 assigns scalar tag \code{double} to a singleton vector of double values
 because R does not have native support for scalars.
-Our dataset consists of a table of reduced execution traces:
+Our data set consists of a table of reduced execution traces:
 because \typevis is designed for the analysis of types, not all information
 in the traces is relevant.
 %that have been processed to reduce some fields.
@@ -363,8 +360,8 @@ established by Brehmer and Munzner~\cite{brehmer:2013}.
 
 \typevis is an interactive web-based visualization
 that permits real-time exploration,
-even with large datasets.
-The default dataset contains over a million rows
+even with large data sets.
+The default data set contains over a million rows
 based on the analysis of almost five hundred
 different R packages.
 Figure~\ref{fig:typevis} displays
@@ -411,7 +408,7 @@ hierarchies.
 R packages are not structured deeply
 so the treemaps in our data are only one
 level deep.
-However, if the dataset was more deeply nested,
+However, if the data set was more deeply nested,
 \typevis can be configured to
 handle that.
 
@@ -586,7 +583,7 @@ remains future work.
 
 We have presented \typevis, an interactive visualization
 of run-time type information for R.
-It supports real-time exploration of a dataset of
+It supports real-time exploration of a data set of
 execution traces from a large corpus of R packages.
 To narrow the data under consideration,
 \typevis provides facilities for filtering
@@ -604,7 +601,7 @@ Specifically, the data and visualization will be used to
 inform the design of a gradual type system for R.
 However, \typevis is not tied to the R ecosystem
 and is suitable to use for any dynamically typed language
-with a similar dataset.
+with a similar data set.
 Additionally, the visualization could yield insights
 useful for other purposes than gradual typing.
 
