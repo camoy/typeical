@@ -177,8 +177,7 @@ The tool supports three broad tasks:
 For exploring and filtering the data set,
 \typevis relies on treemaps to represent R packages and functions,
 with node size conveying relative popularity.
-Additionaly, one can use a search box to directly filter
-by function name.
+Additionally, one can search directly for a function by name.
 Once a subset of one or more functions is selected,
 their type signatures are encoded as flows over types,
 where flow width is proportional to frequency.
@@ -189,21 +188,22 @@ or between different functions.
 For example, exploratory data analysis can identify unexpected edge cases,
 or weed out language designs that are incompatible with existing programs.
 \typevis was built in support of a new gradual type system for R,
-whose adoption depends on integrating well with existing R code.
+whose adoption depends on integrating well with existing code.
 However, the visualization is not limited to R and can be used to
 analyze type usage in any language where similar data is available.
 
 Supplemental material, including the data and source code of
-\typevis, is freely available: \todo{Fill with archival link}
+\typevis, is freely available: \todo{Add archival link}
 
 %%
 
 \section{Background and Prior Work}
 
-R is a dynamically typed programming language widely used for
-statistical computing. Unlike statically typed languages,
-R programs do not contain type annotations
-and never pass through a typechecker.
+R is a lazy, multi-paradigm, dynamically-typed programming language
+widely used for statistical computing~\cite{morandat:2012}.
+Unlike statically-typed languages,
+R code contains no type annotations
+and never passes through a typechecker.
 At run-time,
 functions may be called with values of arbitrary type,
 and may return values of arbitrary type.\footnote{
@@ -214,49 +214,45 @@ and may return values of arbitrary type.\footnote{
   of argument and return types a function is called with at run-time.
 }
 
-Being a dynamically typed language most actively used in a single domain,
+Being a dynamically-typed language
+with widespread use in a single domain,
 R is a good target for a gradual type system.
-For statically typed languages, the type system is usually
-an inseparable part of the language. Since they are designed
-at the same time, the (static) type system precedes any code written
-in the language.
-A gradual type system, by contrast,
-permits the integration of static and dynamic typing.
+A gradual type system permits the integration of
+static and dynamic typing~\cite{siek:2006,tobin-hochstadt:2006}.
 Such a type system is capable of seamlessly mixing typed and untyped regions of code.
-Often, a gradual type system is designed atop
-an existing dynamically typed language.
-Since many R programs already exist,
-a successful gradual type system must be capable of
-typechecking idiomatic R code.
-\typevis aims to clarify how existing R programs
-use types to assist in this task.
-While this is our motivation, the visualization's use
-is not necessarily limited to this application.
-Anyone who has an interest in how the real R programs use types
-may find it useful.
+
+For statically-typed languages, the type system is usually
+an inseparable part of the language. Since they are designed
+at the same time, the static type system precedes any code written
+in the language.
+Gradual type systems, by contrast, are often designed atop
+an existing dynamically-typed language~\cite{tobin-hochstadt:2016}.
+Many R programs already exist,
+so a successful gradual type system must
+work well with extant code.
 
 We are not aware of any previous work that applies
-visualization techniques for the purposes of programming language design.
+visualization techniques for the purpose of programming language design.
 However, there are existing publications on understanding
 software systems through visualization.
 Bohnet et al.~\cite{bohnet:2009} visualize massive program execution traces
-to assist developers in code comprehension of large software systems.
-Their tool applies pruning and summarization to reduce trace size.
-The visualization focuses on call topology,
+to improve developer comprehension of large software systems.
+Their tool applies pruning and summarization techniques to reduce trace size.
+They focus on call topology,
 describing the structure of function invocations,
 rather than types.
 Telea et al.~\cite{telea:2009} also develop a methodology for displaying call structure.
 However, they visualize call graphs of systems in their entirety,
 rather than individual execution traces.
-Our visualization can be thought of as a hybrid of the two,
+\typevis has elements of both,
 investigating the system as a whole,
 but doing so via execution traces.
 In addition to standard call graphs,
 LaToza and Myers~\cite{latoza:2011} adorn nodes and edges with extra information,
-allowing the user gain further understanding of the system
+allowing the user to gain further understanding of the system
 under examination.
-This includes indicating methods that come from the same class---a
-basic form of type information.
+This includes grouping methods that come from the same class---a
+basic form of type data.
 
 %%
 
@@ -280,71 +276,75 @@ basic form of type information.
 
 \section{Data and Collection}
 
-\todo{Alexi's paper says 412, but I see more packages in our data.}
-
-The data is provided by Alexi Turcotte:
-it consists of traces from 412 packages
+The data set we used comes from
+Turcotte et al.~\cite{turcotte:2020}
+and consists of traces from 412 packages,
 containing over $760,000$ lines of R code
 and $534,000$ lines of native code.
 All libraries were obtained from CRAN,
 the most popular R code repository.
-Packages hosted on CRAN must satisfy certain criteria
-to ensure they are high quality.
-Additionally, the subset of 412 packages chosen here
-all had code coverage above 65\%.\todo{I don't understand what subset? Should we remove this line?}
+Packages hosted on CRAN are curated and satisfy
+certain quality standards.
+Out of the over $15,000$ packages
+distributed on CRAN,
+the subset of 412 packages considered here
+all had code coverage above 65\%.
+\todo{Confirm with Alexi this paragraph. Get proper BibTeX entry.}
 
-Each execution trace was recorded by a dynamic analysis
-running the test, example, and vignette code of each package.
+Execution traces were recorded by running a dynamic analysis
+over the test, example, and vignette code of each package.
 A vignette is a form of documentation that weaves
 together prose and executable code.
-An execution trace is a list of ``raw'' function call signatures
+An execution trace is a list of function type signatures
 containing, among other attributes, the function name
 and type tags for each argument and return value.
-For example, for the function call \code{!(FALSE)},
-the recorded type signature would be \code{logical->logical},
-meaning that function \code{!} took a logical value and returned a logical value.
-The type tags are assigned by the dynamic analysis and
-refine over actual type tags in R; for example, the analysis
-assigns scalar tag \code{double} to a singleton vector of double values
+For example, the function call {\tt !(FALSE)}
+would be recorded as the type signature {\tt logical $\to$ logical},
+meaning that the function {\tt !} took a logical value
+and returned a logical value.\footnote{
+  In R, a logical value is a boolean.
+}
+The type tags are assigned by the dynamic analysis
+and refine the actual type tags in R.
+For instance, the analysis
+assigns the scalar tag {\tt double} to a singleton vector of double values
 because R does not have native support for scalars.
-Our data set consists of a table of reduced execution traces:
-because \typevis is designed for the analysis of types, not all information
-in the traces is relevant.
+The data set is a table of reduced execution traces.
+Because \typevis was designed for the analysis of types,
+not all information in the traces is relevant.
 %that have been processed to reduce some fields.
 %Traces were generated via a dynamic analysis
 %that instruments the R virtual machine with hooks
 %that intercept the required data at run-time.
 
 While \typevis has only been instantiated with
-data from R execution traces, the architecture is not
-limited to R.
-Any dynamically typed language %with the right run-time
+data from R execution traces, the architecture is not limited to R.
+Any dynamically-typed language, %with the right run-time
 %hooks could generate data for the tool.
-(or a statically typed language with run-time tag information)
+or statically-typed language with run-time tag information,
 could be instrumented to generate data for the tool.
-As long as execution trace information adheres to
-the same database schema, \typevis will
-work properly without any modifications.
+As long as the trace output adheres to
+the correct schema, \typevis will work properly without any modifications.
 
 %%
 
 \section{Task Abstraction}
 
-We interviewed the primary researcher developing R's gradual type system
+We interviewed the primary researcher developing a gradual type system for R
 to inventory relevant domain-specific tasks.
 Additionally, we sought feedback throughout the creation of \typevis
-to ensure it was adequately satisfying requirements.
-The domain-specific goals can be reduced to:
+to ensure it was adequately meeting requirements.
+The domain-specific goals identified were:
 
 \begin{enumerate}
 \item {\bf Find Function.} Quickly search for a particular function and identify basic information. This includes how often the function is called and which package contains it.
-\item {\bf Determine Types.} Given a specific function, determine the argument and return types of the function. Additionally, identify the frequency of a type signature. A user should be able to infer, for example, if the function is polymorphic or if it's a predicate.
-\item {\bf Compare Signatures.} Compare the occurrence of type signatures within a specific function, but also across many different ones. Users must be able to isolate individual signatures and see them in the context of other signatures and functions.
+\item {\bf Determine Types.} Given a specific function, determine the argument types, return types, and identify the frequency of specific type signatures. A user should be able to readily infer, for example, if a function is polymorphic or if it is a predicate.
+\item {\bf Compare Signatures.} Compare the occurrence of type signatures within a specific function, and across many different functions. Users must be able to isolate individual signatures and see them in the context of others.
 \end{enumerate}
 
 These goals can be classified using an abstract task analysis framework.
 See table~\ref{tab:tasks} for a categorization of these domain tasks
-the mid-level and low-level abstract task taxonomy
+with the mid-level and low-level abstract task taxonomy
 established by Brehmer and Munzner~\cite{brehmer:2013}.
 
 %%
