@@ -55,10 +55,16 @@
 %% throughout the proceedings. However, if you encounter conflicts
 %% with other math-related packages, you may want to disable it.
 
+\usepackage{xspace}
+
 \usepackage{caption}
 \captionsetup[table]{skip=10pt}
 \usepackage{tabularx}
 \usepackage{todonotes} %TODO: Remove after all TODO's are gone
+
+%% ===================================== Commands
+\newcommand{\code}[1]{\texttt{\small{#1}}}
+\newcommand{\typevis}{{\sc TypeVis}\xspace}
 
 %% If you are submitting a paper to a conference for review with a double
 %% blind reviewing process, please replace the value ``0'' below with your
@@ -85,11 +91,11 @@
   Despite the availability of large code repositories, distilling useful
   information from programs remain difficult. Important dimensions of
   code, like run-time type data, are inscrutable without appropriate tools.
-  We built {\sc TypeVis} to explore and analyze run-time types in
+  We built \typevis to explore and analyze run-time types in
   the R programming language by means of visualization.
   Our system focuses on understanding and comparing the type signatures of
   function calls across the R ecosystem.
-  {\sc TypeVis} uses flows to intuitively represent categorical
+  \typevis uses flows to intuitively represent categorical
   and numerical aspects of type signatures.
   Insights derived from our visualization are aimed at informing
   language design decisions---specifically of a gradual type system
@@ -122,46 +128,79 @@
 
 \maketitle
 
-Programming languages commonly evolve by decree. The designer
+Programming languages commonly evolve by decree. Often, the designer
 decides that a new feature is necessary or that a past feature was
-ill-conceived, and thus the language and its users move forward.
-Sometimes these changes are the result of rigorous theory
-or the product of community feedback. However, language design is
-rarely informed by empirical data about how programs are actually
-written in practice.
+ill-conceived. Thus, the language moves forward,
+forcing its users to adapt to the changes.
+Sometimes, these changes are the result of rigorous theory
+or the product of community feedback. However, rarely is language design
+informed by empirical data about how programs are \emph{actually
+written} in practice.
 
-For a popular language, data collection is no challenge. Vast
+%For a popular language, data collection is no challenge. Vast
+Thanks to the large amount of open source code, collecting data about
+the usage of a popular programming language is feasible. Vast
 quantities of publicly available code are hosted on open source
-repositories like Github and language-specific package servers like npm.
-Rather, the difficulty lies with analyzing and interpreting the data
-at hand. Code is complex and highly structured. Simple
-semantically-ignorant metrics like ``lines of code''
-carry little significance.
+repositories such as Github.
+Furthermore, if there is a concern about the quality of such data
+(for example, code duplication~\cite{lopes:2017}),
+code can be obtained from curated
+language-specific package repositories such as npm or CRAN.
 
-To analyze one aspect of programming languages, we built {\sc TypeVis},
-an interactive visualization of run-time types for the language R.
-{\sc TypeVis} builds on a dataset of concrete execution traces
-over the most widely used libraries in the R ecosystem.
-Our visualization supports three broad tasks:
-filtering the dataset down to a digestible subset,
-understanding the types of function arguments and returns,
-and comparing across different functions.
-For filtering, {\sc TypeVis} uses the treemap idiom
-to convey the relative scale of different packages.
-Once a specific function is selected,
-type signatures are represented as flows over types
+To inform programming language design, all the collected data
+needs to be analyzed and interpreted.
+As code is complex and highly structured, simple semantically-ignorant
+metrics like ``lines of code'' carry little significance.
+Therefore, programming languages researchers often employ static
+and dynamic analyses to gather information about specific aspects
+of programs in the dataset, for example, the use of a language feature.
+And even then it may be hard to make sense of the data,
+especially if the dataset is large.
+%Rather, the difficulty lies with analyzing and interpreting the data
+%at hand. Code is complex and highly structured. Simple
+
+To analyze one aspect of programming languages---\emph{the use of types}---we
+built \typevis, an interactive visualization of run-time type
+signatures of function calls.
+%an interactive visualization of run-time types for the language R.
+\typevis is instantiated for the language R:
+it builds on a dataset of concrete execution traces over unit tests and vignettes
+of the most widely used libraries in the R ecosystem.
+For example, for the function call \code{!(FALSE)},
+the recorded type signature would be \code{logical->logical},
+meaning that function \code{!} took a logical value and returned a logical value.
+
+The visualization supports three broad tasks:
+\begin{itemize}
+  \item filtering the dataset down to an amenable subset;
+  \item understanding the types of function arguments and returns;
+  \item comparing types across different functions.
+\end{itemize}
+%For filtering, \typevis uses the treemap idiom
+%to convey the relative scale of different packages.
+For exploring and filtering the dataset, \typevis relies on the treemap idiom
+to represent R packages and functions, with the block sizes conveying
+the relative popularity in the dataset.
+In addition to the treemaps, a search box can be used to directly filter
+by functions.
+Once a specific subset of one or more functions is selected,
+their type signatures are represented as flows over types
 where the width of the flow is proportional to frequency.
 These flows can be readily compared within the same function,
 or across different functions.
 
-Tasks enabled by {\sc TypeVis} can assist language designers
-during many phases of development.
-For example, exploratory data analysis can weed out designs that
-are incompatible with existing programs.
+Tasks enabled by \typevis can assist language designers
+during multiple phases of development.
+For example, exploratory data analysis can identify unexpected uses
+of specific functions, or weed out language designs
+that are incompatible with existing programs.
 In particular, the visualization is built to answer questions
-relevant to gradual type system development.
+relevant to the development of a gradual type system for R.
+However, the visualization is not limited to R and can be used to
+analyze type usage in any programming language where type information
+is available at run-time.
 Supplemental material, including the data and source code of
-{\sc TypeVis}, is freely available: \todo{Fill with archival link}
+\typevis, is freely available: \todo{Fill with archival link}
 
 %%
 
@@ -172,7 +211,7 @@ statistical computing. Unlike statically typed languages,
 R programs do not contain type annotations
 and never pass through a typechecker.
 At run-time,
-functions may called with values of arbitrary type,
+functions may be called with values of arbitrary type,
 and may return values of arbitrary type.\footnote{
   We use the word ``type'' to mean what others may call a ``type tag.''
   This is a run-time concept---we do not assume a static type system
@@ -181,9 +220,11 @@ and may return values of arbitrary type.\footnote{
   of argument and return types a function is called with at run-time.
 }
 
+Being a dynamically typed language most actively used in a single domain,
+R is a good target for a gradual type system.
 For statically typed languages, the type system is usually
 an inseparable part of the language. Since they are designed
-at the same time, the type system precedes any code written
+at the same time, the (static) type system precedes any code written
 in the language.
 A gradual type system, by contrast,
 permits the integration of static and dynamic typing.
@@ -193,7 +234,7 @@ an existing dynamically typed language.
 Since many R programs already exist,
 a successful gradual type system must be capable of
 typechecking idiomatic R code.
-{\sc TypeVis} aims to clarify how existing R programs
+\typevis aims to clarify how existing R programs
 use types to assist in this task.
 While this is our motivation, the visualization's use
 is not necessarily limited to this application.
@@ -247,7 +288,8 @@ basic form of type information.
 
 \todo{Alexi's paper says 412, but I see more packages in our data.}
 
-The data consists of traces from 412 packages
+The data is provided by Alexi Turcotte:
+it consists of traces from 412 packages
 containing over $760,000$ lines of R code
 and $534,000$ lines of native code.
 All libraries were obtained from CRAN,
@@ -255,28 +297,36 @@ the most popular R code repository.
 Packages hosted on CRAN must satisfy certain criteria
 to ensure they are high quality.
 Additionally, the subset of 412 packages chosen here
-all had code coverage above 65\%.
+all had code coverage above 65\%.\todo{I don't understand what subset? Should we remove this line?}
 
-Each execution trace was recorded by running
-the test, example, and vignette code of each package.
+Each execution trace was recorded by a dynamic analysis
+running the test, example, and vignette code of each package.
 A vignette is a form of documentation that weaves
 together prose and executable code.
-An execution trace is a list of ``raw'' type signatures
+An execution trace is a list of ``raw'' function call signatures
 containing, among other attributes, the function name
 and type tags for each argument and return value.
-Our dataset consists of a table of traces
-that have been processed to reduce some fields.
-Traces were generated via a dynamic analysis
-that instruments the R virtual machine with hooks
-that intercept the required data at run-time.
+The type tags are assigned by the dynamic analysis and
+refine over actual type tags in R; for example, the analysis
+assigns scalar tag \code{double} to a singleton vector of double values
+because R does not have native support for scalars.
+Our dataset consists of a table of reduced execution traces:
+because \typevis is designed for the analysis of types, not all information
+in the traces is relevant.
+%that have been processed to reduce some fields.
+%Traces were generated via a dynamic analysis
+%that instruments the R virtual machine with hooks
+%that intercept the required data at run-time.
 
-While {\sc TypeVis} has only been run with
+While \typevis has only been instantiated with
 data from R execution traces, the architecture is not
 limited to R.
-Any dynamically typed language with the right run-time
-hooks could generate data for the tool.
-As long as execution trace information is adheres to
-the same database schema, {\sc TypeVis} will
+Any dynamically typed language %with the right run-time
+%hooks could generate data for the tool.
+(or a statically typed language with run-time tag information)
+could be instrumented to generate data for the tool.
+As long as execution trace information adheres to
+the same database schema, \typevis will
 work properly without any modifications.
 
 %%
@@ -285,7 +335,7 @@ work properly without any modifications.
 
 We interviewed the primary researcher developing R's gradual type system
 to inventory relevant domain-specific tasks.
-Additionally, we sought feedback throughout the creation of {\sc TypeVis}
+Additionally, we sought feedback throughout the creation of \typevis
 to ensure it was adequately satisfying requirements.
 The domain-specific goals can be reduced to:
 
@@ -307,18 +357,18 @@ established by Brehmer and Munzner~\cite{brehmer:2013}.
 \begin{figure*}
  \centering
  \includegraphics[width=\linewidth]{img/typevis.png}
- \caption{The main view of {\sc TypeVis}, with type flows on the left and the package hierarchy on the right. Here, the {\tt length.unit} and {\tt valid.unit} functions from the {\tt grid} package are both selected and displayed simultaneously.}
+ \caption{The main view of \typevis, with type flows on the left and the package hierarchy on the right. Here, the {\tt length.unit} and {\tt valid.unit} functions from the {\tt grid} package are both selected and displayed simultaneously.}
  \label{fig:typevis}
 \end{figure*}
 
-{\sc TypeVis} is an interactive web-based visualization
+\typevis is an interactive web-based visualization
 that permits real-time exploration,
 even with large datasets.
 The default dataset contains over a million rows
 based on the analysis of almost five hundred
 different R packages.
 Figure~\ref{fig:typevis} displays
-the heart of {\sc TypeVis}
+the heart of \typevis
 in its initial configuration.
 Most aspects of the system can be tweaked
 by a user if desired.
@@ -362,10 +412,10 @@ R packages are not structured deeply
 so the treemaps in our data are only one
 level deep.
 However, if the dataset was more deeply nested,
-{\sc TypeVis} can be configured to
+\typevis can be configured to
 handle that.
 
-If configured, {\sc TypeVis} allows for multiple function selection.
+If configured, \typevis allows for multiple function selection.
 Both the {\tt length.unit} and {\tt valid.unit} functions
 from the {\tt grid} package are selected in figure~\ref{fig:typevis}.
 These functions are rendered simultaneously in the type flow
@@ -469,7 +519,7 @@ user interface elements like the autocomplete search bar.
 In our experience, Vue's model of reactivity is
 more successful at maintaining consistency across the
 entire system than using D3 and vanilla JavaScript.
-While {\sc TypeVis} does not use D3 for DOM manipulation,
+While \typevis does not use D3 for DOM manipulation,
 it still does use D3 for other visualization-related
 computations.
 
@@ -494,7 +544,7 @@ real-time interaction.
 
 \section{Limitations and Future Work}
 
-{\sc TypeVis} suffers from a number of shortcomings
+\typevis suffers from a number of shortcomings
 and does not fully address the entire range of possible tasks
 a language designer may need to perform.
 
@@ -518,7 +568,7 @@ or user-specified metadata.
 Filtering is an central mechanism in the system,
 but it also comes at a cost.
 If one has a specific function or several functions
-in mind, then {\sc TypeVis} provides a useful
+in mind, then \typevis provides a useful
 local view of that type information.
 However, it does not support any kind of global
 view of type information across a large amount of
@@ -534,12 +584,12 @@ remains future work.
 
 \section{Conclusion}
 
-We have presented {\sc TypeVis}, an interactive visualization
+We have presented \typevis, an interactive visualization
 of run-time type information for R.
 It supports real-time exploration of a dataset of
 execution traces from a large corpus of R packages.
 To narrow the data under consideration,
-{\sc TypeVis} provides facilities for filtering
+\typevis provides facilities for filtering
 and searching.
 Type signatures are represented as flows traversing across
 each argument type and return type in sequence.
@@ -552,7 +602,7 @@ Our tool is aimed at elucidating how R programmers
 use the language in practice.
 Specifically, the data and visualization will be used to
 inform the design of a gradual type system for R.
-However, {\sc TypeVis} is not tied to the R ecosystem
+However, \typevis is not tied to the R ecosystem
 and is suitable to use for any dynamically typed language
 with a similar dataset.
 Additionally, the visualization could yield insights
@@ -567,11 +617,11 @@ Visualization will be unavoidable in these scenarios
 since semantically-meaning information about programs
 is rich in structure.
 Generic, canned visualizations will not be sufficient.
-{\sc TypeVis} is just the first step in this direction.
+\typevis is just the first step in this direction.
 
 \acknowledgments{
   The authors wish to thank the students of CS 7250 for useful design feedback,
-  and contributors to all the open source projects that {\sc TypeVis} depends on.
+  and contributors to all the open source projects that \typevis depends on.
   This work was supported in part by a Northeastern Graduate Fellowship.
 }
 
