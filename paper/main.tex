@@ -1,7 +1,7 @@
 % $Id: template.tex 11 2007-04-03 22:25:53Z jpeltier $
 
-\documentclass{vgtc}                          % final (conference style)
-%\documentclass[review]{vgtc}                 % review
+%\documentclass{vgtc}                          % final (conference style)
+\documentclass[review]{vgtc}                 % review
 %\documentclass[widereview]{vgtc}             % wide-spaced review
 %\documentclass[preprint]{vgtc}               % preprint
 %\documentclass[electronic]{vgtc}             % electronic version
@@ -61,10 +61,15 @@
 \captionsetup[table]{skip=10pt}
 \usepackage{tabularx}
 \usepackage{todonotes} %TODO: Remove after all TODO's are gone
+\usepackage{lineno}
+\linenumbers
 
 %% ===================================== Commands
 \newcommand{\code}[1]{\texttt{\small{#1}}}
 \newcommand{\typevis}{{\sc TypeVis}\xspace}
+\newcommand{\figref}[1]{Figure~\ref{#1}\xspace}
+\newcommand{\pkgNumAnalyzed}{412\xspace}
+\newcommand{\settingsTab}{{\sc Settings}\xspace}
 
 %% If you are submitting a paper to a conference for review with a double
 %% blind reviewing process, please replace the value ``0'' below with your
@@ -190,7 +195,7 @@ or weed out language designs that are incompatible with existing programs.
 \typevis was built in support of a new gradual type system for R,
 whose adoption depends on integrating well with existing code.
 However, the visualization is not limited to R and can be used to
-analyze type usage in any language where similar data is available.
+analyze type usage in any language where similar data are available.
 
 Supplemental material, including the data and source code of
 \typevis, is freely available: \todo{Add archival link}
@@ -236,12 +241,12 @@ Being a dynamically-typed language
 with widespread use in a single domain,
 R is a good target for a gradual type system.
 A gradual type system permits the integration of
-static and dynamic typing~\cite{siek:2006,tobin-hochstadt:2006}.
-Such a type system is capable of seamlessly mixing typed and untyped regions of code.
+static and dynamic typing~\cite{siek:2006,tobin-hochstadt:2006},
+and is capable of seamlessly mixing typed and untyped regions of code.
 
 For statically-typed languages, the type system is usually
 an inseparable part of the language. Since they are designed
-at the same time, the static type system precedes any code written
+at the same time, the type system precedes any code written
 in the language.
 Gradual type systems, by contrast, are often designed atop
 an existing dynamically-typed language~\cite{tobin-hochstadt:2016}.
@@ -252,7 +257,7 @@ work well with extant code.
 We are not aware of any previous work that applies
 visualization techniques for the purpose of programming language design.
 However, there are existing publications on understanding
-software systems through visualization.
+software through visualization.
 Bohnet et al.~\cite{bohnet:2009} visualize massive program execution traces
 to improve developer comprehension of large software systems.
 Their tool applies pruning and summarization techniques to reduce trace size.
@@ -278,7 +283,7 @@ basic form of type data.
 
 The data set we used comes from
 Turcotte et al.~\cite{turcotte:2020}
-and consists of traces from 412 packages,
+and consists of traces from \pkgNumAnalyzed packages,
 containing over $760,000$ lines of R code
 and $534,000$ lines of native code.
 All libraries were obtained from CRAN,
@@ -303,7 +308,7 @@ would be recorded as the type signature {\tt logical $\to$ logical},
 meaning that the function {\tt !} took a logical value (i.e. a boolean)
 and returned a logical value.
 The type tags are assigned by the dynamic analysis
-and refine the actual type tags in R.
+and refine the actual type tags at run-time.
 For instance, the analysis
 assigns the scalar tag {\tt double} to a singleton vector of double values
 because R does not have native support for scalars.
@@ -330,7 +335,8 @@ the correct schema, \typevis will work properly without any modifications.
 
 We interviewed the primary researcher developing a gradual type system for R
 to inventory relevant domain-specific tasks.
-Additionally, we sought feedback throughout the creation of \typevis
+Additionally, we sought his and other researchers' feedback
+throughout the creation of \typevis
 to ensure it was adequately meeting requirements.
 The domain-specific goals identified were:
 
@@ -360,73 +366,106 @@ established by Brehmer and Munzner~\cite{brehmer:2013}.
 \end{figure*}
 
 \typevis is an interactive web-based visualization
-that permits real-time exploration,
+that permits real-time data exploration,
 even with large data sets.
-The default data set,
+The default data set of R execution traces,
 described in \S\ref{sec:data},
 contains over a million rows.
-Figure~\ref{fig:typevis} shows
-the heart of \typevis
-in its initial configuration.
-Most aspects of the system can be tweaked
-by the user if desired.
+
+\figref{fig:typevis} shows
+the heart of \typevis---the type flow panel on the left
+and the function filtering panel on the right.
+Type signatures shown on the left reflect
+the subset of the data selected on the right.
+By default, if no subset is selected, the type flow
+panel shows several of the most frequent function type signatures
+in the entire data set.
+%in its initial configuration.
+Various aspects of the system,
+such as the number of type signatures shown at once,
+can be tweaked by the user if desired;
+for this, a separate \settingsTab tab is provided.
 
 \subsection{Function Filtering}
 
-The right-hand panel of figure~\ref{fig:typevis}
+The right-hand panel of \figref{fig:typevis}
 contains three elements: a search bar,
 a package treemap,
 and a function treemap.
-All three are linked.
+All three components are linked.
 Selecting a package
-in the top treemap will cause the
-bottom view to show only functions available in that package.
+in the top treemap causes the bottom treemap
+to show only functions defined in that package;
+additionally, the type flow panel gets updated
+with the most frequent function type signatures in the package.
+Selecting a function in the bottom treemap
+makes the type flow panel show only signatures
+of that function.
 Entering a function name in the search bar
-will select it in the function treemap.
+updates the type flow panel immediately.
 
-These different components support different modes of search.
+These different components support at least two modes
+of search: quick function lookup and package exploration.
 If a user has a specific function in mind,
-the search bar supports autocomplete
-that can select one function among thousands.
-However, if one wants to browse
-all available functions and packages,
+they can type its name into the search bar and see its
+type signatures straight away;
+the search bar supports autocomplete that is
+able to select one function among thousands.
+If, on the other hand, one wants to browse
+all available packages and functions,
 the treemap view is more applicable.
-Area in the bottom treemap conveys the log-scaled
-frequency of function calls,
-and correspondingly the top treemap
-is scaled based on invocations
-of functions defined in that package.
+The area of a block in the function treemap (package treemap)
+conveys the log-scaled
+frequency of calls to that function
+(to all functions defined in that package).
+%Area in the bottom treemap conveys the log-scaled
+%frequency of function calls,
+%and correspondingly the top treemap
+%is scaled based on invocations
+%of functions defined in that package.
 Log-scaling and pagination keep
-elements of the treemap legible,
+elements of the treemaps legible,
 even when absolute size differences are significant.
 
-Treemaps are often used for displaying hierarchical data~\cite{shneiderman:1992}.
-Package systems in many languages,
-like Java,
-contain deeply nested namespace hierarchies.
-This idiom is appropriate for navigation of such
-hierarchies.
+The data set can additionally be filtered by analyzed package,
+in other words, the package containing the call site of a function, not the definition site.
+As mentioned in \S\ref{sec:data}, the data set contains information
+from \pkgNumAnalyzed analyzed packages, which are all taken into account
+by default. However, a user can limit the set of analyzed packages,
+using a search bar in \settingsTab.
+
+Although treemaps are often used for displaying
+hierarchical data~\cite{shneiderman:1992},
+in \typevis they have a flat structure.
 The packages in our data are not deeply structured,
-so the treemaps in figure~\ref{fig:typevis} are only one level deep.
-However, if the data set recorded deeply nested packages,
+so the treemaps in \figref{fig:typevis} are only one level deep.
+However, in many programming languages, like Java,
+package systems contain deeply nested namespace hierarchies.
+The treemap idiom is appropriate for navigation of such
+hierarchies, and
+%However, if the data set recorded deeply nested packages,
 \typevis could be modified to handle that.
 
-If configured, \typevis allows for multiple function selection.
-In this example, the {\tt length.unit} and {\tt valid.unit} functions
-from the {\tt grid} package are selected.
+By default, \typevis allows only one function to be selected at a time,
+but it can be configured for multiple function selection.
+In the example from \figref{fig:typevis},
+the {\tt length.unit} and {\tt valid.unit} functions
+from the {\tt grid} package are both selected.
 These functions are rendered simultaneously in the type flow
 panel, allowing the user to make comparisons between them.
+However, if the user wants to explore different functions rather than
+compare them, the default one-function mode is more appropriate.
 
 \subsection{Types as Flows}
 
-Prominently featured in the center of figure~\ref{fig:typevis}
+Prominently featured in the center of \figref{fig:typevis}
 is a parallel sets diagram encoding the type signatures of the selected
 functions as flows.
 Parallel sets,
 proposed by Kosara et al.~\cite{kosara:2006},
 are ideally suited for type signatures.
 Each data point can be thought of as
-a tuple $(f, \tau_1, \ldots, \tau_n)$
+a tuple $(f, \tau_1, \ldots, \tau_n, \tau_r)$
 corresponding to the function name,
 argument types,
 and return type.
@@ -443,9 +482,9 @@ Flow segments are filled with a hue-varying color scale,
 determined by the type where the segment ends.
 Beneath each node label is an approximate count of either:
 how many times the function was invoked if the node represents a function,
-or how often a value of that type was recorded during analysis if the node represents a tuple.
+or how often a value of that type was recorded during analysis if the node represents a type.
 
-In figure~\ref{fig:typevis},
+In \figref{fig:typevis},
 the {\tt length.unit} function is called with
 two different type signatures at run-time.
 Most frequently, the function is used with the
@@ -459,14 +498,18 @@ Interactivity significantly enhances the
 usability of the parallel sets diagram.
 Hovering over a flow will highlight the
 entire path of the flow
-and will fade out all other functions.
+and will fade out all other functions,
+as shown in \figref{fig:typevis}.
 When displaying many flows at the same time,
 highlighting becomes critical
 for user comprehension.
 Additional quantitative information
 about the flow is supplied on-demand while hovering.
 Clicking a flow will focus on that function
-only, filtering away all others.
+only, filtering away all others;
+double clicking outside flows will bring back the previous view.
+The number of flows shown at a time is limited,
+and will paginate if that threshold is exceeded.
 
 Flow layout is a necessary consideration
 for a legible visualization~\cite{sugiyama:1981}.
@@ -476,30 +519,35 @@ The top layout was generated without any
 flow decrossing algorithm,
 while the bottom layout applies optimal decrossing.
 Even with highlighting,
-the visualization is almost impossible to understand
+the top visualization is almost impossible to understand
 due to excessive flow overlap.
 To maintain real-time performance,
 we use two different decrossing methods.
 First, the system attempts to construct
 a layout with the globally optimal solution,
 minimizing the amount of flow crossing by
-solving a mixed-integer linear program.
+solving a mixed-integer linear program~\cite{ebner:2005}.
 Unfortunately, for even moderately
 sized graphs this can take too long to compute.
 Therefore, after about $1$ second,
 the optimal algorithm is terminated
-if it has not finished, and a faster
-algorithm that only minimizes local crossing between layers
-computes the layout.
-While not ideal, it is much better than no decrossing
-at all.
+if it has not finished, and the final layout is computed
+by a faster
+algorithm that only minimizes local crossing between layers.
+%computes the layout.
+While the resulting layout might not be ideal,
+it is much better than the one without decrossing at all.
 
 \subsection{Technical Details}
 
 Since the amount of data a user may query is large,
-the application consists of both a frontend and a backend.
+the application is split into a frontend and a backend.
+The backend is responsible for storing the data
+and fetching required information from the underlying database.
+The frontend serves as an interactive interface to the data
+and provides the visualization.
 This avoids excessive memory consumption and speeds up computations,
-as the client queries data from the server on an need-to-know basis.
+as the client queries data from the server on a need-to-know basis.
 
 On the frontend, state management, interactivity,
 and DOM manipulation is all done with the Vue framework.
@@ -536,23 +584,27 @@ real-time interaction.
 
 \section{Limitations and Future Work}
 
+Designed with a specific use case in mind,
 \typevis suffers from some shortcomings
 and does not fully address the entire range of tasks
 a language designer may need to perform.
 
-In particular, R supports a range of data types
+In particular, \typevis does not allow for exploring 
+type information at differing granularities.
+R supports a range of data types
 including ones containing dimensionality information.
 For example, an R array may have type {\tt integer[3]}
 indicating that it is an array of length $3$.
-This will get compressed down into a single array of
+Every such type will get compressed down %into a single array of
+to a simpler array
 type {\tt integer[]}.
 Reducing the number of types can make the visualization
 more understandable, at the expensive of losing
 precision in type information.
-Ideally a user would be able to interactively tune
+Ideally, a user would be able to interactively tune
 the level of granularity based on their interest.
-Such a feature would be especially helpful for R
-since values can come attached with lots of relevant
+Such a feature would be especially helpful for R,
+because values can come attached with lots of relevant
 data such as the dynamic dispatch method
 or user-specified metadata.
 
@@ -576,14 +628,18 @@ making a global view of the data feasible, but that remains future work.
 We have presented \typevis, an interactive visualization
 of run-time type information
 that supports real-time analysis and exploration.
-The tool was developed for a massive data set of
+The tool was instantiated with a massive data set of
 execution traces from a corpus of popular R packages.
 
 \typevis provides facilities for filtering, searching,
 understanding, and comparing type information.
-Signatures are represented as flows traversing
+Type signatures of function calls
+are represented as flows traversing
 each argument type and return type in sequence.
-Interactions provide additional details and
+Quick function lookup is supported by a search bar,
+with package and function treemaps facilitating
+function exploration.
+Various interactions provide additional details and
 assist users with comprehension and navigation.
 
 Our system is aimed at elucidating how R programmers
@@ -591,13 +647,15 @@ use the language in the field.
 Specifically, the data and visualization will be used to
 inform the design of a future gradual type system for R.
 However, \typevis is not tied to the R ecosystem
-and is suitable to use for any dynamically-typed language.
+and is suitable to use for any %dynamically-typed language.
+language that supports run-time type information.
 The visualization could yield insights
 useful for purposes other than gradual typing,
 and beyond what we have considered.
 
 We hope that, in the future, programming language designers
-will collect and use empirical data about their languages.
+will collect and use empirical data about their languages
+more extensively.
 Such data could be used to make informed decisions about design,
 where the cost of making a mistake is high.
 Visualization will be unavoidable in these scenarios
