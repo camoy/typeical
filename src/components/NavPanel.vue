@@ -31,7 +31,17 @@
     <div id="treemapsDiv">
       <!-- Packages -->
       <div class="treemap-div">
-        <h4>Packages</h4>
+        <h4>Packages
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
+            </template>
+            <span>
+              Packages that define functions called during the analysis.
+              Click on a package to load the list of its functions.
+            </span>
+          </v-tooltip>
+        </h4>
 
         <!-- Package Treemap -->
         <svg class="treemap-svg">
