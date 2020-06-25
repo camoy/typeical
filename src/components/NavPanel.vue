@@ -182,7 +182,7 @@ h4 {
 
 .treemap-svg {
   width: 100%;
-  height: 195px;
+  height: 215px;
   margin-bottom: 10px;
 }
 
@@ -202,7 +202,7 @@ h4 {
   }
 }
 .no-fun-div {
-  height: 190px;
+  height: 210px;
   width: 400px;
   border-radius: 4px;
   border: 2px solid #aaa;
@@ -255,10 +255,10 @@ const SELECTED_COLOR = "#1976d2";
 const DEFAULT_COLOR = "#fdfdfd";
 const SELECTED_TEXT_COLOR = "white";
 const DEFAULT_TEXT_COLOR = "black";
-const LIMIT = 5;
+const LIMIT = 12;
 const TILE = d3.treemapSquarify;
 const WIDTH = 400;
-const HEIGHT = 195;
+const HEIGHT = 215;
 const PADDING = 3;
 const LAYOUT = d3
   .treemap()
