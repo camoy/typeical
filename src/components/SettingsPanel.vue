@@ -16,25 +16,25 @@
       <v-checkbox
         v-model="autocompleteWithFuns"
         label="Autocomplete with Functions"
-        @click="$store.commit('autocompleteWithFuns', autocompleteWithFuns)"
+        @change="$store.commit('autocompleteWithFuns', autocompleteWithFuns)"
       />
 
       <v-checkbox
         v-model="selectMultipleFuns"
         label="Select Multiple Functions"
-        @click="$store.commit('selectMultipleFuns', selectMultipleFuns)"
+        @change="$store.commit('selectMultipleFuns', selectMultipleFuns)"
       />
 
       <v-checkbox
         v-model="horizontalLayout"
         label="Horizontal Layout"
-        @click="$store.commit('horizontalLayout', horizontalLayout)"
+        @change="$store.commit('horizontalLayout', horizontalLayout)"
       />
 
       <v-checkbox
         v-model="clearSelectedFunsOnPkg"
         label="Clear Selected Functions on Package Selection"
-        @click="$store.commit('clearSelectedFunsOnPkg', clearSelectedFunsOnPkg)"
+        @change="$store.commit('clearSelectedFunsOnPkg', clearSelectedFunsOnPkg)"
       />
 
       <div class="v-input v-input--selection-controls div-setting">
