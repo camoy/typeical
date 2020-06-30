@@ -2,6 +2,18 @@
   <v-container id="navigationDiv">
     <v-alert type="info" class="infoBar" id="infoBar">
       Data on display:
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
+        </template>
+        <span>
+          The visualization displays function call signatures for a subset
+          of the data.<br/>
+          Every flow corresponds to a type signature;
+          it starts in the function name,
+          flows through the argument types, and ends in the return type.
+        </span>
+      </v-tooltip>
       <div class="fullCentered">
         {{ currentlyShowing }}
       </div>
@@ -44,8 +56,10 @@
               <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
             </template>
             <span>
-              Packages that define functions called during the analysis.
-              Click on a package to load the list of its functions.
+              Packages defining functions that were called
+              during the analysis.<br/>
+              Click on a package to preview its data and load
+                the list of functions.
             </span>
           </v-tooltip>
         </h4>
@@ -106,7 +120,19 @@
 
       <!-- Functions -->
       <div class="treemap-div">
-        <h4>Functions</h4>
+        <h4>
+          Functions
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
+            </template>
+            <span>
+              Functions that were called during the analysis,
+              defined in the selected package.<br/>
+              Click on a function to load all its data.
+            </span>
+          </v-tooltip>
+        </h4>
 
         <!-- No Function Data -->
         <svg class="no-fun-div" v-if="!funRoot.children">
@@ -518,10 +544,10 @@ export default {
     // Returns the string describing what is being shown
     currentlyShowing() {
       return this.selectedFuns.length === 0 ?
-        (this.selectedPkg ? 
-          "preview of selected package" : 
-          "preview of full data set") :
-        "selected functions";
+               (this.selectedPkg ? 
+                  "selected package preview" : 
+                  "full data preview") :
+               "selected function(s)";
     },
 
     // List
