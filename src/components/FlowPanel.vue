@@ -317,8 +317,10 @@ function layoutSankey(dag, nodes, links) {
     .linkSort(linkSort)
     .nodeWidth(NODE_WIDTH)
     .nodePadding(NODE_PADDING)
-    .extent([[WIDTH_PADDING, HEIGHT_PADDING],
-             [DEFAULT_WIDTH - WIDTH_PADDING*3, DEFAULT_HEIGHT - HEIGHT_PADDING]])
+    .extent([
+      [WIDTH_PADDING, HEIGHT_PADDING],
+      [DEFAULT_WIDTH - WIDTH_PADDING * 3, DEFAULT_HEIGHT - HEIGHT_PADDING]
+    ])
     .nodeAlign(ALIGN)
     .nodeOrientation(this.orientation);
 
@@ -492,11 +494,11 @@ function clickOnSvg() {
 function sankeyLinkHorizontal(link) {
   let sx = link.source.x1;
   let tx = link.target.x0 + 1;
-  let sy0 = link.y0 - link.width/2;
-  let sy1 = link.y0 + link.width/2;
-  let ty0 = link.y1 - link.width/2;
-  let ty1 = link.y1 + link.width/2;
-  let halfx = (tx - sx)/2;
+  let sy0 = link.y0 - link.width / 2;
+  let sy1 = link.y0 + link.width / 2;
+  let ty0 = link.y1 - link.width / 2;
+  let ty1 = link.y1 + link.width / 2;
+  let halfx = (tx - sx) / 2;
   let path = d3.path();
   path.moveTo(sx, sy0);
   let cpx1 = sx + halfx;
@@ -519,11 +521,11 @@ function sankeyLinkHorizontal(link) {
 function sankeyLinkVertical(link) {
   let sy = link.source.y1;
   let ty = link.target.y0 + 1;
-  let sx0 = link.y0 - link.width/2;
-  let sx1 = link.y0 + link.width/2;
-  let tx0 = link.y1 - link.width/2;
-  let tx1 = link.y1 + link.width/2;
-  let halfy = (ty - sy)/2;
+  let sx0 = link.y0 - link.width / 2;
+  let sx1 = link.y0 + link.width / 2;
+  let tx0 = link.y1 - link.width / 2;
+  let tx1 = link.y1 + link.width / 2;
+  let halfy = (ty - sy) / 2;
   let path = d3.path();
   path.moveTo(sx1, sy);
   let cpx1 = sx1 + OFFSET;
@@ -565,9 +567,7 @@ export default {
       return this.types ? Math.ceil(this.types.length / this.flowsPerPage) : 1;
     },
     layout() {
-      return this.horizontalLayout
-        ? sankeyLinkHorizontal
-        : sankeyLinkVertical;
+      return this.horizontalLayout ? sankeyLinkHorizontal : sankeyLinkVertical;
     },
     orientation() {
       return this.horizontalLayout ? sankeyHorizontal : sankeyVertical;

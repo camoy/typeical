@@ -1,7 +1,6 @@
 <template>
   <div class="pa-10">
     <v-form id="settings-form">
-
       <v-autocomplete
         v-model="analyzed"
         outlined
@@ -58,7 +57,9 @@
       <v-checkbox
         v-model="clearSelectedFunsOnPkg"
         label="Clear selected functions on package selection"
-        @change="$store.commit('clearSelectedFunsOnPkg', clearSelectedFunsOnPkg)"
+        @change="
+          $store.commit('clearSelectedFunsOnPkg', clearSelectedFunsOnPkg)
+        "
       />
 
       <div class="v-input v-input--selection-controls div-setting">
@@ -79,7 +80,6 @@
           Size of preview
         </label>
       </div>
-
     </v-form>
   </div>
 </template>

@@ -10,10 +10,10 @@
             </template>
             <span>
               The visualization displays function call signatures for a subset
-              of the data.<br/>
-              Every flow corresponds to a type signature;
-              it starts in the function name,
-              flows through the argument types, and ends in the return type.
+              of the data.<br />
+              Every flow corresponds to a type signature; it starts in the
+              function name, flows through the argument types, and ends in the
+              return type.
             </span>
           </v-tooltip>
         </div>
@@ -54,16 +54,17 @@
     <div id="treemapsDiv">
       <!-- Packages -->
       <div class="treemap-div">
-        <h4>Packages
+        <h4>
+          Packages
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
             </template>
             <span>
-              Packages defining functions that were called
-              during the analysis.<br/>
-              Click on a package to preview its data and load
-                the list of functions.
+              Packages defining functions that were called during the
+              analysis.<br />
+              Click on a package to preview its data and load the list of
+              functions.
             </span>
           </v-tooltip>
         </h4>
@@ -131,8 +132,8 @@
               <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
             </template>
             <span>
-              Functions from the selected package
-              that were called during the analysis.<br/>
+              Functions from the selected package that were called during the
+              analysis.<br />
               Click on a function to load all its data.
             </span>
           </v-tooltip>
@@ -546,11 +547,11 @@ export default {
     // String
     // Returns the string describing what is being shown
     currentlyShowing() {
-      return this.selectedFuns.length === 0 ?
-               (this.selectedPkg ? 
-                  "selected package preview" : 
-                  "full data preview") :
-               "selected function(s)";
+      return this.selectedFuns.length === 0
+        ? this.selectedPkg
+          ? "selected package preview"
+          : "full data preview"
+        : "selected function(s)";
     },
 
     // List

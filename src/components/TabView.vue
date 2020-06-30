@@ -2,30 +2,11 @@
   <div>
     <h1>TypeVis for R</h1>
     <v-tabs v-model="tab">
-      <v-tab key="typevis" href="#tab-typevis"> TypeVis </v-tab>
-      <v-tab key="settings" href="#tab-settings"> Settings </v-tab>
-      <v-tab key="about" href="#tab-about"> About </v-tab>
+      <v-tab key="main" to="/"> TypeVis </v-tab>
+      <v-tab key="settings" to="/settings"> Settings </v-tab>
+      <v-tab key="about" to="/about"> About </v-tab>
     </v-tabs>
-    <v-tabs-items v-model="tab" :touchless="true">
-      <v-tab-item class="fill-height" key="typevis" value="tab-typevis">
-        <v-container id="panels-container">
-          <v-row>
-            <v-col id="flow-panel" cols="8">
-              <FlowPanel />
-            </v-col>
-            <v-col id="nav-panel" cols="3">
-              <NavPanel />
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-tab-item>
-      <v-tab-item key="settings" value="tab-settings">
-        <SettingsPanel />
-      </v-tab-item>
-      <v-tab-item key="about" value="tab-about">
-        <AboutPanel />
-      </v-tab-item>
-    </v-tabs-items>
+    <router-view />
   </div>
 </template>
 
@@ -49,68 +30,11 @@ h1 {
 .v-window-item .col {
   height: 100% !important;
 }
-
-#panels-container {
-  max-width: 100%;
-  padding: 0px;
-}
-
-#flow-panel {
-  padding: 4px;
-  margin-bottom: 6px;
-  margin-left: auto;
-  margin-right: auto;
-}
-#nav-panel {
-  min-width: 454px;
-  padding: 4px;
-  margin-left: auto;
-  margin-right: auto;
-}
-@media (max-width: 1704px) {
-  #nav-panel {
-    min-width: 900px;
-  }
-  .col-8 {
-    max-width: 100%;
-  }
-  #flow-panel {
-    flex: 0 0 100%;
-  }
-  #flow-svg-container.container {
-    width: 100%;
-    max-width: 100%;
-  }
-  #flow-svg {
-    max-height: 860px;
-  }
-}
 </style>
 
 <script>
 //
-// Imports
-//
-import FlowPanel from "./FlowPanel";
-import NavPanel from "./NavPanel";
-import SettingsPanel from "./SettingsPanel";
-import AboutPanel from "./AboutPanel";
-
-//
 // Exports
 //
-export default {
-  name: "TabView",
-
-  components: {
-    FlowPanel,
-    NavPanel,
-    SettingsPanel,
-    AboutPanel
-  },
-
-  data: () => ({
-    tab: 0
-  })
-};
+export default { name: "TabView" };
 </script>
