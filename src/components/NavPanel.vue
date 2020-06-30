@@ -127,8 +127,8 @@
               <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
             </template>
             <span>
-              Functions that were called during the analysis,
-              defined in the selected package.<br/>
+              Functions from the selected package
+              that were called during the analysis.<br/>
               Click on a function to load all its data.
             </span>
           </v-tooltip>
