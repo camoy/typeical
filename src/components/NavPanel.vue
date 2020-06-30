@@ -1,5 +1,12 @@
 <template>
   <v-container id="navigationDiv">
+    <v-alert type="info" class="infoBar" id="infoBar">
+      Data on display:
+      <div class="fullCentered">
+        {{ currentlyShowing }}
+      </div>
+    </v-alert>
+
     <!-- Package Autocomplete -->
     <v-autocomplete
       v-if="!autocompleteWithFuns"
@@ -163,6 +170,22 @@
 </template>
 
 <style>
+.v-alert.infoBar {
+  margin-bottom: 0px;
+  padding: 8px;
+  max-width: 30rem;
+  margin: 0 auto;
+  text-align: left;
+}
+#infoBar.info {
+  background-color: #666 !important;
+}
+.fullCentered {
+  width: 18rem;
+  text-align: center;
+  display: inline-block;
+}
+
 #navigationDiv {
   text-align: center;
   min-width: 454px;
@@ -208,7 +231,7 @@ h4 {
     max-width: 920px;
   }
   .v-text-field.v-text-field--enclosed.autocomplete-list {
-    margin-top: 0px;
+    margin-top: 10px;
   }
 }
 .no-fun-div {
@@ -489,6 +512,16 @@ export default {
     // Returns the total numbers of pages for the function treemap.
     funPages() {
       return this.funs ? Math.ceil(this.funs.length / LIMIT) : 1;
+    },
+
+    // String
+    // Returns the string describing what is being shown
+    currentlyShowing() {
+      return this.selectedFuns.length === 0 ?
+        (this.selectedPkg ? 
+          "preview of selected package" : 
+          "preview of full data set") :
+        "selected functions";
     },
 
     // List
