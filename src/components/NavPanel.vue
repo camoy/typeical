@@ -1,26 +1,20 @@
 <template>
   <v-container id="navigationDiv">
     <v-alert type="info" class="infoBar" id="infoBar">
-      <div style="display: flex; flex-direction: row;">
-        <div style="width: 9rem;">
-          Data on display:
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
-            </template>
-            <span>
-              The visualization displays function call signatures for a subset
-              of the data.<br />
-              Every flow corresponds to a type signature; it starts in the
-              function name, flows through the argument types, and ends in the
-              return type.
-            </span>
-          </v-tooltip>
-        </div>
-        <div class="fullCentered">
-          {{ currentlyShowing }}
-        </div>
-      </div>
+      Now displaying
+      <span class="font-weight-medium">{{ currentlyShowing }}</span
+      >.
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
+        </template>
+        <span>
+          The visualization displays function call signatures for a subset of
+          the data.<br />
+          Every flow corresponds to a type signature; it starts in the function
+          name, flows through the argument types, and ends in the return type.
+        </span>
+      </v-tooltip>
     </v-alert>
 
     <!-- Package Autocomplete -->
@@ -549,9 +543,9 @@ export default {
     currentlyShowing() {
       return this.selectedFuns.length === 0
         ? this.selectedPkg
-          ? "selected package preview"
-          : "full data preview"
-        : "selected function(s)";
+          ? "a package summary"
+          : "a full data summary"
+        : "the selected functions";
     },
 
     // List
