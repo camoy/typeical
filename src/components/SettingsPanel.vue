@@ -77,7 +77,7 @@
           </option>
         </select>
         <label class="v-label label-setting" style="color: rgba(0, 0, 0, 0.6)">
-          Size of preview
+          Size of excerpt
         </label>
       </div>
     </v-form>

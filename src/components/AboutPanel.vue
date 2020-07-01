@@ -2,8 +2,8 @@
   <div id="about-div" class="pa-10">
     <h2>Motivation</h2>
     <p>
-      TypeVis is an interactive visualization for exploration and analysis of
-      type usage in a programming language. It visualizes
+      TyViz is an interactive visualization for exploration and analysis of type
+      usage in a programming language. It visualizes
       <span class="text-bold">type signatures</span> of function calls as flows,
       with the width corresponding to the popularity of the type signatures in
       the underlying data set.
@@ -19,11 +19,25 @@
 
     <h2>Overview</h2>
     <p>
-      By default, the visualization shows several most popular function call
-      signatures in the entire dataset, but it is possible to limit the data
-      being displayed. For example, the following screenshot shows several of
-      the most popular function call signatures from package
-      <span class="text-code">lattice</span>.
+      By default, the visualization shows a
+      <span class="text-italic">full data excerpt</span>, i.e. several most
+      popular function call signatures in the entire dataset.
+    </p>
+
+    <div>
+      <v-btn @click="showScreenshots.default = !showScreenshots.default">
+        Show Screenshot
+      </v-btn>
+      <v-card v-if="showScreenshots.default">
+        <img class="types-screenshot" src="tyviz-default.png" />
+      </v-card>
+    </div>
+
+    <p>
+      To see a <span class="text-italic">single package excerpt</span>, select
+      the package of interest on the Packages treemap. For example, the
+      following screenshot shows several of the most popular function call
+      signatures from package <span class="text-code">lattice</span>.
     </p>
 
     <div>
@@ -36,10 +50,11 @@
     </div>
 
     <p>
-      Most of the flows depict a single type signature of a single function,
-      except for <span class="text-code">lattice.getStatus</span>, which has two
-      type signatures in the depicted subset of the data. The next screenshot
-      shows highlighting of one of the two signatures of this function.
+      In this picture, most of the flows depict a single type signature of a
+      single function, except for
+      <span class="text-code">lattice.getStatus</span>, which has two type
+      signatures in the depicted subset of the data. The next screenshot shows
+      highlighting of one of the two signatures of this function.
     </p>
 
     <div>
@@ -56,8 +71,9 @@
     </div>
 
     <p>
-      One can get all the type information about a function. Thus, the following
-      screenshot shows all type signatures of function
+      To get all available type information about a function, select that
+      function on the Functions treemap. For example, the following screenshot
+      shows all type signatures of function
       <span class="text-code">lattice.getStatus</span>. The function always
       takes a <span class="text-code">character</span> as the first argument and
       most often takes a <span class="text-code">character</span> as the second
@@ -78,7 +94,7 @@
     <p></p>
     <h2>Filters and Settings</h2>
     <p>
-      TypeViz provides facilities for
+      TyViz provides facilities for
       <span class="text-italic">filtering</span> data by:
     </p>
     <ul>
@@ -104,10 +120,10 @@
 
     <h2>Acknowledgements</h2>
     <p>
-      TypeVis builds on the work of many other open source projects. See
+      TyViz builds on the work of many other open source projects. See
       <a href="http://github.com/camoy/typevis">the Github page</a> for the full
       list.<br />
-      In particular, TypeVis redesigns this
+      In particular, TyViz redesigns this
       <a href="https://julia.prl.fit.cvut.cz/rtypes-viz">earlier project</a>.
     </p>
   </div>
@@ -156,6 +172,7 @@ export default {
 
   data: () => ({
     showScreenshots: {
+      default: false,
       lattice: false,
       latticheHighlight: false,
       latticeFun: false

@@ -3,7 +3,7 @@
     <v-alert type="info" class="infoBar" id="infoBar">
       Now displaying
       <span class="font-weight-medium">{{ currentlyShowing }}</span
-      >.
+      >&nbsp;
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
@@ -128,7 +128,7 @@
             <span>
               Functions from the selected package that were called during the
               analysis.<br />
-              Click on a function to load all its data.
+              Click on a function to load all of its data.
             </span>
           </v-tooltip>
         </h4>
