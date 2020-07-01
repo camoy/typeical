@@ -8,12 +8,14 @@ import App from "./App.vue";
 import MainPanel from "./components/MainPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import AboutPanel from "./components/AboutPanel";
+import DatasetPanel from "./components/DatasetPanel";
 
 Vue.config.productionTip = false;
 
 const routes = [
   { path: "/", component: MainPanel },
   { path: "/settings", component: SettingsPanel },
+  { path: "/dataset", component: DatasetPanel },
   { path: "/about", component: AboutPanel }
 ];
 

@@ -5,6 +5,7 @@
       <v-tab key="main" to="/"> TypeVis </v-tab>
       <v-tab key="settings" to="/settings"> Settings </v-tab>
       <v-tab key="about" to="/about"> About </v-tab>
+      <v-tab key="dataset" to="/dataset"> Dataset </v-tab>
     </v-tabs>
     <router-view />
   </div>

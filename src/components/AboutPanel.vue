@@ -6,18 +6,15 @@
       type usage in a programming language. It visualizes
       <span class="text-bold">type signatures</span> of function calls as flows,
       with the width corresponding to the popularity of the type signatures in
-      the underlying data set.<br />
+      the underlying data set.
+    </p>
+    <p>
       TypeViz provides facilities for filtering data and customizing the layout
       and amount of information shown at a time.
     </p>
     <p>
-      The data set used in this visualization is the result of a dynamic
-      analysis of function calls in a large number of
-      <a href="https://www.r-project.org/">R</a> packages. The data set is
-      provided by
-      <a href="https://www.khoury.northeastern.edu/people/alexi-turcotte/"
-        >Alexi Turcotte</a
-      >.
+      The data used in the visualization is described in the
+      <span class="text-tab"><a href="/dataset">Dataset</a></span> section.
     </p>
 
     <h2>Overview</h2>
