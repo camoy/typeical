@@ -19,7 +19,11 @@ const routes = [
   { path: "/about", component: AboutPanel }
 ];
 
-const router = new VueRouter({ mode: "history", routes });
+const router = new VueRouter({
+  base: process.env.BASE_URL,
+  mode: "history",
+  routes
+});
 
 Vue.use(VueRouter);
 new Vue({
