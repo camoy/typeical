@@ -543,8 +543,8 @@ export default {
     currentlyShowing() {
       return this.selectedFuns.length === 0
         ? this.selectedPkg
-          ? "a package summary"
-          : "a full data summary"
+          ? "a package excerpt"
+          : "a full data excerpt"
         : "the selected functions";
     },
 
