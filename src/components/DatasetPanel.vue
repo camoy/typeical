@@ -18,6 +18,27 @@
     </p>
 
     <h2>Data Summary</h2>
+    <h3>Analysis</h3>
+    <v-data-table
+      :headers="summary.headers"
+      :items="summary.data"
+      :disable-pagination="true"
+      :hide-default-footer="true"
+      class="summary-table"
+    ></v-data-table>
+    <h3>Anayzed Packages</h3>
+    <v-data-table
+      :headers="packages.headers"
+      :items="packages.data"
+      :items-per-page="15"
+      :footer-props="{
+        showFirstLastPage: true,
+        itemsPerPageOptions: [15, 30, 50, 100, -1]
+      }"
+      :fixed-header="true"
+      :height="380"
+      class="pkgs-table"
+    ></v-data-table>
   </div>
 </template>
 
@@ -32,26 +53,17 @@
   max-width: 70rem;
 }
 
-.text-bold {
-  font-weight: bold;
-}
-.text-italic {
-  font-style: italic;
-}
-.text-tab {
-  font-variant: small-caps;
-}
-.text-code {
-  font-family: monospace;
-  font-size: smaller;
-  padding-left: 2px;
-  padding-right: 2px;
-  background-color: #efefef;
+.pkgs-table {
+  width: 40rem;
 }
 
-.types-screenshot {
-  width: 1000px;
-  display: block;
+.summary-table {
+  width: 20rem;
+}
+
+.v-data-table thead tr th {
+  color: #333;
+  font-size: 16px;
 }
 </style>
 
@@ -60,6 +72,51 @@
 // Exports
 //
 export default {
-  name: "DatasetPanel"
+  name: "DatasetPanel",
+
+  data: () => ({
+    summary: {
+      headers: [
+        { text: "Property", value: "name", sortable: false },
+        { text: "Count", value: "count", sortable: false }
+      ],
+      data: [
+        { name: "records", count: 1306643 },
+        { name: "function calls", count: 2949685515 },
+        { name: "return types", count: 35 },
+        { name: "packages", count: 743 },
+        { name: "functions", count: 22422 },
+        { name: "analyzed packages", count: 485 }
+      ]
+    },
+    packages: {
+      headers: [
+        { text: "Package", value: "name" },
+        { text: "Count", value: "count" }
+      ],
+      data: [
+        { name: "Rmpfr", count: 181446748 },
+        { name: "FME", count: 113137516 },
+        { name: "subplex", count: 101307510 },
+        { name: "sampling", count: 99241318 },
+        { name: "distrMod", count: 96912461 },
+        { name: "Rmpfr-1", count: 18144674 },
+        { name: "FME-1", count: 11313751 },
+        { name: "subplex-1", count: 1013075 },
+        { name: "sampling-1", count: 992413 },
+        { name: "distrMod-1", count: 969124 },
+        { name: "Rmpfr-2", count: 181446748 },
+        { name: "FME-2", count: 113137516 },
+        { name: "subplex-2", count: 101307510 },
+        { name: "sampling-2", count: 99241318 },
+        { name: "distrMod-2", count: 96912461 },
+        { name: "Rmpfr-1-2", count: 18144674 },
+        { name: "FME-1-2", count: 11313751 },
+        { name: "subplex-1-2", count: 1013075 },
+        { name: "sampling-1-2", count: 992413 },
+        { name: "distrMod-1-2", count: 969124 }
+      ]
+    }
+  })
 };
 </script>
