@@ -19,9 +19,9 @@
 
     <h2>Overview</h2>
     <p>
-      By default, the visualization shows a
-      <span class="text-italic">full data excerpt</span>, i.e. several most
-      popular function call signatures in the entire dataset.
+      By default, the visualization shows an
+      <span class="text-italic">excerpt from the full data</span>, i.e. several
+      most popular function call signatures in the entire dataset.
     </p>
 
     <div>
@@ -35,9 +35,8 @@
 
     <p>
       To see a <span class="text-italic">single package excerpt</span>, select
-      the package of interest on the Packages treemap. For example, the
-      following screenshot shows several of the most popular function call
-      signatures from package <span class="text-code">lattice</span>.
+      the package of interest on the Packages treemap. The following screenshot
+      shows an excerpt from package <span class="text-code">lattice</span>.
     </p>
 
     <div>
@@ -71,9 +70,9 @@
     </div>
 
     <p>
-      To get all available type information about a function, select that
-      function on the Functions treemap. For example, the following screenshot
-      shows all type signatures of function
+      Selecting a function on the Functions treemap loads its
+      <span class="text-italic">complete type information</span>. The following
+      screenshot shows all available type signatures of function
       <span class="text-code">lattice.getStatus</span>. The function always
       takes a <span class="text-code">character</span> as the first argument and
       most often takes a <span class="text-code">character</span> as the second
@@ -91,6 +90,21 @@
       </v-card>
     </div>
 
+    <h3>Special Features</h3>
+    <p>
+      <span class="text-italic">Quick function search</span> is supported by the
+      Functions autocomplete list in <span class="text-tab">TyViz</span> tab; to
+      find a function, simply start typing its qualified name. <br />
+      To search by packages instead of functions, uncheck the box "Autocomplete
+      with functions" in <span class="text-tab">Settings</span> tab.
+    </p>
+    <p>
+      When multiple functions are on display,
+      <span class="text-italic">mouse click on a flow</span> will load complete
+      information about the corresponding function. Subsequent double-click
+      anywhere on the diagram will load the previous information.
+    </p>
+
     <p></p>
     <h2>Filters and Settings</h2>
     <p>
@@ -104,20 +118,34 @@
       </li>
       <li>
         definition packages (Packages treemap in
-        <span class="text-tab">TypeViz</span> tab);
+        <span class="text-tab">TyViz</span> tab);
       </li>
       <li>
         function names (Functions treemap in
-        <span class="text-tab">TypeViz</span> tab).
+        <span class="text-tab">TyViz</span> tab).
       </li>
     </ul>
 
     <p>
-      It is also possible to select a function by entering its qualified name in
-      the Functions drop-down list in
-      <span class="text-tab">TypeViz</span> tab.
+      TyViz can also be customized using the following
+      <span class="text-tab">Settings</span>:
     </p>
+    <ul>
+      <li>
+        "Horizontal layout" orients flows left-to-right instead of
+        top-to-bottom.
+      </li>
+      <li>
+        "Type flows per page" sets the maximal number of individual flows shown
+        on the main diagram.
+      </li>
+      <li>
+        "Size of excerpt" sets the maximal number of records loaded from the
+        data set when no package function is selected.
+      </li>
+    </ul>
 
+    <p></p>
     <h2>Acknowledgements</h2>
     <p>
       TyViz builds on the work of many other open source projects. See
@@ -133,6 +161,10 @@
 .v-application p {
   margin-bottom: 10px;
   margin-top: 10px;
+}
+
+h3 {
+  padding-bottom: 0px;
 }
 
 #about-div {
