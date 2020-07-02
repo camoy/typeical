@@ -2,7 +2,7 @@
   <div id="about-div" class="pa-10">
     <h2>Motivation</h2>
     <p>
-      TyViz is an interactive visualization for exploration and analysis of type
+      TyVis is an interactive visualization for exploration and analysis of type
       usage in a programming language. It visualizes
       <span class="text-bold">type signatures</span> of function calls as flows,
       with the width corresponding to the popularity of the type signatures in
@@ -93,7 +93,7 @@
     <h3>Special Features</h3>
     <p>
       <span class="text-italic">Quick function search</span> is supported by the
-      Functions autocomplete list in <span class="text-tab">TyViz</span> tab; to
+      Functions autocomplete list in <span class="text-tab">TyVis</span> tab; to
       find a function, simply start typing its qualified name. <br />
       To search by packages instead of functions, uncheck the box "Autocomplete
       with functions" in <span class="text-tab">Settings</span> tab.
@@ -108,7 +108,7 @@
     <p></p>
     <h2>Filters and Settings</h2>
     <p>
-      TyViz provides facilities for
+      TyVis provides facilities for
       <span class="text-italic">filtering</span> data by:
     </p>
     <ul>
@@ -118,16 +118,16 @@
       </li>
       <li>
         definition packages (Packages treemap in
-        <span class="text-tab">TyViz</span> tab);
+        <span class="text-tab">TyVis</span> tab);
       </li>
       <li>
         function names (Functions treemap in
-        <span class="text-tab">TyViz</span> tab).
+        <span class="text-tab">TyVis</span> tab).
       </li>
     </ul>
 
     <p>
-      TyViz can also be customized using the following
+      TyVis can also be customized using the following
       <span class="text-tab">Settings</span>:
     </p>
     <ul>
@@ -148,10 +148,10 @@
     <p></p>
     <h2>Acknowledgements</h2>
     <p>
-      TyViz builds on the work of many other open source projects. See
+      TyVis builds on the work of many other open source projects. See
       <a href="http://github.com/camoy/typevis">the Github page</a> for the full
       list.<br />
-      In particular, TyViz redesigns this
+      In particular, TyVis redesigns this
       <a href="https://julia.prl.fit.cvut.cz/rtypes-viz">earlier project</a>.
     </p>
   </div>

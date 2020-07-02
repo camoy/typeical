@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h1>TyViz for R</h1>
+    <h1>TyVis for R</h1>
     <v-tabs>
-      <v-tab key="main" to="/"> TyViz </v-tab>
+      <v-tab key="main" to="/"> TyVis </v-tab>
       <v-tab key="settings" to="/settings"> Settings </v-tab>
       <v-tab key="about" to="/about"> About </v-tab>
       <v-tab key="dataset" to="/dataset"> Dataset </v-tab>
