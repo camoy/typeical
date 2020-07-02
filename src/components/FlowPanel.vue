@@ -342,7 +342,7 @@ function removeNA(data) {
     let d = { value: row.count, package: row.package };
     for (let k of KEYS) {
       if (row[k] == "NA" && k != "fun_name") {
-        d[k] = row["arg_t_r"];
+        d[k] = `→${row["arg_t_r"]}`;
         break;
       }
       d[k] = row[k];
@@ -372,12 +372,12 @@ function makeGraph(data) {
       const key = JSON.stringify([k, d[k]]);
       if (!d[k] || nodeByKey.has(key)) continue;
       const node = { name: d[k] };
+      //const node = { name: transformByKey(k, d) };
       nodes.push(node);
       nodeByKey.set(key, node);
       indexByKey.set(key, ++index);
     }
   }
-
   for (let i = 1; i < KEYS.length; ++i) {
     const a = KEYS[i - 1];
     const b = KEYS[i];

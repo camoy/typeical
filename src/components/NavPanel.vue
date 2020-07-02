@@ -14,8 +14,8 @@
           Every flow corresponds to a type signature; it starts in the function
           name, flows through the argument types, and ends in the return type.
           <br />
-          Flow's width is proportional to the frequency of the type signature
-          in the data set.
+          Flow's width is proportional to the frequency of the type signature in
+          the data set.
         </span>
       </v-tooltip>
     </v-alert>
