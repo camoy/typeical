@@ -208,6 +208,14 @@ CREATE TABLE stats(
 );
 
 INSERT INTO stats
+SELECT 'distinct_record' as name, COUNT(*) as count
+FROM aggregated_types;
+
+INSERT INTO stats
+SELECT 'call' as name, SUM(count) as count
+FROM aggregated_types;
+
+INSERT INTO stats
 SELECT "distinct_package_being_analyzed" as name, COUNT(DISTINCT package_being_analyzed) as count
 FROM aggregated_types;
 
@@ -217,14 +225,6 @@ FROM aggregated_types;
 
 INSERT INTO stats
 SELECT "distinct_fun_name" as name, COUNT(DISTINCT fun_name) as count
-FROM aggregated_types;
-
-INSERT INTO stats
-SELECT 'distinct_record' as name, COUNT(*) as count
-FROM aggregated_types;
-
-INSERT INTO stats
-SELECT 'call' as name, SUM(count) as count
 FROM aggregated_types;
 
 INSERT INTO stats

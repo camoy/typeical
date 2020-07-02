@@ -20,13 +20,20 @@
     <h2>Data Summary</h2>
     <h3>Analysis</h3>
     <v-data-table
-      :headers="summary.headers"
-      :items="summary.data"
+      :headers="stats.headers"
+      :items="stats.data"
       :disable-pagination="true"
       :disable-sort="true"
       :hide-default-footer="true"
       class="summary-table"
-    ></v-data-table>
+    >
+      <template v-slot:item.name="{ item }">
+        <span>{{ statsName(item.name) }}</span>
+      </template>
+      <template v-slot:item.count="{ item }">
+        <span>{{ plainFormat(item.count) }}</span>
+      </template>
+    </v-data-table>
     <h3>Anayzed Packages</h3>
     <v-data-table
       :headers="packages.headers"
@@ -67,7 +74,7 @@
 }
 
 .summary-table {
-  width: 20rem;
+  width: 26rem;
 }
 
 .v-data-table thead tr th {
@@ -79,7 +86,6 @@
   font-family: monospace;
   padding-left: 2px;
   padding-right: 2px;
-  width: 14rem;
 }
 </style>
 
@@ -96,7 +102,27 @@ import numeral from "numeral";
 
 // Number → String
 // Returns the given number in plain-English (approximate) format.
-const plainFormat = x => numeral(x).format("0.00a");
+const plainFormat = x => (x < 1000 ? x : numeral(x).format("0.00a"));
+
+// String → String
+// Returns human readable name of the stats parameter
+function statsName(name) {
+  switch (name) {
+    case "distinct_package":
+      return "Definition Packages";
+    case "distinct_fun_name":
+      return "Distinct Function Names";
+    case "distinct_package_being_analyzed":
+      return "Analyzed Packages";
+    case "distinct_record":
+      return "Data Set Records";
+    case "call":
+      return "Function Calls";
+    case "distinct_ret_type":
+      return "Distinct Return Types";
+  }
+  return name;
+}
 
 //
 // Exports
@@ -107,12 +133,12 @@ export default {
   // Initialize autocomplete and package treemap.
   created() {
     this.$store.dispatch("queryAnalyzed");
-    //this.$store.dispatch("queryStats");
+    this.$store.dispatch("queryStats");
   },
 
   computed: {
     // ([Listof Header], [Listof (String, Number)])
-    // Returns the names and count of all the packages,
+    // Returns the names and count of all the analyzed packages,
     // and the corresponding header
     packages() {
       return {
@@ -127,28 +153,28 @@ export default {
         data: this.allAnalyzed
       };
     },
+    // ([Listof Header], [Listof (String, Number)])
+    // Returns the names and count of available statistics,
+    // and the corresponding header
+    stats() {
+      return {
+        headers: [
+          {
+            text: "Parameter",
+            value: "name",
+            align: "center"
+          },
+          { text: "Count", value: "count", align: "center" }
+        ],
+        data: this.datasetStats
+      };
+    },
     ...mapState(["allAnalyzed", "datasetStats"])
   },
 
-  data: () => ({
-    summary: {
-      headers: [
-        { text: "Property", value: "name" },
-        { text: "Count", value: "count" }
-      ],
-      data: [
-        { name: "records", count: 1306643 },
-        { name: "function calls", count: 2949685515 },
-        { name: "return types", count: 35 },
-        { name: "packages", count: 743 },
-        { name: "functions", count: 22422 },
-        { name: "analyzed packages", count: 485 }
-      ]
-    }
-  }),
-
   methods: {
-    plainFormat
+    plainFormat,
+    statsName
   }
 };
 </script>
