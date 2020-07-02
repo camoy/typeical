@@ -10,7 +10,7 @@
         </template>
         <span>
           The visualization displays function call signatures for a subset of
-          the data.<br />
+          the data, starting from the most popular ones.<br />
           Every flow corresponds to a type signature; it starts in the function
           name, flows through the argument types, and ends in the return type.
           <br />
