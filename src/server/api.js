@@ -29,6 +29,8 @@ const TYPES = where => `SELECT * FROM aggregated_types WHERE ${where}
 const TYPES_ALL = where => `SELECT * FROM aggregated_types_all_analyzed WHERE ${where}
             ORDER BY count DESC`;
 
+const DATASET_STATS = `SELECT *  FROM stats`;
+
 const ANALYZED_EQ = "package_being_analyzed = ?";
 const PKG_EQ = "package = ?";
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
@@ -66,6 +68,13 @@ module.exports = (app, server) => {
   //
   router.get("/api/analyzed", function(req, res) {
     query(ANALYZED, [], names => res.json(names));
+  });
+
+  //
+  // GET /api/analyzed
+  //
+  router.get("/api/stats", function(req, res) {
+    query(DATASET_STATS, [], items => res.json(items));
   });
 
   //

@@ -23,6 +23,7 @@
       :headers="summary.headers"
       :items="summary.data"
       :disable-pagination="true"
+      :disable-sort="true"
       :hide-default-footer="true"
       class="summary-table"
     ></v-data-table>
@@ -36,9 +37,17 @@
         itemsPerPageOptions: [15, 30, 50, 100, -1]
       }"
       :fixed-header="true"
+      :calculate-widths="true"
       :height="380"
       class="pkgs-table"
-    ></v-data-table>
+    >
+      <template v-slot:item.package_being_analyzed="{ item }">
+        <span class="text-pkg-name">{{ item.package_being_analyzed }}</span>
+      </template>
+      <template v-slot:item.count="{ item }">
+        <span>{{ plainFormat(item.count) }}</span>
+      </template>
+    </v-data-table>
   </div>
 </template>
 
@@ -54,7 +63,7 @@
 }
 
 .pkgs-table {
-  width: 40rem;
+  width: 36rem;
 }
 
 .summary-table {
@@ -65,20 +74,67 @@
   color: #333;
   font-size: 16px;
 }
+
+.text-pkg-name {
+  font-family: monospace;
+  padding-left: 2px;
+  padding-right: 2px;
+  width: 14rem;
+}
 </style>
 
 <script>
+//
+// Imports
+//
+import { mapState } from "vuex";
+import numeral from "numeral";
+
+//
+// Utility Functions
+//
+
+// Number → String
+// Returns the given number in plain-English (approximate) format.
+const plainFormat = x => numeral(x).format("0.00a");
+
 //
 // Exports
 //
 export default {
   name: "DatasetPanel",
 
+  // Initialize autocomplete and package treemap.
+  created() {
+    this.$store.dispatch("queryAnalyzed");
+    //this.$store.dispatch("queryStats");
+  },
+
+  computed: {
+    // ([Listof Header], [Listof (String, Number)])
+    // Returns the names and count of all the packages,
+    // and the corresponding header
+    packages() {
+      return {
+        headers: [
+          {
+            text: "Package Name",
+            value: "package_being_analyzed",
+            align: "center"
+          },
+          { text: "Number of Function Calls", value: "count", align: "center" }
+        ],
+        data: this.allAnalyzed
+      };
+    },
+    ...mapState(["allAnalyzed", "datasetStats"])
+  },
+
   data: () => ({
     summary: {
       headers: [
-        { text: "Property", value: "name", sortable: false },
-        { text: "Count", value: "count", sortable: false }
+        { text: "Property", value: "name" },
+        { text: "Count", value: "count" }
       ],
       data: [
         { name: "records", count: 1306643 },
@@ -88,35 +144,11 @@ export default {
         { name: "functions", count: 22422 },
         { name: "analyzed packages", count: 485 }
       ]
-    },
-    packages: {
-      headers: [
-        { text: "Package", value: "name" },
-        { text: "Count", value: "count" }
-      ],
-      data: [
-        { name: "Rmpfr", count: 181446748 },
-        { name: "FME", count: 113137516 },
-        { name: "subplex", count: 101307510 },
-        { name: "sampling", count: 99241318 },
-        { name: "distrMod", count: 96912461 },
-        { name: "Rmpfr-1", count: 18144674 },
-        { name: "FME-1", count: 11313751 },
-        { name: "subplex-1", count: 1013075 },
-        { name: "sampling-1", count: 992413 },
-        { name: "distrMod-1", count: 969124 },
-        { name: "Rmpfr-2", count: 181446748 },
-        { name: "FME-2", count: 113137516 },
-        { name: "subplex-2", count: 101307510 },
-        { name: "sampling-2", count: 99241318 },
-        { name: "distrMod-2", count: 96912461 },
-        { name: "Rmpfr-1-2", count: 18144674 },
-        { name: "FME-1-2", count: 11313751 },
-        { name: "subplex-1-2", count: 1013075 },
-        { name: "sampling-1-2", count: 992413 },
-        { name: "distrMod-1-2", count: 969124 }
-      ]
     }
-  })
+  }),
+
+  methods: {
+    plainFormat
+  }
 };
 </script>

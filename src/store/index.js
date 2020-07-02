@@ -75,6 +75,10 @@ const pending = 0;
 // List of packages that were analyzed.
 const allAnalyzed = [];
 
+// [Listof (String, Number)]
+// List of dataset statistics
+const datasetStats = [];
+
 // [Listof String]
 // List of all the functions.
 const allFuns = [];
@@ -107,6 +111,7 @@ export default new Vuex.Store({
     selectedPkg,
     selectedFuns,
     allAnalyzed,
+    datasetStats,
     allFuns,
     funs,
     pkgs,
@@ -150,6 +155,9 @@ export default new Vuex.Store({
     allAnalyzed(state, val) {
       state.allAnalyzed = val;
     },
+    datasetStats(state, val) {
+      state.datasetStats = val;
+    },
     allFuns(state, val) {
       state.allFuns = val;
     },
@@ -171,6 +179,15 @@ export default new Vuex.Store({
       axios.get("api/analyzed").then(response => {
         commit("decrementPending");
         commit("allAnalyzed", response.data);
+      });
+    },
+
+    // Query for the data set statistics
+    queryStats({ commit }) {
+      commit("incrementPending");
+      axios.get("api/stats").then(response => {
+        commit("decrementPending");
+        commit("datasetStats", response.data);
       });
     },
 
