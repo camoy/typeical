@@ -16,4 +16,5 @@ Running on server:
 
 ```
 BASE_MODE=server TYPEVIS_DB=realdata.db npm run serve -- --port 8006
+BASE_MODE=server TYPEVIS_DB=400pkgs.db npm run serve -- --port 8006
 ```

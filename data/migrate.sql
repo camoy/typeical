@@ -8,6 +8,7 @@ CREATE TABLE types(
   fun_name TEXT,
   fun_id TEXT,
   dispatch TEXT,
+  has_dots BOOLEAN,
   arg_t_r TEXT,
   arg_c_r TEXT,
   arg_a_r TEXT,
@@ -90,8 +91,8 @@ CREATE INDEX package_index ON types(package);
 --
 
 .mode csv
-.import "/home/camoy/tmp/2020_04_13_all_very_simpl.csv" types
-DELETE FROM types WHERE rowid = 1;
+.import "OOPSLA2020-400pkgs.csv" types
+--DELETE FROM types WHERE rowid = 1;
 
 -- apparently, csv has been merged from multiple csv-files,
 -- so there are multiple title lines
@@ -107,6 +108,7 @@ CREATE TABLE aggregated_types(
   fun_name TEXT,
   fun_id TEXT,
   dispatch TEXT,
+  has_dots BOOLEAN,
   arg_t_r TEXT,
   arg_t0 TEXT,
   arg_t1 TEXT,
@@ -136,13 +138,13 @@ CREATE INDEX analyzed_aggr_index ON aggregated_types(package_being_analyzed);
 CREATE INDEX count_aggr_index ON aggregated_types(count);
 
 INSERT INTO aggregated_types
-SELECT package_being_analyzed, package, fun_name, fun_id, dispatch,
+SELECT package_being_analyzed, package, fun_name, fun_id, dispatch, has_dots,
   arg_t_r, arg_t0, arg_t1, arg_t2, arg_t3, arg_t4, arg_t5,
   arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12, 
   arg_t13, arg_t14, arg_t15, arg_t16, arg_t17, arg_t18, arg_t19,
   SUM(count) as count
 FROM types
-GROUP BY package_being_analyzed, package, fun_name, fun_id, dispatch,
+GROUP BY package_being_analyzed, package, fun_name, fun_id, dispatch, has_dots,
   arg_t_r, arg_t0, arg_t1, arg_t2, arg_t3, arg_t4, arg_t5,
   arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12, 
   arg_t13, arg_t14, arg_t15, arg_t16, arg_t17, arg_t18, arg_t19
@@ -158,6 +160,7 @@ CREATE TABLE aggregated_types_all_analyzed(
   fun_name TEXT,
   fun_id TEXT,
   dispatch TEXT,
+  has_dots BOOLEAN,
   arg_t_r TEXT,
   arg_t0 TEXT,
   arg_t1 TEXT,
@@ -186,13 +189,13 @@ CREATE INDEX main_aggr_all_index ON aggregated_types_all_analyzed(package, fun_n
 CREATE INDEX count_aggr_all_index ON aggregated_types_all_analyzed(count);
 
 INSERT INTO aggregated_types_all_analyzed
-SELECT package, fun_name, fun_id, dispatch,
+SELECT package, fun_name, fun_id, dispatch, has_dots,
   arg_t_r, arg_t0, arg_t1, arg_t2, arg_t3, arg_t4, arg_t5,
   arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12, 
   arg_t13, arg_t14, arg_t15, arg_t16, arg_t17, arg_t18, arg_t19,
   SUM(count) as count
 FROM aggregated_types
-GROUP BY package, fun_name, fun_id, dispatch,
+GROUP BY package, fun_name, fun_id, dispatch, has_dots,
   arg_t_r, arg_t0, arg_t1, arg_t2, arg_t3, arg_t4, arg_t5,
   arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12, 
   arg_t13, arg_t14, arg_t15, arg_t16, arg_t17, arg_t18, arg_t19
@@ -272,7 +275,8 @@ CREATE TABLE sums(
 );
 
 INSERT INTO sums
-SELECT package_being_analyzed, package, fun_name, fun_id, SUM(count) as count FROM aggregated_types
+SELECT package_being_analyzed, package, fun_name, fun_id, SUM(count) as count
+FROM aggregated_types
 GROUP BY package_being_analyzed, package, fun_name, fun_id
 ORDER BY count DESC;
 
