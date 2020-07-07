@@ -24,7 +24,7 @@
       <v-checkbox
         v-model="details"
         label="Request detailed data"
-        @change="$store.commit('details', details)"
+        @change="$store.dispatch('setDetails', details)"
       />
     </div>
 

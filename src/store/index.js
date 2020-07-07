@@ -283,7 +283,13 @@ export default new Vuex.Store({
 
     setClearSelectedFunsOnPkg({ commit }, value) {
       commit("clearSelectedFunsOnPkg", value);
-    }
+    },
+
+    // Sets the details flag
+    setDetails({ commit, dispatch }, details) {
+      commit("details", details);
+      dispatch("queryTypes");
+    },
   },
 
   modules: {}

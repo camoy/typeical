@@ -120,6 +120,8 @@ module.exports = (app, server) => {
   // GET /api/types
   //
   router.get("/api/types", function(req, res) {
+    const details = req.query.details || false;
+
     const analyzed = req.query.analyzed || [];
     const limitVal = req.query.limit || DEFAULT_LIMIT;
     const whereAnalyzed = OR(ANALYZED_EQ, analyzed.length, TRUE);
@@ -136,7 +138,7 @@ module.exports = (app, server) => {
     const params = analyzed.concat(funs.flat()).concat(pkg);
     const QUERY = analyzed.length == 0 ? TYPES_ALL : TYPES;
 
-    query(req.query.details, QUERY(where) + limit, params,
+    query(details, QUERY(where) + limit, params,
       results => res.json(results)
     );
   });
