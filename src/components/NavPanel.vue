@@ -246,11 +246,10 @@ h4 {
   display: inline-block;
   margin: 0 auto;
 }
-.checkboxSetting.v-input--selection-controls {
+.checkboxSetting .v-input--selection-controls {
   padding: 0;
-  margin: 0;
 }
-.checkboxSetting.v-messages {
+.checkboxSetting .v-messages {
   min-height: 0px;
 }
 .checkboxSetting .v-input__slot {

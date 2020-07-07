@@ -42,6 +42,8 @@ const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
 const LIMIT = where => ` LIMIT ${where}`;
 const DEFAULT_LIMIT = 36;
 
+const DEFAULT_DETAILS = false;
+
 //
 // Util
 //
@@ -72,14 +74,14 @@ module.exports = (app, server) => {
   // GET /api/analyzed
   //
   router.get("/api/analyzed", function(req, res) {
-    query(false, ANALYZED, [], names => res.json(names));
+    query(DEFAULT_DETAILS, ANALYZED, [], names => res.json(names));
   });
 
   //
   // GET /api/analyzed
   //
   router.get("/api/stats", function(req, res) {
-    query(false, DATASET_STATS, [], items => res.json(items));
+    query(DEFAULT_DETAILS, DATASET_STATS, [], items => res.json(items));
   });
 
   //
@@ -88,7 +90,9 @@ module.exports = (app, server) => {
   router.get("/api/all_funs", function(req, res) {
     const analyzed = req.query.analyzed || [];
     const where = OR(ANALYZED_EQ, analyzed.length, TRUE);
-    query(false, ALL_FUNS(where), analyzed, names => res.json(names));
+    query(DEFAULT_DETAILS, ALL_FUNS(where), analyzed,
+      names => res.json(names)
+     );
   });
 
   //
@@ -109,7 +113,7 @@ module.exports = (app, server) => {
     const analyzed = req.query.analyzed || [];
     const pkg = req.query.pkg;
     const where = OR(ANALYZED_EQ, analyzed.length, TRUE) + " AND " + PKG_EQ;
-    query(false, FUNS(where), analyzed.concat([pkg]),
+    query(DEFAULT_DETAILS, FUNS(where), analyzed.concat([pkg]),
       function(items) {
         res.json(items);
       }
@@ -120,8 +124,8 @@ module.exports = (app, server) => {
   // GET /api/types
   //
   router.get("/api/types", function(req, res) {
-    const details = req.query.details || false;
-
+    const details = (req.query.details == 'true') || false;
+    
     const analyzed = req.query.analyzed || [];
     const limitVal = req.query.limit || DEFAULT_LIMIT;
     const whereAnalyzed = OR(ANALYZED_EQ, analyzed.length, TRUE);
