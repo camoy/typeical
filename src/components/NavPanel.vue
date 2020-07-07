@@ -22,8 +22,8 @@
 
     <div class="checkboxSetting">
       <v-checkbox
-        v-model="details"
-        @change="$store.dispatch('setDetails', details)"
+        v-model="$store.state.details"
+        @change="$store.dispatch('setDetails', $store.state.details)"
       >
         <template v-slot:label>
           Request detailed data<span style="width:2px;"></span>
@@ -648,11 +648,7 @@ export default {
 
     // Natural
     // The current page of function results.
-    funPage: 1,
-
-    // Boolean
-    // Request information for detailed database
-    details: false
+    funPage: 1
   })
 };
 </script>

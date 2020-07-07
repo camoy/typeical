@@ -2,7 +2,7 @@
   <div class="pa-10">
     <v-form id="settings-form">
       <v-autocomplete
-        v-model="analyzed"
+        v-model="$store.state.analyzed"
         outlined
         chips
         small-chips
@@ -10,22 +10,24 @@
         label="Analyzed Packages"
         multiple
         :items="analyzedNames"
-        @input="$store.dispatch('setAnalyzed', analyzed)"
+        @input="$store.dispatch('setAnalyzed', $store.state.analyzed)"
       />
 
       <h3>Visualization</h3>
 
       <v-checkbox
-        v-model="horizontalLayout"
+        v-model="$store.state.horizontalLayout"
         label="Horizontal Layout"
-        @change="$store.commit('horizontalLayout', horizontalLayout)"
+        @change="
+          $store.commit('horizontalLayout', $store.state.horizontalLayout)
+        "
       />
 
       <div class="v-input v-input--selection-controls div-setting">
         <select
-          v-model="flowsPerPage"
+          v-model="$store.state.flowsPerPage"
           class="num-setting"
-          @change="$store.commit('flowsPerPage', flowsPerPage)"
+          @change="$store.commit('flowsPerPage', $store.state.flowsPerPage)"
         >
           <option
             v-for="(option, k) in validFlows"
@@ -43,30 +45,42 @@
       <h3>Data Search and Filtering</h3>
 
       <v-checkbox
-        v-model="autocompleteWithFuns"
+        v-model="$store.state.autocompleteWithFuns"
         label="Autocomplete with functions instead of packages"
-        @change="$store.commit('autocompleteWithFuns', autocompleteWithFuns)"
+        @change="
+          $store.commit(
+            'autocompleteWithFuns',
+            $store.state.autocompleteWithFuns
+          )
+        "
       />
 
       <v-checkbox
-        v-model="selectMultipleFuns"
+        v-model="$store.state.selectMultipleFuns"
         label="Select multiple functions on the treemap"
-        @change="$store.commit('selectMultipleFuns', selectMultipleFuns)"
+        @change="
+          $store.commit('selectMultipleFuns', $store.state.selectMultipleFuns)
+        "
       />
 
       <v-checkbox
-        v-model="clearSelectedFunsOnPkg"
+        v-model="$store.state.clearSelectedFunsOnPkg"
         label="Clear selected functions on package selection"
         @change="
-          $store.commit('clearSelectedFunsOnPkg', clearSelectedFunsOnPkg)
+          $store.commit(
+            'clearSelectedFunsOnPkg',
+            $store.state.clearSelectedFunsOnPkg
+          )
         "
       />
 
       <div class="v-input v-input--selection-controls div-setting">
         <select
-          v-model="defaultLimit"
+          v-model="$store.state.defaultLimit"
           class="num-setting"
-          @change="$store.dispatch('setDefaultLimit', defaultLimit)"
+          @change="
+            $store.dispatch('setDefaultLimit', $store.state.defaultLimit)
+          "
         >
           <option
             v-for="(option, k) in validLimits"
@@ -138,15 +152,6 @@ export default {
       return new Array(61).fill(10).map((min, i) => i + min);
     },
     ...mapState(["allAnalyzed"])
-  },
-  data: () => ({
-    analyzed: [],
-    selectMultipleFuns: false,
-    autocompleteWithFuns: true,
-    horizontalLayout: false,
-    clearSelectedFunsOnPkg: true,
-    flowsPerPage: 12,
-    defaultLimit: 36
-  })
+  }
 };
 </script>
