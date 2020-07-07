@@ -23,9 +23,20 @@
     <div class="checkboxSetting">
       <v-checkbox
         v-model="details"
-        label="Request detailed data"
         @change="$store.dispatch('setDetails', details)"
-      />
+      >
+        <template v-slot:label>
+          Request detailed data<span style="width:2px;"></span>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
+            </template>
+            <span>
+              If selected, detailed class information is requested.
+            </span>
+          </v-tooltip>
+        </template>
+      </v-checkbox>
     </div>
 
     <!-- Package Autocomplete -->

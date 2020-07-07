@@ -38,6 +38,7 @@ const DATASET_STATS = `SELECT *  FROM stats`;
 const ANALYZED_EQ = "package_being_analyzed = ?";
 const PKG_EQ = "package = ?";
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
+const ARG_LIMITED = "(arg_t5 = 'NA')";
 
 const LIMIT = where => ` LIMIT ${where}`;
 const DEFAULT_LIMIT = 36;
@@ -74,7 +75,8 @@ module.exports = (app, server) => {
   // GET /api/analyzed
   //
   router.get("/api/analyzed", function(req, res) {
-    query(DEFAULT_DETAILS, ANALYZED, [], names => res.json(names));
+    const details = (req.query.details == 'true') || false;
+    query(details, ANALYZED, [], names => res.json(names));
   });
 
   //
@@ -138,7 +140,11 @@ module.exports = (app, server) => {
     const wherePkg = defaultData ? OR(PKG_EQ, pkg.length, TRUE) : TRUE;
 
     const limit = defaultData ? LIMIT(limitVal) : "";
-    const where = [whereAnalyzed, whereFuns, wherePkg].join(" AND ");
+    const whereClauses = [whereAnalyzed, whereFuns, wherePkg];
+    // to make preview nicer, limit signatures to certain number of arguments
+    if (defaultData)
+      whereClauses.push(ARG_LIMITED);
+    const where = whereClauses.join(" AND ");
     const params = analyzed.concat(funs.flat()).concat(pkg);
     const QUERY = analyzed.length == 0 ? TYPES_ALL : TYPES;
 

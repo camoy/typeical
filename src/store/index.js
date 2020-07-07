@@ -5,6 +5,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
+import lodash from "lodash";
 Vue.use(Vuex);
 
 //
@@ -249,8 +250,21 @@ export default new Vuex.Store({
           }
         })
         .then(response => {
+          // grou by function names before sorting
+          const groupedData = lodash.groupBy(response.data, "fun_name");
+          const groupedWeighedData = Object.keys(groupedData).map(function(k) {
+            return {
+              name: k,
+              data: groupedData[k],
+              count: groupedData[k].reduce((acc, d) => acc + d.count, 0)
+            };
+          });
+          let sortedData = groupedWeighedData
+            .sort((a, b) => b.count - a.count)
+            .map(a => a.data)
+            .flat();
           commit("decrementPending");
-          commit("types", response.data);
+          commit("types", sortedData);
         });
     },
 
@@ -289,7 +303,7 @@ export default new Vuex.Store({
     setDetails({ commit, dispatch }, details) {
       commit("details", details);
       dispatch("queryTypes");
-    },
+    }
   },
 
   modules: {}
