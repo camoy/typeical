@@ -20,6 +20,14 @@
       </v-tooltip>
     </v-alert>
 
+    <div class="checkboxSetting">
+      <v-checkbox
+        v-model="details"
+        label="Request detailed data"
+        @change="$store.commit('details', details)"
+      />
+    </div>
+
     <!-- Package Autocomplete -->
     <v-autocomplete
       v-if="!autocompleteWithFuns"
@@ -232,6 +240,21 @@ h4 {
 
 .v-input.autocomplete-list {
   max-width: 30rem;
+}
+
+.checkboxSetting {
+  display: inline-block;
+  margin: 0 auto;
+}
+.checkboxSetting.v-input--selection-controls {
+  padding: 0;
+  margin: 0;
+}
+.checkboxSetting.v-messages {
+  min-height: 0px;
+}
+.checkboxSetting .v-input__slot {
+  margin-bottom: 0;
 }
 
 #treemapsDiv {
@@ -615,7 +638,11 @@ export default {
 
     // Natural
     // The current page of function results.
-    funPage: 1
+    funPage: 1,
+
+    // Boolean
+    // Request information for detailed database
+    details: false
   })
 };
 </script>

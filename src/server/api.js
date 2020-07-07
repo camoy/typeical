@@ -8,9 +8,13 @@ let router = express.Router();
 //
 // Database
 //
-const url = process.env.TYPEVIS_DB;
+const url    = process.env.TYPEVIS_DB;       // base information
+const urlDet = process.env.TYPEVIS_DB_DET ?  // detailed information
+  process.env.TYPEVIS_DB_DET : 
+  process.env.TYPEVIS_DB;
 const sqlite3 = require("sqlite3").verbose();
-let db = new sqlite3.Database(url);
+let db    = new sqlite3.Database(url);
+let dbDet = new sqlite3.Database(urlDet);
 
 //
 // Queries
@@ -47,8 +51,9 @@ const FALSE = "0 = 1";
 const OR = (clause, n, empty) =>
   n === 0 ? empty : "(" + FALSE + ` OR ${clause}`.repeat(n) + ")";
 
-function query(sql, params, f) {
-  db.all(sql, params, (err, rows) => {
+function query(getDetails, sql, params, f) {
+  const dbToUse = getDetails ? dbDet : db;
+  dbToUse.all(sql, params, (err, rows) => {
     if (err) {
       throw err;
     }
@@ -67,14 +72,14 @@ module.exports = (app, server) => {
   // GET /api/analyzed
   //
   router.get("/api/analyzed", function(req, res) {
-    query(ANALYZED, [], names => res.json(names));
+    query(false, ANALYZED, [], names => res.json(names));
   });
 
   //
   // GET /api/analyzed
   //
   router.get("/api/stats", function(req, res) {
-    query(DATASET_STATS, [], items => res.json(items));
+    query(false, DATASET_STATS, [], items => res.json(items));
   });
 
   //
@@ -83,7 +88,7 @@ module.exports = (app, server) => {
   router.get("/api/all_funs", function(req, res) {
     const analyzed = req.query.analyzed || [];
     const where = OR(ANALYZED_EQ, analyzed.length, TRUE);
-    query(ALL_FUNS(where), analyzed, names => res.json(names));
+    query(false, ALL_FUNS(where), analyzed, names => res.json(names));
   });
 
   //
@@ -92,7 +97,7 @@ module.exports = (app, server) => {
   router.get("/api/pkgs", function(req, res) {
     const analyzed = req.query.analyzed || [];
     const where = OR(ANALYZED_EQ, analyzed.length, TRUE);
-    query(PKGS(where), analyzed, function(items) {
+    query(false, PKGS(where), analyzed, function(items) {
       res.json(items);
     });
   });
@@ -104,9 +109,11 @@ module.exports = (app, server) => {
     const analyzed = req.query.analyzed || [];
     const pkg = req.query.pkg;
     const where = OR(ANALYZED_EQ, analyzed.length, TRUE) + " AND " + PKG_EQ;
-    query(FUNS(where), analyzed.concat([pkg]), function(items) {
-      res.json(items);
-    });
+    query(false, FUNS(where), analyzed.concat([pkg]),
+      function(items) {
+        res.json(items);
+      }
+    );
   });
 
   //
@@ -129,6 +136,8 @@ module.exports = (app, server) => {
     const params = analyzed.concat(funs.flat()).concat(pkg);
     const QUERY = analyzed.length == 0 ? TYPES_ALL : TYPES;
 
-    query(QUERY(where) + limit, params, results => res.json(results));
+    query(req.query.details, QUERY(where) + limit, params,
+      results => res.json(results)
+    );
   });
 };

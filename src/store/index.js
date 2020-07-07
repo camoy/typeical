@@ -95,6 +95,10 @@ const funs = [];
 // An array of results from querying function type information.
 const types = [];
 
+// Boolean
+// Flag indicating whether to request detailed data for type flows
+const details = false;
+
 //
 // Store
 //
@@ -115,7 +119,8 @@ export default new Vuex.Store({
     allFuns,
     funs,
     pkgs,
-    types
+    types,
+    details
   },
 
   mutations: {
@@ -169,6 +174,9 @@ export default new Vuex.Store({
     },
     types(state, val) {
       state.types = val;
+    },
+    details(state, val) {
+      state.details = val;
     }
   },
 
@@ -236,7 +244,8 @@ export default new Vuex.Store({
             analyzed: state.analyzed,
             pkg: state.selectedPkg,
             funs,
-            limit: state.defaultLimit
+            limit: state.defaultLimit,
+            details: state.details
           }
         })
         .then(response => {
