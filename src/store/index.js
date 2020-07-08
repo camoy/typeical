@@ -40,6 +40,10 @@ const defaultLimit = 36;
 // Number of flows per page
 const flowsPerPage = 12;
 
+// Boolean
+// If the flow layout is justified or not.
+const flowsJustified = false;
+
 //
 // Boolean
 // If the Sankey diagram should be horizontal.
@@ -111,6 +115,7 @@ export default new Vuex.Store({
     autocompleteWithFuns,
     defaultLimit,
     flowsPerPage,
+    flowsJustified,
     horizontalLayout,
     clearSelectedFunsOnPkg,
     selectedPkg,
@@ -145,6 +150,9 @@ export default new Vuex.Store({
     },
     flowsPerPage(state, val) {
       state.flowsPerPage = val;
+    },
+    flowsJustified(state, val) {
+      state.flowsJustified = val;
     },
     horizontalLayout(state, val) {
       state.horizontalLayout = val;

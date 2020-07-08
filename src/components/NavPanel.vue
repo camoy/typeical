@@ -20,25 +20,6 @@
       </v-tooltip>
     </v-alert>
 
-    <div class="checkboxSetting">
-      <v-checkbox
-        v-model="$store.state.details"
-        @change="$store.dispatch('setDetails', $store.state.details)"
-      >
-        <template v-slot:label>
-          Request detailed data<span style="width:2px;"></span>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
-            </template>
-            <span>
-              If selected, detailed class information is requested.
-            </span>
-          </v-tooltip>
-        </template>
-      </v-checkbox>
-    </div>
-
     <!-- Package Autocomplete -->
     <v-autocomplete
       v-if="!autocompleteWithFuns"

@@ -23,6 +23,12 @@
         "
       />
 
+      <v-checkbox
+        v-model="$store.state.flowJustified"
+        label="Flows Justified"
+        @change="$store.commit('flowJustified', $store.state.flowJustified)"
+      />
+
       <div class="v-input v-input--selection-controls div-setting">
         <select
           v-model="$store.state.flowsPerPage"
@@ -43,6 +49,25 @@
       </div>
 
       <h3>Data Search and Filtering</h3>
+
+      <div>
+        <v-checkbox
+          v-model="$store.state.details"
+          @change="$store.dispatch('setDetails', $store.state.details)"
+        >
+          <template v-slot:label>
+            Request detailed data<span style="width:2px;"></span>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <span v-bind="attrs" v-on="on" class="fa fa-question-circle" />
+              </template>
+              <span>
+                If selected, detailed class information is requested.
+              </span>
+            </v-tooltip>
+          </template>
+        </v-checkbox>
+      </div>
 
       <v-checkbox
         v-model="$store.state.autocompleteWithFuns"

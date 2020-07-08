@@ -120,6 +120,7 @@ import numeral from "numeral";
 import {
   sankey,
   sankeyLeft,
+  sankeyJustify,
   sankeyHorizontal,
   sankeyVertical
 } from "d3-sankey";
@@ -158,7 +159,6 @@ const KEYS = [
 const DEFAULT_COLOR = d3.scaleOrdinal(d3.schemePastel2);
 const HIGHLIGHT_COLOR = d3.color("#da4f81");
 const UNFOCUSED_OPACITY = 0.25;
-const ALIGN = sankeyLeft;
 const DECROSS_TIMEOUT = 1200;
 
 const LABEL_ABBREVIATE = 3;
@@ -322,7 +322,7 @@ function layoutSankey(dag, nodes, links) {
       [WIDTH_PADDING, HEIGHT_PADDING],
       [DEFAULT_WIDTH - WIDTH_PADDING * 3, DEFAULT_HEIGHT - HEIGHT_PADDING]
     ])
-    .nodeAlign(ALIGN)
+    .nodeAlign(this.flowJustified ? sankeyJustify : sankeyLeft)
     .nodeOrientation(this.orientation);
 
   const { nodes: newNodes, links: newLinks } = layout({
@@ -637,7 +637,13 @@ export default {
       return `${-WIDTH_PADDING} ${-HEIGHT_PADDING} ${DEFAULT_WIDTH +
         WIDTH_PADDING * 2} ${DEFAULT_HEIGHT + HEIGHT_PADDING * 6}`;
     },
-    ...mapState(["types", "selectedFuns", "flowsPerPage", "horizontalLayout"])
+    ...mapState([
+      "types",
+      "selectedFuns",
+      "flowsPerPage",
+      "flowJustified",
+      "horizontalLayout"
+    ])
   },
 
   methods: {
