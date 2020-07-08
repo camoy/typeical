@@ -82,7 +82,7 @@ const allAnalyzed = [];
 
 // [Listof (String, Number)]
 // List of dataset statistics
-const datasetStats = [];
+const datasetStats = { basic: [], detailed: [] };
 
 // [Listof String]
 // List of all the functions.
@@ -170,7 +170,8 @@ export default new Vuex.Store({
       state.allAnalyzed = val;
     },
     datasetStats(state, val) {
-      state.datasetStats = val;
+      if (val.basic) state.datasetStats.basic = val.data;
+      else state.datasetStats.detailed = val.data;
     },
     allFuns(state, val) {
       state.allFuns = val;
@@ -202,9 +203,14 @@ export default new Vuex.Store({
     // Query for the data set statistics
     queryStats({ commit }) {
       commit("incrementPending");
-      axios.get("api/stats").then(response => {
+      axios.get("api/stats", { params: { details: false } }).then(response => {
         commit("decrementPending");
-        commit("datasetStats", response.data);
+        commit("datasetStats", { basic: true, data: response.data });
+      });
+      commit("incrementPending");
+      axios.get("api/stats", { params: { details: true } }).then(response => {
+        commit("decrementPending");
+        commit("datasetStats", { basic: false, data: response.data });
       });
     },
 

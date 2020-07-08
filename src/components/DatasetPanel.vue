@@ -33,6 +33,9 @@
       <template v-slot:item.count="{ item }">
         <span>{{ plainFormat(item.count) }}</span>
       </template>
+      <template v-slot:item.countDet="{ item }">
+        <span>{{ plainFormat(item.countDet) }}</span>
+      </template>
     </v-data-table>
     <h3>Anayzed Packages</h3>
     <v-data-table
@@ -74,7 +77,7 @@
 }
 
 .summary-table {
-  width: 26rem;
+  width: 36rem;
 }
 
 .v-data-table thead tr th {
@@ -157,6 +160,14 @@ export default {
     // Returns the names and count of available statistics,
     // and the corresponding header
     stats() {
+      const detailedStats = this.datasetStats.detailed;
+      const mergedStats = this.datasetStats.basic.map(function(d, i) {
+        return {
+          name: d.name,
+          count: d.count,
+          countDet: detailedStats[i] ? detailedStats[i].count : 0
+        };
+      });
       return {
         headers: [
           {
@@ -164,9 +175,10 @@ export default {
             value: "name",
             align: "center"
           },
-          { text: "Count", value: "count", align: "center" }
+          { text: "Count", value: "count", align: "center" },
+          { text: "Count when Detailed", value: "countDet", align: "center" }
         ],
-        data: this.datasetStats
+        data: mergedStats
       };
     },
     ...mapState(["allAnalyzed", "datasetStats"])
