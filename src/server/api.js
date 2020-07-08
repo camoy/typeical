@@ -75,15 +75,15 @@ module.exports = (app, server) => {
   // GET /api/analyzed
   //
   router.get("/api/analyzed", function(req, res) {
-    const details = (req.query.details == 'true') || false;
-    query(details, ANALYZED, [], names => res.json(names));
+    query(false, ANALYZED, [], names => res.json(names));
   });
 
   //
-  // GET /api/analyzed
+  // GET /api/stats
   //
   router.get("/api/stats", function(req, res) {
-    query(DEFAULT_DETAILS, DATASET_STATS, [], items => res.json(items));
+    const details = (req.query.details == 'true') || false;
+    query(details, DATASET_STATS, [], items => res.json(items));
   });
 
   //
