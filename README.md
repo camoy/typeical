@@ -1,4 +1,4 @@
-# TypeVis
+# TyVis
 
 Install the application with `npm`.
 
