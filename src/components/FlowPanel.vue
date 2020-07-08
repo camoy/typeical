@@ -322,7 +322,7 @@ function layoutSankey(dag, nodes, links) {
       [WIDTH_PADDING, HEIGHT_PADDING],
       [DEFAULT_WIDTH - WIDTH_PADDING * 3, DEFAULT_HEIGHT - HEIGHT_PADDING]
     ])
-    .nodeAlign(this.flowJustified ? sankeyJustify : sankeyLeft)
+    .nodeAlign(this.flowsJustified ? sankeyJustify : sankeyLeft)
     .nodeOrientation(this.orientation);
 
   const { nodes: newNodes, links: newLinks } = layout({
@@ -641,7 +641,7 @@ export default {
       "types",
       "selectedFuns",
       "flowsPerPage",
-      "flowJustified",
+      "flowsJustified",
       "horizontalLayout"
     ])
   },

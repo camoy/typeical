@@ -24,9 +24,9 @@
       />
 
       <v-checkbox
-        v-model="$store.state.flowJustified"
+        v-model="$store.state.flowsJustified"
         label="Flows Justified"
-        @change="$store.commit('flowJustified', $store.state.flowJustified)"
+        @change="$store.commit('flowsJustified', $store.state.flowsJustified)"
       />
 
       <div class="v-input v-input--selection-controls div-setting">
