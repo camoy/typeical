@@ -48,6 +48,7 @@
           :y="(node.y1 + node.y0) / 2"
           :key="'flow-type-text-' + k"
         >
+          <title>{{ node.fullName }}</title>
           <tspan>{{ node.name }}</tspan>
           <!-- prettier-ignore -->
           <tspan
@@ -106,7 +107,6 @@
 }
 
 .flow-type-text {
-  pointer-events: none;
   font-size: 10px;
 }
 </style>
@@ -161,6 +161,7 @@ const UNFOCUSED_OPACITY = 0.25;
 const ALIGN = sankeyLeft;
 const DECROSS_TIMEOUT = 1200;
 
+const LABEL_ABBREVIATE = 3;
 const NODE_WIDTH = 2;
 const NODE_PADDING = 40;
 const DEFAULT_HEIGHT = 720;
@@ -329,9 +330,69 @@ function layoutSankey(dag, nodes, links) {
     links: links.map(d => Object.assign({}, d))
   });
 
+  // Abbreviate labels that overlap
+  const tree = d3.quadtree().addAll(makeBoundingPoints(newNodes));
+
+  for (let node of newNodes) {
+    let [x0, y0, x1, y1] = nodeBounds(node);
+    node.fullName = node.name;
+    search(tree, node, x0, y0, x1, y1 + 1);
+  }
+
   // Update nodes and links
   this.nodes = newNodes;
   this.links = newLinks;
+}
+
+// Nodes → [Listof Point]
+// Constructs the bounding rectangle points for every node.
+function makeBoundingPoints(nodes) {
+  let result = [];
+  for (let node of nodes) {
+    let [x0, y0, x1, y1] = nodeBounds(node);
+    result = result.concat([
+      [x0, y0, node],
+      [x1, y1, node]
+    ]);
+  }
+  return result;
+}
+
+// Node → [List Real Real Real Real]
+// Given a node, returns the edge points.
+function nodeBounds(node) {
+  const textSize = node.name.length * 5;
+  const center = (node.x0 + node.x1) / 2;
+  return [center - textSize / 2, node.y0, center + textSize / 2, node.y0];
+}
+
+// Tree Node Real Real Real Real → Any
+// Given the current node, abbreviates it if it intersects with any other nodes.
+function search(quadtree, cur, x0, y0, x3, y3) {
+  quadtree.visit(function(node, x1, y1, x2, y2) {
+    if (!node.length) {
+      do {
+        var d = node.data;
+        if (
+          d[0] >= x0 &&
+          d[0] < x3 &&
+          d[1] >= y0 &&
+          d[1] < y3 &&
+          d[2] !== cur
+        ) {
+          cur.name = abbreviate(cur.name);
+        }
+        node = node.next;
+      } while (node);
+    }
+    return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
+  });
+}
+
+// String → String
+// Abbreviate the given string.
+function abbreviate(str) {
+  return str.substring(0, LABEL_ABBREVIATE) + "…";
 }
 
 // JSON → JSON
