@@ -261,7 +261,7 @@ function updateSankeyWithReset() {
 // → Any
 // Create Sankey diagram from JSON data.
 function updateSankey() {
-  const data = removeNA(this.types);
+  const data = removeNA(this.types, this.flowsJustified);
 
   // No data (this is needed since `makeGraph` assumes data).
   if (data.length === 0) {
@@ -271,7 +271,8 @@ function updateSankey() {
 
   // Some data
   const { nodes, links } = makeGraph(
-    limitPageFlow(data, this.flowsPerPage, this.page)
+    limitPageFlow(data, this.flowsPerPage, this.page),
+    this.flowsJustified
   );
   this.$store.commit("incrementPending");
   decrossSankey.call(this, true, nodes, links);
@@ -395,15 +396,15 @@ function abbreviate(str) {
   return str.substring(0, LABEL_ABBREVIATE) + "…";
 }
 
-// JSON → JSON
+// JSON Boolean → JSON
 // Adjusts type data by removing all NA fields and shifting over the return type
 // after the last argument.
-function removeNA(data) {
+function removeNA(data, justified) {
   return data.map(row => {
     let d = { value: row.count, package: row.package };
     for (let k of KEYS) {
       if (row[k] == "NA" && k != "fun_name") {
-        d[k] = `→${row["arg_t_r"]}`;
+        d[justified ? "arg_t_r" : k] = `→${row["arg_t_r"]}`;
         break;
       }
       d[k] = row[k];
@@ -418,10 +419,10 @@ function limitPageFlow(data, limit, page) {
   return data.slice((page - 1) * limit, page * limit);
 }
 
-// JSON → [Array Node] [Array Links]
+// JSON Boolean → [Array Node] [Array Links]
 // Convert JSON representation of type data into a graph representation usable
 // by the D3 Sankey library (from https://observablehq.com/@d3/parallel-sets).
-function makeGraph(data) {
+function makeGraph(data, justified) {
   let index = -1;
   const nodes = [];
   const nodeByKey = new Map();
@@ -440,12 +441,15 @@ function makeGraph(data) {
     }
   }
   for (let i = 1; i < KEYS.length; ++i) {
-    const a = KEYS[i - 1];
-    const b = KEYS[i];
     const prefix = KEYS.slice(0, i + 1);
     const linkByKey = new Map();
     for (const d of data) {
-      if (!d[a] || !d[b]) continue;
+      let a = KEYS[i - 1];
+      let b = KEYS[i];
+      // Only use return type if justified
+      if (d[a] && !d[b] && justified) b = "arg_t_r";
+      else if (!d[a] || !d[b]) continue;
+
       const names = prefix.map(k => d[k]);
       const key = JSON.stringify(names);
       const value = d.value || 1;
