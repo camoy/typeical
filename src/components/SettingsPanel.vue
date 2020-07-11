@@ -171,10 +171,10 @@ export default {
         : [];
     },
     validFlows() {
-      return new Array(30).fill(1).map((min, i) => i + min);
+      return new Array(40).fill(1).map((min, i) => i + min);
     },
     validLimits() {
-      return new Array(61).fill(10).map((min, i) => i + min);
+      return new Array(71).fill(10).map((min, i) => i + min);
     },
     ...mapState(["allAnalyzed"])
   }

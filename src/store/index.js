@@ -34,7 +34,7 @@ const autocompleteWithFuns = true;
 
 // Natural
 // Number of datums loaded by default
-const defaultLimit = 36;
+const defaultLimit = 48;
 
 // Natural
 // Number of flows per page
