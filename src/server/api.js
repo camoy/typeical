@@ -38,7 +38,7 @@ const DATASET_STATS = `SELECT *  FROM stats`;
 const ANALYZED_EQ = "package_being_analyzed = ?";
 const PKG_EQ = "package = ?";
 const PKG_FUN_EQ = "(package = ? AND fun_name = ?)";
-const ARG_LIMITED = "(arg_t5 = 'NA')";
+const ARG_LIMITED = "(arg_t7 = 'NA')";
 
 const LIMIT = where => ` LIMIT ${where}`;
 const DEFAULT_LIMIT = 36;
