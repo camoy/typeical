@@ -149,7 +149,7 @@
     <h2>Acknowledgements</h2>
     <p>
       TYPEical builds on the work of many other open source projects. See
-      <a href="http://github.com/camoy/typevis">the Github page</a> for the full
+      <a href="http://github.com/camoy/typeical">the Github page</a> for the full
       list.<br />
       In particular, TYPEical redesigns this
       <a href="https://julia.prl.fit.cvut.cz/rtypes-viz">earlier project</a>.
