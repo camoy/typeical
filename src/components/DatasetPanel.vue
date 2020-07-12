@@ -2,7 +2,7 @@
   <div id="dataset-div" class="pa-10">
     <h2>Overview</h2>
     <p>
-      TyVis displays the results of a dynamic analysis of funcion calls in a
+      TYPEical displays the results of a dynamic analysis of funcion calls in a
       large number of
       <a href="https://www.r-project.org/">R</a> packages. <br />
       The data set is provided by

@@ -8,10 +8,10 @@ let router = express.Router();
 //
 // Database
 //
-const url    = process.env.TYPEVIS_DB;       // base information
-const urlDet = process.env.TYPEVIS_DB_DET ?  // detailed information
-  process.env.TYPEVIS_DB_DET : 
-  process.env.TYPEVIS_DB;
+const url    = process.env.TYPEICAL_DB;       // base information
+const urlDet = process.env.TYPEICAL_DB_DET ?  // detailed information
+  process.env.TYPEICAL_DB_DET :
+  process.env.TYPEICAL_DB;
 const sqlite3 = require("sqlite3").verbose();
 let db    = new sqlite3.Database(url);
 let dbDet = new sqlite3.Database(urlDet);
