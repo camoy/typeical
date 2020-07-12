@@ -145,7 +145,7 @@
       </li>
     </ul>
 
-    <p></p>
+    <!--<p></p>
     <h2>Acknowledgements</h2>
     <p>
       TyVis builds on the work of many other open source projects. See
@@ -153,7 +153,7 @@
       list.<br />
       In particular, TyVis redesigns this
       <a href="https://julia.prl.fit.cvut.cz/rtypes-viz">earlier project</a>.
-    </p>
+    </p>-->
   </div>
 </template>
 
