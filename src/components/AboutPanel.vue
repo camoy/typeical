@@ -9,7 +9,7 @@
       the underlying data set.
     </p>
     <p>
-      TypeViz provides facilities for filtering data and customizing the layout
+      TYPEical provides facilities for filtering data and customizing the layout
       and amount of information shown at a time.
     </p>
     <p>
