@@ -5,7 +5,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-import lodash from "lodash";
 Vue.use(Vuex);
 
 //
@@ -53,6 +52,11 @@ const horizontalLayout = false;
 // Boolean
 // If selecting a package should clear function selection
 const clearSelectedFunsOnPkg = true;
+
+//
+// Boolean
+// If flows in an excerpt should be grouped by function name on sorting
+const groupFlowsByFunName = true;
 
 //
 // Filtering
@@ -118,6 +122,7 @@ export default new Vuex.Store({
     flowsJustified,
     horizontalLayout,
     clearSelectedFunsOnPkg,
+    groupFlowsByFunName,
     selectedPkg,
     selectedFuns,
     allAnalyzed,
@@ -159,6 +164,9 @@ export default new Vuex.Store({
     },
     clearSelectedFunsOnPkg(state, val) {
       state.clearSelectedFunsOnPkg = val;
+    },
+    groupFlowsByFunName(state, val) {
+      state.groupFlowsByFunName = val;
     },
     selectedPkg(state, val) {
       state.selectedPkg = val;
@@ -264,21 +272,8 @@ export default new Vuex.Store({
           }
         })
         .then(response => {
-          // grou by function names before sorting
-          const groupedData = lodash.groupBy(response.data, "fun_name");
-          const groupedWeighedData = Object.keys(groupedData).map(function(k) {
-            return {
-              name: k,
-              data: groupedData[k],
-              count: groupedData[k].reduce((acc, d) => acc + d.count, 0)
-            };
-          });
-          let sortedData = groupedWeighedData
-            .sort((a, b) => b.count - a.count)
-            .map(a => a.data)
-            .flat();
           commit("decrementPending");
-          commit("types", sortedData);
+          commit("types", response.data);
         });
     },
 
@@ -307,6 +302,10 @@ export default new Vuex.Store({
     setDefaultLimit({ commit, dispatch }, defaultLimit) {
       commit("defaultLimit", defaultLimit);
       dispatch("queryTypes");
+    },
+
+    setGroupFlowsByFunName({ commit }, value) {
+      commit("groupFlowsByFunName", value);
     },
 
     setClearSelectedFunsOnPkg({ commit }, value) {

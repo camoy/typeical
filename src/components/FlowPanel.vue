@@ -117,6 +117,7 @@
 //
 import { mapState } from "vuex";
 import numeral from "numeral";
+import lodash from "lodash";
 import {
   sankey,
   sankeyLeft,
@@ -258,10 +259,34 @@ function updateSankeyWithReset() {
   updateSankey.call(this);
 }
 
+// [Array of Flows], Boolean → [Array of Flows]
+// If necessary, groups flows by function name
+function processFlows(flows, groupByFunName) {
+  if (groupByFunName) {
+    // group by function names before sorting
+    const groupedData = lodash.groupBy(flows, "fun_name");
+    const groupedWeighedData = Object.keys(groupedData).map(function(k) {
+      return {
+        name: k,
+        data: groupedData[k],
+        count: groupedData[k].reduce((acc, d) => acc + d.count, 0)
+      };
+    });
+    // sort using grouped information
+    let sortedData = groupedWeighedData
+      .sort((a, b) => b.count - a.count)
+      .map(a => a.data)
+      .flat();
+    return sortedData;
+  }
+  return flows;
+}
+
 // → Any
 // Create Sankey diagram from JSON data.
 function updateSankey() {
-  const data = removeNA(this.types, this.flowsJustified);
+  const flows = processFlows(this.types, this.groupFlowsByFunName);
+  const data = removeNA(flows, this.flowsJustified);
 
   // No data (this is needed since `makeGraph` assumes data).
   if (data.length === 0) {
@@ -624,6 +649,7 @@ export default {
     types: updateSankeyWithReset,
     horizontalLayout: updateSankey,
     page: updateSankey,
+    groupFlowsByFunName: updateSankey,
     flowsPerPage: updateSankey
   },
 
@@ -646,6 +672,7 @@ export default {
       "selectedFuns",
       "flowsPerPage",
       "flowsJustified",
+      "groupFlowsByFunName",
       "horizontalLayout"
     ])
   },

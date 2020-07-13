@@ -29,6 +29,14 @@
         @change="$store.commit('flowsJustified', $store.state.flowsJustified)"
       />
 
+      <v-checkbox
+        v-model="$store.state.groupFlowsByFunName"
+        label="Group Flows By Function Name"
+        @change="
+          $store.commit('groupFlowsByFunName', $store.state.groupFlowsByFunName)
+        "
+      />
+
       <div class="v-input v-input--selection-controls div-setting">
         <select
           v-model="$store.state.flowsPerPage"
