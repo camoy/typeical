@@ -91,8 +91,7 @@ CREATE INDEX package_index ON types(package);
 --
 
 .mode csv
-.import "OOPSLA2020-400pkgs.csv" types
---DELETE FROM types WHERE rowid = 1;
+.import "MYPATH.csv" types
 
 -- apparently, csv has been merged from multiple csv-files,
 -- so there are multiple title lines
@@ -140,13 +139,13 @@ CREATE INDEX count_aggr_index ON aggregated_types(count);
 INSERT INTO aggregated_types
 SELECT package_being_analyzed, package, fun_name, fun_id, dispatch, has_dots,
   arg_t_r, arg_t0, arg_t1, arg_t2, arg_t3, arg_t4, arg_t5,
-  arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12, 
+  arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12,
   arg_t13, arg_t14, arg_t15, arg_t16, arg_t17, arg_t18, arg_t19,
   SUM(count) as count
 FROM types
 GROUP BY package_being_analyzed, package, fun_name, fun_id, dispatch, has_dots,
   arg_t_r, arg_t0, arg_t1, arg_t2, arg_t3, arg_t4, arg_t5,
-  arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12, 
+  arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12,
   arg_t13, arg_t14, arg_t15, arg_t16, arg_t17, arg_t18, arg_t19
 ORDER BY count DESC;
 
@@ -191,13 +190,13 @@ CREATE INDEX count_aggr_all_index ON aggregated_types_all_analyzed(count);
 INSERT INTO aggregated_types_all_analyzed
 SELECT package, fun_name, fun_id, dispatch, has_dots,
   arg_t_r, arg_t0, arg_t1, arg_t2, arg_t3, arg_t4, arg_t5,
-  arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12, 
+  arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12,
   arg_t13, arg_t14, arg_t15, arg_t16, arg_t17, arg_t18, arg_t19,
   SUM(count) as count
 FROM aggregated_types
 GROUP BY package, fun_name, fun_id, dispatch, has_dots,
   arg_t_r, arg_t0, arg_t1, arg_t2, arg_t3, arg_t4, arg_t5,
-  arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12, 
+  arg_t6, arg_t7, arg_t8, arg_t9, arg_t10, arg_t11, arg_t12,
   arg_t13, arg_t14, arg_t15, arg_t16, arg_t17, arg_t18, arg_t19
 ORDER BY count DESC;
 
@@ -247,7 +246,7 @@ ORDER BY count DESC;
 
 
 CREATE TABLE init_packages(
-    "package" TEXT, 
+    "package" TEXT,
     "count" BIGINT
 );
 
@@ -281,4 +280,3 @@ GROUP BY package_being_analyzed, package, fun_name, fun_id
 ORDER BY count DESC;
 
 CREATE INDEX package_sums_index ON sums(package);
-
