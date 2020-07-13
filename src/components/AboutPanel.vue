@@ -15,6 +15,11 @@
     <p>
       The data used in the visualization is described in the
       <span class="text-tab"><a href="dataset">Dataset</a></span> section.
+      <br />
+      <span class="text-italic">Note.</span> Type
+      <span class="text-code">any</span> denotes the fact that the agrument has
+      not been used. Type <span class="text-code">…</span> corresponds to
+      vararg.
     </p>
 
     <h2>Overview</h2>
@@ -104,9 +109,9 @@
       <span class="text-bold">complete type information</span>. The following
       screenshot shows all available type signatures of function
       <span class="text-code">nlme.getCovariate</span>. The function always
-      takes a <span class="text-code">class</span> as the first argument and
-      most often takes <span class="text-code">any</span> as the second and
-      third arguments, with them sometimes having
+      takes a <span class="text-code">class</span> as the first argument, and
+      most often does not use the second and third arguments (this is denoted by
+      type <span class="text-code">any</span>), with them sometimes having
       <span class="text-code">class</span> type. The return type of the function
       varies, but most often it is either a
       <span class="text-code">list</span>
