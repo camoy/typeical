@@ -5,10 +5,10 @@
       TYPEical displays the results of a dynamic analysis of funcion calls in a
       large number of
       <a href="https://www.r-project.org/">R</a> packages. <br />
-      The data set is provided by
+      <!--The data set is provided by
       <a href="https://www.khoury.northeastern.edu/people/alexi-turcotte/"
         >Alexi Turcotte</a
-      >.
+      >.-->
     </p>
 
     <p>
