@@ -29,14 +29,6 @@
         @change="$store.commit('flowsJustified', $store.state.flowsJustified)"
       />
 
-      <v-checkbox
-        v-model="$store.state.groupFlowsByFunName"
-        label="Group Flows By Function Name"
-        @change="
-          $store.commit('groupFlowsByFunName', $store.state.groupFlowsByFunName)
-        "
-      />
-
       <div class="v-input v-input--selection-controls div-setting">
         <select
           v-model="$store.state.flowsPerPage"
@@ -52,9 +44,17 @@
           </option>
         </select>
         <label class="v-label label-setting" style="color: rgba(0, 0, 0, 0.6)">
-          Type flows shown per page
+          Type Flows shown per page
         </label>
       </div>
+
+      <v-checkbox
+        v-model="$store.state.groupFlowsByFunName"
+        label="Flows Grouped by function name"
+        @change="
+          $store.commit('groupFlowsByFunName', $store.state.groupFlowsByFunName)
+        "
+      />
 
       <h3>Data Search and Filtering</h3>
 
