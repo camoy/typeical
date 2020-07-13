@@ -22,6 +22,15 @@
       vararg.
     </p>
 
+    <h2>Demo</h2>
+    <video width="100%" controls="">
+      <source src="typeical-demo.mp4" type="video/mp4">
+      <p>
+        Your browser doesn't support HTML5 video. Here is a
+        <a href="typeical-demo.mp4">link to the video</a> instead.
+       </p>
+    </video>
+
     <h2>Overview</h2>
     <p>
       As the screenshot below demostrates, the main view of the visualization
