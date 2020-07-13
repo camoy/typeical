@@ -14,7 +14,7 @@
     </p>
     <p>
       The data used in the visualization is described in the
-      <span class="text-tab"><a href="/dataset">Dataset</a></span> section.
+      <span class="text-tab"><a href="dataset">Dataset</a></span> section.
     </p>
 
     <h2>Overview</h2>
