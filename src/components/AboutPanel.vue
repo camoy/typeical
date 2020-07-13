@@ -271,11 +271,11 @@ export default {
   data: () => ({
     showScreenshots: {
       layout: true,
-      default: false,
-      nlme: false,
-      nlmeHighlight: false,
-      nlmeFun: false,
-      nlmeFunDet: false
+      default: true,
+      nlme: true,
+      nlmeHighlight: true,
+      nlmeFun: true,
+      nlmeFunDet: true
     }
   })
 };
