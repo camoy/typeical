@@ -17,6 +17,12 @@
       ran over the test, example, and vignette code of each package.
     </p>
 
+    <p>
+      The data set comes in two versions: default and detailed. The latter
+      contains more fine grained <span class="text-code">list</span> and
+      <span class="text-code">class</span> types.
+    </p>
+
     <h2>Data Summary</h2>
     <h3>Analysis</h3>
     <v-data-table
