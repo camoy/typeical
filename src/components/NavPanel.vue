@@ -268,7 +268,7 @@ h4 {
 }
 @media (max-width: 1704px) {
   #treemapsDiv {
-    flex-direction: row;
+    flex-direction: column;
     max-width: 920px;
   }
   .v-text-field.v-text-field--enclosed.autocomplete-list {

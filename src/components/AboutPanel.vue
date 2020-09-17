@@ -1,35 +1,39 @@
 <template>
-  <div id="about-div" class="pa-10">
-    <h2>Motivation</h2>
-    <p>
-      TYPEical is an interactive visualization for exploration and analysis of
-      type usage in a programming language. It visualizes
-      <span class="text-bold">type signatures</span> of function calls as flows,
-      with the width corresponding to the popularity of the type signatures in
-      the underlying data set.
-    </p>
-    <p>
-      TYPEical provides facilities for filtering data and customizing the layout
-      and amount of information shown at a time.
-    </p>
-    <p>
-      The data used in the visualization is described in the
-      <span class="text-tab"><a href="dataset">Dataset</a></span> section.
-      <br />
-      <span class="text-italic">Note.</span> Type
-      <span class="text-code">any</span> denotes the fact that the agrument has
-      not been used. Type <span class="text-code">…</span> corresponds to
-      vararg.
-    </p>
+<div id="about-div" class="pa-10">
+  <p>
+    TYPEical is an interactive visualization for exploration and analysis of
+    type usage in a programming language. It visualizes
+    <span class="text-bold">type signatures</span> of function calls as flows,
+    with the width corresponding to the popularity of the type signatures in
+    the underlying data set.
+    TYPEical provides facilities for filtering data and customizing the layout
+    and amount of information shown at a time.
+    For more information, please see our short paper:
+  </p>
 
-    <h2>Demo</h2>
-    <video width="100%" controls="">
-      <source src="typeical-demo.mp4" type="video/mp4">
+  <p class="paper">
+    Just TYPEical: Visualizing Common Function Type Signatures in R <br />
+    Cameron Moy, Julia Belyakova, Alexi Turcotte, Sara Di Bartolomeo, Cody Dunne <br />
+    2020 IEEE Visualization Conference (VIS) Short Papers <br />
+    <a href="https://osf.io/pyqac/">Preprint</a>
+    &middot;
+    <a href="https://osf.io/mc6zt/">OSF</a>
+    &middot;
+    <a href="https://osf.io/u7mzd/">Talk</a>
+    &middot;
+    <a href="https://github.com/camoy/typeical">Github</a>
+  </p>
+
+  <h2>Demo</h2>
+  <video width="100%" controls="">
+    <source src="https://files.osf.io/v1/resources/mc6zt/providers/osfstorage/5f458d12bacde802b733b586"
+            type="video/mp4">
       <p>
         Your browser doesn't support HTML5 video. Here is a
-        <a href="typeical-demo.mp4">link to the video</a> instead.
-       </p>
-    </video>
+        <a href="https://files.osf.io/v1/resources/mc6zt/providers/osfstorage/5f458d12bacde802b733b586">link to the video</a>
+        instead.
+      </p>
+  </video>
 
     <h2>Overview</h2>
     <p>
@@ -238,9 +242,23 @@
 </template>
 
 <style>
+.paper {
+  border-left: 5px solid #ddd;
+  padding-left: 1em;
+}
+
+p, li {
+  max-width: 80ch;
+}
+
 .v-application p {
   margin-bottom: 10px;
   margin-top: 10px;
+}
+
+h2 {
+  margin-top: 0.75em;
+  margin-bottom: 0.5em;
 }
 
 h3 {
@@ -284,12 +302,12 @@ export default {
 
   data: () => ({
     showScreenshots: {
-      layout: true,
-      default: true,
-      nlme: true,
-      nlmeHighlight: true,
-      nlmeFun: true,
-      nlmeFunDet: true
+      layout: false,
+      default: false,
+      nlme: false,
+      nlmeHighlight: false,
+      nlmeFun: false,
+      nlmeFunDet: false
     }
   })
 };

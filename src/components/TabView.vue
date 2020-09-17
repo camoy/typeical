@@ -1,6 +1,13 @@
 <template>
   <div>
     <h1>TYPEical for R</h1>
+    <p class="authors">
+      <a href="http://camoy.name">Cameron Moy</a>,
+      <a href="https://julbinb.github.io/">Julia Belyakova</a>,
+      <a href="https://reallytg.github.io/">Alexi Turcotte</a>,
+      <a href="https://picorana.github.io/">Sara Di Bartolomeo</a>,
+      <a href="https://cody.khoury.northeastern.edu/">Cody Dunne</a>
+    </p>
     <v-tabs>
       <v-tab key="main" to="/"> TYPEical </v-tab>
       <v-tab key="settings" to="/settings"> Settings </v-tab>
@@ -12,9 +19,6 @@
 </template>
 
 <style>
-h1 {
-  margin-bottom: 0.5rem;
-}
 /* These are hacks to get the tab items to be full height. */
 .v-tabs {
   height: 100%;
@@ -30,6 +34,10 @@ h1 {
 .v-window-item .row,
 .v-window-item .col {
   height: 100% !important;
+}
+
+.authors {
+    margin-top: 0 !important;
 }
 </style>
 

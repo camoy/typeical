@@ -12,6 +12,7 @@
 </template>
 
 <style>
+
 #panels-container {
   max-width: 100%;
   padding: 0px;
@@ -32,14 +33,15 @@
 }
 
 @media (max-width: 1704px) {
+    /*
   #nav-panel {
-    min-width: 900px;
+    max-width: 900px;
   }
 
   .col-8 {
     max-width: 100%;
   }
-
+*/
   #flow-panel {
     flex: 0 0 100%;
   }
