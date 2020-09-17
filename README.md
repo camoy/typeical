@@ -6,7 +6,8 @@ Install the application with `npm`.
 npm install
 ```
 
-To create a database, edit `data/migrate.sql` and change `MYPATH.csv` to the path of the data. Running the following will create the database in `data.db`:
+To create a database, edit `data/migrate.sql` and change `MY_PATH.csv` to the path of the data.
+Run the following to create the database in `data.db`:
 
 ```
 sqlite3 data.db
@@ -14,7 +15,8 @@ sqlite3 data.db
 .exit
 ```
 
-Assuming you have the database stored at `data.db`, run the server by setting the right environment variable.
+Assuming you have the database stored at `data.db`,
+run the server by setting the right environment variable.
 
 ```
 TYPEICAL_DB=data.db npm run serve

@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-10">
+  <div class="pa-4">
     <v-form id="settings-form">
       <v-autocomplete
         v-model="$store.state.analyzed"

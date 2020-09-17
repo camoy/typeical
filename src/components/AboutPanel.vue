@@ -1,5 +1,5 @@
 <template>
-<div id="about-div" class="pa-10">
+<div id="about-div" class="pa-4">
   <p>
     TYPEical is an interactive visualization for exploration and analysis of
     type usage in a programming language. It visualizes

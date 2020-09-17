@@ -1,13 +1,11 @@
 <template>
-  <div id="dataset-div" class="pa-10">
+  <div id="dataset-div" class="pa-4">
     <p>
       TYPEical displays the results of a dynamic analysis of funcion calls in a
       large number of
       <a href="https://www.r-project.org/">R</a> packages.
       The data set is provided by
-      <a href="https://www.khoury.northeastern.edu/people/alexi-turcotte/">
-        Alexi Turcotte
-      </a>.
+      <a href="https://www.khoury.northeastern.edu/people/alexi-turcotte/">Alexi Turcotte</a>.
       All the analyzed packages have at least 65% code coverage and at least 5
       reverse dependencies (clients using that package). The dynamic analysis
       ran over the test, example, and vignette code of each package.
