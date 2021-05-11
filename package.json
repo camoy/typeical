@@ -15,7 +15,7 @@
     "d3-dag": "^0.3.5",
     "d3-sankey": "github:jayaddison/d3-sankey#66afca1",
     "express": "^4.17.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "numeral": "^2.0.6",
     "sqlite3": "^4.2.0",
     "vue": "^2.6.11",
